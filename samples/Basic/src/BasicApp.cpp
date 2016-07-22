@@ -22,7 +22,7 @@ public:
 
 private:
 	gl::SdfText::Font	mFont;
-	gl::SdfTextRef		mTextureFont;
+	gl::SdfTextRef		mSdfText;
 };
 
 void BasicApp::setup()
@@ -34,7 +34,7 @@ void BasicApp::setup()
 #else
 	mFont = gl::SdfText::Font( "Arial", 24 );
 #endif
-	mTextureFont = gl::SdfText::create( mFont );
+	mSdfText = gl::SdfText::create( mFont );
 }
 
 void BasicApp::keyDown( KeyEvent event )
@@ -43,11 +43,11 @@ void BasicApp::keyDown( KeyEvent event )
 		case '=':
 		case '+':
 			mFont = gl::SdfText::Font( mFont.getName(), mFont.getSize() + 1 );
-			mTextureFont = gl::SdfText::create( mFont );
+			mSdfText = gl::SdfText::create( mFont );
 		break;
 		case '-':
 			mFont = gl::SdfText::Font( mFont.getName(), mFont.getSize() - 1 );
-			mTextureFont = gl::SdfText::create( mFont );
+			mSdfText = gl::SdfText::create( mFont );
 		break;
 	}
 }
@@ -61,7 +61,7 @@ void BasicApp::mouseDown( MouseEvent event )
 		if( mFont.getGlyphChar( 'a' ) == 0 )
 			continue;
 		console() << mFont.getName() << std::endl;
-		mTextureFont = gl::SdfText::create( mFont );
+		mSdfText = gl::SdfText::create( mFont );
 		break;
 	}
 }
@@ -77,19 +77,19 @@ void BasicApp::draw()
 	gl::clear( Color( 0, 0, 0 ) );
 	
 	std::string str( "Granted, then, that certain transformations do happen, it is essential that we should regard them in the philosophic manner of fairy tales, not in the unphilosophic manner of science and the \"Laws of Nature.\" When we are asked why eggs turn into birds or fruits fall in autumn, we must answer exactly as the fairy godmother would answer if Cinderella asked her why mice turned into horses or her clothes fell from her at twelve o'clock. We must answer that it is MAGIC. It is not a \"law,\" for we do not understand its general formula." );
-	Rectf boundsRect( 40, mTextureFont->getAscent() + 40, getWindowWidth() - 40, getWindowHeight() - 40 );
+	Rectf boundsRect( 40, mSdfText->getAscent() + 40, getWindowWidth() - 40, getWindowHeight() - 40 );
 
 	gl::color( ColorA( 1, 0.5f, 0.25f, 1.0f ) );
 
-	mTextureFont->drawStringWrapped( str, boundsRect );
+	mSdfText->drawStringWrapped( str, boundsRect );
 
 	// Draw FPS
 	gl::color( Color::white() );
-	mTextureFont->drawString( toString( floor(getAverageFps()) ) + " FPS", vec2( 10, getWindowHeight() - mTextureFont->getDescent() ) );
+	mSdfText->drawString( toString( floor(getAverageFps()) ) + " FPS", vec2( 10, getWindowHeight() - mSdfText->getDescent() ) );
     
     // Draw Font Name
-	float fontNameWidth = mTextureFont->measureString( mTextureFont->getName() ).x;
-	mTextureFont->drawString( mTextureFont->getName(), vec2( getWindowWidth() - fontNameWidth - 10, getWindowHeight() - mTextureFont->getDescent() ) );
+	float fontNameWidth = mSdfText->measureString( mSdfText->getName() ).x;
+	mSdfText->drawString( mSdfText->getName(), vec2( getWindowWidth() - fontNameWidth - 10, getWindowHeight() - mSdfText->getDescent() ) );
 }
 
 void prepareSettings( App::Settings *settings )
