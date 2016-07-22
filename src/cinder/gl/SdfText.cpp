@@ -534,21 +534,26 @@ void SdfTextManager::acquireFontNamesAndPaths()
 		const std::string kTrueTypeTag = "(TrueType)";
 		std::wstring wsFontName = std::wstring( valueName, valueNameSize );
 		std::wstring wsFontFilePath = std::wstring( reinterpret_cast<LPWSTR>( valueData ), valueDataSize );
-		std::string fontName = ci::toUtf8( reinterpret_cast<const char16_t *>( wsFontName.c_str() ), wsFontName.length() * sizeof( char16_t ) );
-		std::string fontFilePath = ci::toUtf8( reinterpret_cast<const char16_t *>( wsFontFilePath.c_str() ), wsFontFilePath.length() * sizeof( char16_t ) );
-		if( std::string::npos != fontName.find( kTrueTypeTag ) ) {
-			boost::replace_all( fontName, kTrueTypeTag, "" );
-			std::string fontKey = boost::to_lower_copy( fontName );
-			auto it = std::find_if( std::begin( mFontInfos ), std::end( mFontInfos ),
-				[fontKey]( const FontInfo& elem ) -> bool {
-					return elem.key == fontKey;
+		try {
+			std::string fontName = ci::toUtf8( reinterpret_cast<const char16_t *>( wsFontName.c_str() ), wsFontName.length() * sizeof( char16_t ) );
+			std::string fontFilePath = ci::toUtf8( reinterpret_cast<const char16_t *>( wsFontFilePath.c_str() ), wsFontFilePath.length() * sizeof( char16_t ) );
+			if( std::string::npos != fontName.find( kTrueTypeTag ) ) {
+				boost::replace_all( fontName, kTrueTypeTag, "" );
+				std::string fontKey = boost::to_lower_copy( fontName );
+				auto it = std::find_if( std::begin( mFontInfos ), std::end( mFontInfos ),
+					[fontKey]( const FontInfo& elem ) -> bool {
+						return elem.key == fontKey;
+					}
+				);
+				if( std::end( mFontInfos ) == it ) {
+					FontInfo fontInfo = FontInfo( fontKey, fontName, "C:\\Windows\\Fonts\\" + fontFilePath );
+					mFontInfos.push_back( fontInfo );
+					mFontNames.push_back( fontName );
 				}
-			);
-			if( std::end( mFontInfos ) == it ) {
-				FontInfo fontInfo = FontInfo( fontKey, fontName, "C:\\Windows\\Fonts\\" + fontFilePath );
-				mFontInfos.push_back( fontInfo );
-				mFontNames.push_back( fontName );
 			}
+		}
+		catch( const std::exception& e ) {
+			// @TODO: Fix sporadic failure of font filepath.
 		}
 	} 
 	while( ERROR_NO_MORE_ITEMS != result  );
