@@ -1,4 +1,5 @@
 # Cinder-SDF
+Based on [msdfgen](https://github.com/Chlumsky/msdfgen) by Viktor Chlumský.
 
 ## Windows only for now! Linux and OS X coming soon!
 
