@@ -57,30 +57,38 @@ public:
 		virtual ~Format() {}
 
 		//! Sets the width of the textures created internally for glyphs. Default \c 1024
-		Format&		textureWidth( int32_t textureWidth ) { mTextureSize.x = textureWidth; return *this; }
+		Format&			textureWidth( int32_t textureWidth ) { mTextureSize.x = textureWidth; return *this; }
 		//! Returns the width of the textures created internally for glyphs. Default \c 1024
-		int32_t		getTextureWidth() const { return mTextureSize.x; }
+		int32_t			getTextureWidth() const { return mTextureSize.x; }
 		//! Sets the height of the textures created internally for glyphs. Default \c 1024
-		Format&		textureHeight( int32_t textureHeight ) { mTextureSize.y = textureHeight; return *this; }
+		Format&			textureHeight( int32_t textureHeight ) { mTextureSize.y = textureHeight; return *this; }
 		//! Returns the width of the textures created internally for glyphs. Default \c 1024
-		int32_t		getTextureHeight() const { return mTextureSize.y; }
+		int32_t			getTextureHeight() const { return mTextureSize.y; }
 		//! Returns the size of the textures created internally for glyphs. Default \c 1024x1024
-		ivec2		getTextureSize() const { return mTextureSize; }
+		const ivec2&	getTextureSize() const { return mTextureSize; }
 
-		Format&		sdfScale( const vec2 &value ) { mSdfScale = value; return *this; }
-		vec2		getSdfScale() const { return mSdfScale; }
+		Format&			sdfScale( const vec2 &value ) { mSdfScale = value; return *this; }
+		const vec2&		getSdfScale() const { return mSdfScale; }
 
-		Format&		sdfPadding( const ivec2 &value ) { mSdfScale = value; return *this; }
-		ivec2		getSdfPadding() const { return mSdfPadding; }
+		Format&			sdfPadding( const ivec2 &value ) { mSdfScale = value; return *this; }
+		const ivec2&	getSdfPadding() const { return mSdfPadding; }
 
-		Format&		sdfRange( float value ) { mSdfRange = value; return *this; }
-		float		getSdfRange() const { return mSdfRange; }
+		Format&			sdfRange( float value ) { mSdfRange = value; return *this; }
+		float			getSdfRange() const { return mSdfRange; }
+
+		Format&			sdfAngle( float value ) { mSdfAngle = value; return *this; }
+		float			getSdfAngle() const { return mSdfAngle; }
+
+		Format&			sdfTileSpacing( const ivec2& value ) { mSdfTileSpacing = value; return *this; }
+		const ivec2&	getSdfTileSpacing() const { return mSdfTileSpacing; }
 
 	private:
 		ivec2		mTextureSize = ivec2( 1024 );
-		vec2		mSdfScale = vec2( 1.0f );
+		vec2		mSdfScale = vec2( 2.0f );
 		ivec2		mSdfPadding = vec2( 2.0f );
-		float		mSdfRange = 16.0f;
+		float		mSdfRange = 8.0f;
+		float		mSdfAngle = 3.0f;
+		ivec2		mSdfTileSpacing = ivec2( 1 );
 	};
 
 	// ---------------------------------------------------------------------------------------------

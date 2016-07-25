@@ -114,8 +114,8 @@ static std::string kSdfFragShader =
 	"}\n"
 	"\n"
 	"void main() {\n"
-	"	float du = 1.0/uTexRes.x;\n"
-	"	float dv = 1.0/uTexRes.y;\n"
+	"	float du = 0.5/uTexRes.x;\n"
+	"	float dv = 0.5/uTexRes.y;\n"
 	"	vec3 sample0 = texture( uTex0, TexCoord + vec2( -du, -dv ) ).rgb;\n"
 	"	vec3 sample1 = texture( uTex0, TexCoord + vec2(  du, -dv ) ).rgb;\n"
 	"	vec3 sample2 = texture( uTex0, TexCoord + vec2( -du,  dv ) ).rgb;\n"
@@ -204,6 +204,8 @@ private:
 SdfText::TextureAtlas::TextureAtlas( FT_Face face, const SdfText::Format &format, const std::string &utf8Chars )
 	: mFace( face ), mSdfScale( format.getSdfScale() ), mSdfPadding( format.getSdfPadding() )
 {
+	const ivec2& tileSpacing = format.getSdfTileSpacing();
+
 	std::u32string utf32Chars = ci::toUtf32( utf8Chars );
 	// Add a space if needed
 	if( std::string::npos == utf8Chars.find( ' ' ) ) {
@@ -241,8 +243,8 @@ SdfText::TextureAtlas::TextureAtlas( FT_Face face, const SdfText::Format &format
 	// Determine render bitmap size
 	mSdfBitmapSize = SdfText::TextureAtlas::calculateSdfBitmapSize( mSdfScale, mSdfPadding, mMaxGlyphSize );
 	// Determine glyph counts (per texture atlas)
-	const size_t numGlyphColumns   = ( format.getTextureWidth()  / mSdfBitmapSize.x ) - 1;
-	const size_t numGlyphRows      = ( format.getTextureHeight() / mSdfBitmapSize.y ) - 1;
+	const size_t numGlyphColumns   = ( format.getTextureWidth()  / ( mSdfBitmapSize.x + tileSpacing.x ) );
+	const size_t numGlyphRows      = ( format.getTextureHeight() / ( mSdfBitmapSize.y + tileSpacing.y ) );
 	const size_t numGlyphsPerAtlas = numGlyphColumns * numGlyphRows;
 	
 	// Render position for each glyph
@@ -273,12 +275,12 @@ SdfText::TextureAtlas::TextureAtlas( FT_Face face, const SdfText::Format &format
 		++glyphIndexIt;
 		// Advance horizontal position
 		curRenderPos.x += mSdfBitmapSize.x;
-		curRenderPos.x += 1;
+		curRenderPos.x += tileSpacing.x;
 		// Move to next row if needed
 		if( 0 == ( curRenderIndex % numGlyphColumns ) ) {
 			curRenderPos.x = 0.0f;
 			curRenderPos.y += mSdfBitmapSize.y;
-			curRenderPos.y += 1;
+			curRenderPos.y += tileSpacing.y;
 		}
 
 		if( ( numGlyphsPerAtlas == curRenderIndex ) || ( glyphIndices.end() == glyphIndexIt ) ) {
@@ -300,6 +302,7 @@ SdfText::TextureAtlas::TextureAtlas( FT_Face face, const SdfText::Format &format
 
 	// Render the atlases
 	const double sdfRange = static_cast<double>( format.getSdfRange() );
+	const double sdfAngle = static_cast<double>( format.getSdfAngle() );
 	msdfgen::Bitmap<msdfgen::FloatRGB> sdfBitmap( mSdfBitmapSize.x, mSdfBitmapSize.y );
 	uint32_t currentTextureIndex = 0;
 	for( size_t atlasIndex = 0; atlasIndex < renderAtlases.size(); ++atlasIndex ) {
@@ -312,7 +315,7 @@ SdfText::TextureAtlas::TextureAtlas( FT_Face face, const SdfText::Format &format
 				shape.normalize();	
 				
 				// Edge color
-				msdfgen::edgeColoringSimple( shape, 3.0 );
+				msdfgen::edgeColoringSimple( shape, sdfAngle );
 					
 				// Generate SDF
 				vec2 originOffset = mGlyphMap[renderGlyph.glyphIndex].mOriginOffset;
@@ -345,7 +348,7 @@ SdfText::TextureAtlas::TextureAtlas( FT_Face face, const SdfText::Format &format
 		++currentTextureIndex;
 
 		// Debug output
-		// DEBUG: writeImage( "sdfText_" + std::to_string( atlasIndex ) + ".png", surface );
+		//writeImage( "sdfText_" + std::to_string( atlasIndex ) + ".png", surface );
 
 		// Reset
 		ip::fill( &surface, Color8u( 0, 0, 0 ) );		
@@ -568,10 +571,21 @@ void SdfTextManager::acquireFontNamesAndPaths()
 
 		// Build font info
 		const std::string kTrueTypeTag = "(TrueType)";
+		// Font name
 		std::wstring wsFontName = std::wstring( valueName, valueNameSize );
-		std::wstring wsFontFilePath = std::wstring( reinterpret_cast<LPWSTR>( valueData ), valueDataSize );
 		std::string fontName = ci::toUtf8( reinterpret_cast<const char16_t *>( wsFontName.c_str() ), wsFontName.length() * sizeof( char16_t ) );
+		// Font file path
+		//std::wstring wsFontFilePath = std::wstring( reinterpret_cast<LPWSTR>( valueData ), valueDataSize );
+		std::wstring wsFontFilePath;
+		for( size_t i = 0; i < valueDataSize; ++i ) {
+			WCHAR ch = reinterpret_cast<LPWSTR>( valueData )[i];
+			if( 0 == ch ) {
+				break;
+			}
+			wsFontFilePath.push_back( ch );		
+		}
 		std::string fontFilePath = ci::toUtf8( reinterpret_cast<const char16_t *>( wsFontFilePath.c_str() ), wsFontFilePath.length() * sizeof( char16_t ) );
+		// Process True Type font
 		if( std::string::npos != fontName.find( kTrueTypeTag ) ) {
 			boost::replace_all( fontName, kTrueTypeTag, "" );
 			std::string fontKey = boost::to_lower_copy( fontName );
@@ -917,7 +931,8 @@ SdfText::Font::GlyphMeasures SdfTextBox::measureGlyphs( const SdfText::Font::Gly
 	const float fontSizeScale = mFont.getSize() / 32.0f;
 	const float ascent        = mFont.getAscent();
 	const float descent       = mFont.getDescent();
-	const float leading       = mFont.getLeading() + drawOptions.getLeading();
+	//const float leading       = mFont.getLeading() + drawOptions.getLeading();
+	const float leading       = drawOptions.getLeading();
 	const float lineHeight    = fontSizeScale * ( ascent + descent + leading );
 
 	float curY = 0;
@@ -1179,7 +1194,9 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 		shader->uniform( "uBgColor", vec4( 0, 0, 0, 0) );
 	}
 
-	const float fontSizeScale = mFont.getSize() / 32.0f;
+	const vec2 fontRenderScale = vec2( mFont.getSize() ) / ( 32.0f * mTextureAtlases->mSdfScale );
+	const vec2 fontOriginScale = vec2( mFont.getSize() ) / 32.0f;
+
 	const float scale = options.getScale();
 	for( size_t texIdx = 0; texIdx < textures.size(); ++texIdx ) {
 		std::vector<float> verts, texCoords;
@@ -1207,14 +1224,14 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 			
 			Rectf srcTexCoords = curTex->getAreaTexCoords( glyphInfo.mTexCoords );
 			Rectf destRect( glyphInfo.mTexCoords );
-			destRect.scale( fontSizeScale );
+			destRect.scale( fontRenderScale );
 			destRect -= destRect.getUpperLeft();
 			destRect.scale( scale );
 			destRect += glyphIt->second * scale;
-			destRect += vec2( baseline.x, baseline.y - ( sdfBitmapSize.y * fontSizeScale ) );
-			vec2 originOffset = fontSizeScale * glyphInfo.mOriginOffset;
+			destRect += vec2( baseline.x, baseline.y - ( sdfBitmapSize.y * fontRenderScale.y ) );
+			vec2 originOffset = fontOriginScale * glyphInfo.mOriginOffset;
 			destRect += vec2( floor( originOffset.x + 0.5f ), floor( -originOffset.y ) ) * scale;
-			destRect += fontSizeScale * vec2( -sdfPadding.x, sdfPadding.y );
+			destRect += fontRenderScale * vec2( -sdfPadding.x, sdfPadding.y );
 			if( options.getPixelSnap() ) {
 				destRect -= vec2( destRect.x1 - floor( destRect.x1 ), destRect.y1 - floor( destRect.y1 ) );	
 			}
@@ -1325,7 +1342,9 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 		shader->uniform( "uBgColor", vec4( 0, 0, 0, 0) );
 	}
 
-	const float fontSizeScale = mFont.getSize() / 32.0f;
+	const vec2 fontRenderScale = vec2( mFont.getSize() ) / ( 32.0f * mTextureAtlases->mSdfScale );
+	const vec2 fontOriginScale = vec2( mFont.getSize() ) / 32.0f;
+
 	const float scale = options.getScale();
 	for( size_t texIdx = 0; texIdx < textures.size(); ++texIdx ) {
 		std::vector<float> verts, texCoords;
@@ -1353,14 +1372,14 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 
 			Rectf srcTexCoords = curTex->getAreaTexCoords( glyphInfo.mTexCoords );
 			Rectf destRect( glyphInfo.mTexCoords );
-			destRect.scale( fontSizeScale );
+			destRect.scale( fontRenderScale );
 			destRect -= destRect.getUpperLeft();
 			destRect.scale( scale );
 			destRect += glyphIt->second * scale;
 			destRect += vec2( offset.x, offset.y );
-			vec2 originOffset = fontSizeScale * glyphInfo.mOriginOffset;
+			vec2 originOffset = fontOriginScale * glyphInfo.mOriginOffset;
 			destRect += vec2( floor( originOffset.x + 0.5f ), floor( -originOffset.y ) ) * scale;
-			destRect += fontSizeScale * vec2( -sdfPadding.x, -sdfPadding.y );
+			destRect += fontRenderScale * vec2( -sdfPadding.x, -sdfPadding.y );
 			if( options.getPixelSnap() ) {
 				destRect -= vec2( destRect.x1 - floor( destRect.x1 ), destRect.y1 - floor( destRect.y1 ) );	
 			}

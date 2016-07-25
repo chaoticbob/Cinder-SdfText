@@ -94,7 +94,7 @@ void BasicApp::draw()
 
 void prepareSettings( App::Settings *settings )
 {
-	settings->setWindowSize( 720, 540 );
+	settings->setWindowSize( 720, 640 );
 }
 
 CINDER_APP( BasicApp, RendererGl, prepareSettings );
