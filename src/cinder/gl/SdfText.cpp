@@ -78,6 +78,7 @@ static std::string kSdfVertShader =
 	"	TexCoord = ciTexCoord0;\n"
 	"}\n";
 
+
 static std::string kSdfFragShader = 
 	"#version 150\n"
 	"uniform sampler2D uTex0;\n"
