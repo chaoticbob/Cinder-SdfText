@@ -28,11 +28,11 @@ private:
 void BasicApp::setup()
 {
 #if defined( CINDER_COCOA_TOUCH )
-	mFont = gl::SdfText::Font( "Cochin-Italic", 32 );
+	mFont = gl::SdfText::Font( "Cochin-Italic", 24 );
 #elif defined( CINDER_COCOA )
-	mFont = gl::SdfText::Font( "BigCaslon-Medium", 32 );
+	mFont = gl::SdfText::Font( "BigCaslon-Medium", 24 );
 #else
-	mFont = gl::SdfText::Font( "Arial", 32 );
+	mFont = gl::SdfText::Font( "Arial", 24 );
 #endif
 	mSdfText = gl::SdfText::create( mFont );
 }
@@ -94,7 +94,6 @@ void BasicApp::draw()
 
 void prepareSettings( App::Settings *settings )
 {
-	settings->setWindowSize( 720, 640 );
 }
 
 CINDER_APP( BasicApp, RendererGl, prepareSettings );

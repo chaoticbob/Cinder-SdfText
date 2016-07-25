@@ -86,7 +86,7 @@ public:
 		ivec2		mTextureSize = ivec2( 1024 );
 		vec2		mSdfScale = vec2( 2.0f );
 		ivec2		mSdfPadding = vec2( 2.0f );
-		float		mSdfRange = 8.0f;
+		float		mSdfRange = 4.0f;
 		float		mSdfAngle = 3.0f;
 		ivec2		mSdfTileSpacing = ivec2( 1 );
 	};
