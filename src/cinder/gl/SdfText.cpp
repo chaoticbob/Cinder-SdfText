@@ -92,11 +92,42 @@ static std::string kSdfFragShader =
 	"\n"
 	"void main() {\n"
 	"	vec3 sample = texture( uTex0, TexCoord ).rgb;\n"
-	"	float sigDist = median( sample.r, sample.g, sample.b ) - 0.5;\n"
-	"	float opacity = clamp( sigDist / fwidth(sigDist) + 0.5, 0.0, 1.0 );\n"
+	"	float sigDist = median( sample.r, sample.g, sample.b );\n"
+	"   float w = fwidth( sigDist );\n"
+	"	float opacity = smoothstep( 0.5 - w, 0.5 + w, sigDist );\n"
 	"	Color = mix( uBgColor, uFgColor, opacity );\n"
-	//"	Color = vec4( 1, 0, 0, 1 );\n"
+	"	Color.a = opacity;\n"
 	"}\n";
+
+/*
+static std::string kSdfFragShader = 
+	"#version 150\n"
+	"uniform sampler2D uTex0;\n"
+	"uniform vec4      uBgColor;\n"
+	"uniform vec4      uFgColor;\n"
+	"uniform vec2      uTexRes;\n"
+	"in vec2           TexCoord;\n"
+	"out vec4          Color;\n"
+	"\n"
+	"float median( float r, float g, float b ) {\n"
+	"	return max( min( r, g ), min( max( r, g ), b ) );\n"
+	"}\n"
+	"\n"
+	"void main() {\n"
+	"	float du = 1.0/uTexRes.x;\n"
+	"	float dv = 1.0/uTexRes.y;\n"
+	"	vec3 sample0 = texture( uTex0, TexCoord + vec2( -du, -dv ) ).rgb;\n"
+	"	vec3 sample1 = texture( uTex0, TexCoord + vec2(  du, -dv ) ).rgb;\n"
+	"	vec3 sample2 = texture( uTex0, TexCoord + vec2( -du,  dv ) ).rgb;\n"
+	"	vec3 sample3 = texture( uTex0, TexCoord + vec2(  du,  dv ) ).rgb;\n"
+	"	vec3 sample  = ( sample0 + sample1 + sample2 + sample3 )/4.0;\n"
+	"	float sigDist = median( sample.r, sample.g, sample.b );\n"
+	"   float w = fwidth( sigDist );\n"
+	"	float opacity = smoothstep( 0.5 - w, 0.5 + w, sigDist );\n"
+	"	Color = mix( uBgColor, uFgColor, opacity );\n"
+	"	Color.a = opacity;\n"
+	"}\n";
+*/
 
 static gl::GlslProgRef sDefaultShader;
 
@@ -268,6 +299,7 @@ SdfText::TextureAtlas::TextureAtlas( FT_Face face, const SdfText::Format &format
 	size_t surfaceRowBytes = surface.getRowBytes();
 
 	// Render the atlases
+	const double sdfRange = static_cast<double>( format.getSdfRange() );
 	msdfgen::Bitmap<msdfgen::FloatRGB> sdfBitmap( mSdfBitmapSize.x, mSdfBitmapSize.y );
 	uint32_t currentTextureIndex = 0;
 	for( size_t atlasIndex = 0; atlasIndex < renderAtlases.size(); ++atlasIndex ) {
@@ -286,7 +318,7 @@ SdfText::TextureAtlas::TextureAtlas( FT_Face face, const SdfText::Format &format
 				vec2 originOffset = mGlyphMap[renderGlyph.glyphIndex].mOriginOffset;
 				float tx = 0.0f + mSdfPadding.x;
 				float ty = std::fabs( originOffset.y ) + mSdfPadding.y;
-				msdfgen::generateMSDF( sdfBitmap, shape, 4.0, msdfgen::Vector2( mSdfScale.x, mSdfScale.y ), msdfgen::Vector2( tx, ty ) );
+				msdfgen::generateMSDF( sdfBitmap, shape, sdfRange, msdfgen::Vector2( mSdfScale.x, mSdfScale.y ), msdfgen::Vector2( tx, ty ) );
 
 				// Copy bitmap
 				size_t dstOffset = ( renderGlyph.position.y * surfaceRowBytes ) + ( renderGlyph.position.x * surfacePixelInc );
@@ -1144,6 +1176,7 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 
 	if( ! options.getGlslProg() ) {
 		shader->uniform( "uFgColor", gl::context()->getCurrentColor() );
+		shader->uniform( "uBgColor", vec4( 0, 0, 0, 0) );
 	}
 
 	const float fontSizeScale = mFont.getSize() / 32.0f;
@@ -1247,6 +1280,8 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 			}
 		}
 
+		shader->uniform( "uTexRes", vec2( curTex->getSize() ) );
+
 		defaultElementVbo->bufferSubData( 0, indices.size() * sizeof(curIdx), indices.data() );
 		ctx->getDefaultVao()->replacementBindEnd();
 		gl::setDefaultShaderVars();
@@ -1284,6 +1319,11 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 	}
 	ScopedTextureBind texBindScp( textures[0] );
 	ScopedGlslProg glslScp( shader );
+
+	if( ! options.getGlslProg() ) {
+		shader->uniform( "uFgColor", gl::context()->getCurrentColor() );
+		shader->uniform( "uBgColor", vec4( 0, 0, 0, 0) );
+	}
 
 	const float fontSizeScale = mFont.getSize() / 32.0f;
 	const float scale = options.getScale();
@@ -1406,6 +1446,8 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 				dataOffset += vertColors.size() * sizeof(ColorA8u);				
 			}
 		}
+
+		shader->uniform( "uTexRes", vec2( curTex->getSize() ) );
 
 		defaultElementVbo->bufferSubData( 0, indices.size() * sizeof(curIdx), indices.data() );
 		ctx->getDefaultVao()->replacementBindEnd();

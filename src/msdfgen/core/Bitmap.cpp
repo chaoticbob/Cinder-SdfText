@@ -10,43 +10,51 @@ Bitmap<T>::Bitmap() : content(NULL), w(0), h(0) { }
 
 template <typename T>
 Bitmap<T>::Bitmap(int width, int height) : w(width), h(height) {
-    content = new T[w*h];
+    //content = new T[w*h];
+	content.resize(w*h);
 }
 
 template <typename T>
 Bitmap<T>::Bitmap(const Bitmap<T> &orig) : w(orig.w), h(orig.h) {
-    content = new T[w*h];
-    memcpy(content, orig.content, w*h*sizeof(T));
+    //content = new T[w*h];
+	content.reserve(w*h);
+    std::memcpy(content.data(), orig.content.data(), w*h*sizeof(T));
 }
 
 #ifdef MSDFGEN_USE_CPP11
+//template <typename T>
+//Bitmap<T>::Bitmap(Bitmap<T> &&orig) : content(orig.content), w(orig.w), h(orig.h) {
+//    orig.content = NULL;
+//}
 template <typename T>
-Bitmap<T>::Bitmap(Bitmap<T> &&orig) : content(orig.content), w(orig.w), h(orig.h) {
-    orig.content = NULL;
+Bitmap<T>::Bitmap(Bitmap<T> &&orig) : w(orig.w), h(orig.h) {
+    content = std::move(orig.content);
 }
 #endif
 
 template <typename T>
 Bitmap<T>::~Bitmap() {
-    delete [] content;
+    //delete [] content;
 }
 
 template <typename T>
 Bitmap<T> & Bitmap<T>::operator=(const Bitmap<T> &orig) {
-    delete [] content;
+    //delete [] content;
     w = orig.w, h = orig.h;
-    content = new T[w*h];
-    memcpy(content, orig.content, w*h*sizeof(T));
+    //content = new T[w*h];
+	content.resize(w*h);
+    std::memcpy(content.data(), orig.content.data(), w*h*sizeof(T));
     return *this;
 }
 
 #ifdef MSDFGEN_USE_CPP11
 template <typename T>
 Bitmap<T> & Bitmap<T>::operator=(Bitmap<T> &&orig) {
-    delete [] content;
-    content = orig.content;
+    //delete [] content;
+    //content = orig.content;
+	content = std::move(orig.content);
     w = orig.w, h = orig.h;
-    orig.content = NULL;
+    //orig.content = NULL;
     return *this;
 }
 #endif
@@ -69,6 +77,22 @@ T & Bitmap<T>::operator()(int x, int y) {
 template <typename T>
 const T & Bitmap<T>::operator()(int x, int y) const {
     return content[y*w+x];
+}
+
+template <typename T> struct ClearOp {};
+
+template <> struct ClearOp<float> {
+	static float Value() { return 0.0f; }
+};
+
+template <> struct ClearOp<FloatRGB> {
+	static FloatRGB Value() { return FloatRGB(0.0f, 0.0f, 0.0f); }
+};
+
+template <typename T>
+void Bitmap<T>::clear()
+{
+	std::fill(std::begin(content), std::end(content), ClearOp<T>::Value() );
 }
 
 template class Bitmap<float>;

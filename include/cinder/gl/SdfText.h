@@ -73,10 +73,14 @@ public:
 		Format&		sdfPadding( const ivec2 &value ) { mSdfScale = value; return *this; }
 		ivec2		getSdfPadding() const { return mSdfPadding; }
 
+		Format&		sdfRange( float value ) { mSdfRange = value; return *this; }
+		float		getSdfRange() const { return mSdfRange; }
+
 	private:
 		ivec2		mTextureSize = ivec2( 1024 );
 		vec2		mSdfScale = vec2( 1.0f );
 		ivec2		mSdfPadding = vec2( 2.0f );
+		float		mSdfRange = 16.0f;
 	};
 
 	// ---------------------------------------------------------------------------------------------
@@ -124,7 +128,7 @@ public:
 
 	  protected:
 		bool			mClipHorizontal, mClipVertical, mPixelSnap, mLigate;
-		float			mScale = 1.0;
+		float			mScale = 2.0;
 		float			mLeading = 0.0f;
 		GlslProgRef		mGlslProg;
 	};

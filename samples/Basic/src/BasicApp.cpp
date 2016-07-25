@@ -32,7 +32,8 @@ void BasicApp::setup()
 #elif defined( CINDER_COCOA )
 	mFont = gl::SdfText::Font( "BigCaslon-Medium", 32 );
 #else
-	mFont = gl::SdfText::Font( "Arial", 32 );
+	//mFont = gl::SdfText::Font( "Kristen ITC", 32 );
+	mFont = gl::SdfText::Font( "Showcard Gothic", 32 );
 #endif
 	mSdfText = gl::SdfText::create( mFont );
 }
@@ -94,6 +95,7 @@ void BasicApp::draw()
 
 void prepareSettings( App::Settings *settings )
 {
+	settings->setWindowSize( 720, 540 );
 }
 
 CINDER_APP( BasicApp, RendererGl, prepareSettings );

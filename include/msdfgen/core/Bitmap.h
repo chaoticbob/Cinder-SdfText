@@ -1,11 +1,15 @@
 
 #pragma once
 
+#include <vector>
+
 namespace msdfgen {
 
 /// A floating-point RGB pixel.
 struct FloatRGB {
     float r, g, b;
+	FloatRGB() {}
+	FloatRGB(float pr, float pg, float pb) : r(pr), g(pg), b(pb) {}
 };
 
 /// A 2D image bitmap.
@@ -31,8 +35,10 @@ public:
     T & operator()(int x, int y);
     const T & operator()(int x, int y) const;
 
+	void clear();
+
 private:
-    T *content;
+	std::vector<T> content;
     int w, h;
 
 };
