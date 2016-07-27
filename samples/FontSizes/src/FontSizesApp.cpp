@@ -46,6 +46,13 @@ private:
 
 void FontSizesApp::setup()
 {
+#if defined( CINDER_MSW )
+	// For AllSamples
+	addAssetDirectory( getAppPath() / "../../../../FontSizes/assets" );
+#endif
+
+	mTex = gl::Texture::create( loadImage( getAssetPath( "bg.png" ) ) );
+
 	mTextInfos.push_back( TextInfo( "Arial", 6.0f, vec2( 10,  64 + 1*50 ), 8.0f ) );
 	mTextInfos.push_back( TextInfo( "Arial", 16.0f, vec2( 10,  64 + 2*50 ), 3.0f ) );
 	
@@ -62,7 +69,6 @@ void FontSizesApp::setup()
 	mTextInfos.push_back( TextInfo( "Times New Roman", 112.0f, vec2( 10, 832 + 2*50 ), 0.5f ) );
 
 	generateSdf();
-	mTex = gl::Texture::create( loadImage( getAssetPath( "bg.png" ) ) );
 }
 
 void FontSizesApp::generateSdf()
