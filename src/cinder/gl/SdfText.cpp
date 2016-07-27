@@ -100,11 +100,9 @@ static std::string kSdfFragMinimalShader =
 	"    float toPixels = 8.0 * inversesqrt( dx * dx + dy * dy );\n"
 	"    float sigDist = median( sample.r, sample.g, sample.b ) - 0.5;\n"
 	"    float opacity = clamp( sigDist * toPixels + 0.5, 0.0, 1.0 );\n"
-    "    // If enabled apply pre-multiplied alpha with gamma correction.\n"
-	"    float m0 = 1.0 - uPremultiply;\n"
-	"    float m1 = uPremultiply;\n"
-	"    Color.a = m0 * ( uFgColor.a * opacity ) + m1 * pow( uFgColor.a * opacity, 1.0 / uGamma );\n"
-	"    Color.rgb = m0 * uFgColor.rgb + m1 * ( uFgColor.rgb * Color.a );\n"
+    "    // If enabled apply pre-multiplied alpha. Always apply gamma correction.\n"
+	"    Color.a = pow( uFgColor.a * opacity, 1.0 / uGamma );\n"
+	"    Color.rgb = mix( uFgColor.rgb, uFgColor.rgb * Color.a, uPremultiply );\n"
 	"}\n";
 
 static std::string kSdfFragShader = 
@@ -144,11 +142,9 @@ static std::string kSdfFragShader =
 	"    const float kNormalization = kThickness * 0.5 * sqrt( 2.0 );\n"
 	"    float afwidth = min( kNormalization * length( grad ), 0.5 );\n"
 	"    float opacity = smoothstep( 0.0 - afwidth, 0.0 + afwidth, sigDist );\n"
-	"    // If enabled apply pre-multiplied alpha with gamma correction.\n"
-	"    float m0 = 1.0 - uPremultiply;\n"
-	"    float m1 = uPremultiply;\n"
-	"    Color.a = m0 * ( uFgColor.a * opacity ) + m1 * pow( uFgColor.a * opacity, 1.0 / uGamma );\n"
-	"    Color.rgb = m0 * uFgColor.rgb + m1 * ( uFgColor.rgb * Color.a );\n"
+    "    // If enabled apply pre-multiplied alpha. Always apply gamma correction.\n"
+	"    Color.a = pow( uFgColor.a * opacity, 1.0 / uGamma );\n"
+	"    Color.rgb = mix( uFgColor.rgb, uFgColor.rgb * Color.a, uPremultiply );\n"
 	"}\n";
 
 static gl::GlslProgRef sDefaultMinimalShader;
