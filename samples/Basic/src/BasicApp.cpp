@@ -23,6 +23,7 @@ public:
 private:
 	gl::SdfText::Font	mFont;
 	gl::SdfTextRef		mSdfText;
+	bool				mPremultiply = false;
 };
 
 void BasicApp::setup()
@@ -48,6 +49,10 @@ void BasicApp::keyDown( KeyEvent event )
 		case '-':
 			mFont = gl::SdfText::Font( mFont.getName(), mFont.getSize() - 1 );
 			mSdfText = gl::SdfText::create( mFont );
+		break;
+		case 'p':
+		case 'P':
+			mPremultiply = ! mPremultiply;
 		break;
 	}
 }
@@ -81,15 +86,17 @@ void BasicApp::draw()
 
 	gl::color( ColorA( 1, 0.5f, 0.25f, 1.0f ) );
 
-	mSdfText->drawStringWrapped( str, boundsRect );
+	auto drawOptions = gl::SdfText::DrawOptions().premultiply( mPremultiply );
+
+	mSdfText->drawStringWrapped( str, boundsRect, vec2( 0 ), drawOptions );
 
 	// Draw FPS
 	gl::color( Color::white() );
-	mSdfText->drawString( toString( floor(getAverageFps()) ) + " FPS", vec2( 10, getWindowHeight() - mSdfText->getDescent() ) );
+	mSdfText->drawString( toString( floor( getAverageFps() ) ) + " FPS | " + std::string( mPremultiply ? "premult" : "" ), vec2( 10, getWindowHeight() - mSdfText->getDescent() ), drawOptions );
     
     // Draw Font Name
 	float fontNameWidth = mSdfText->measureString( mSdfText->getName() ).x;
-	mSdfText->drawString( mSdfText->getName(), vec2( getWindowWidth() - fontNameWidth - 10, getWindowHeight() - mSdfText->getDescent() ) );
+	mSdfText->drawString( mSdfText->getName(), vec2( getWindowWidth() - fontNameWidth - 10, getWindowHeight() - mSdfText->getDescent() ), drawOptions );
 }
 
 void prepareSettings( App::Settings *settings )

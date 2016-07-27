@@ -83,6 +83,8 @@ static std::string kSdfFragMinimalShader =
 	"#version 150\n"
 	"uniform sampler2D uTex0;\n"
 	"uniform vec4      uFgColor;\n"
+	"uniform float     uPremultiply;\n"
+	"uniform float     uGamma;\n"
 	"in vec2           TexCoord;\n"
 	"out vec4          Color;\n"
 	"\n"
@@ -91,22 +93,26 @@ static std::string kSdfFragMinimalShader =
 	"}\n"
 	"\n"
 	"void main() {\n"
-	"   vec3 sample = texture( uTex0, TexCoord ).rgb;\n"
-	"   ivec2 sz = textureSize( uTex0, 0 );\n"
-	"   float dx = dFdx( TexCoord.x ) * sz.x;\n"
-	"   float dy = dFdy( TexCoord.y ) * sz.y;\n"
-	"   float toPixels = 8.0 * inversesqrt( dx * dx + dy * dy );\n"
-	"   float sigDist = median( sample.r, sample.g, sample.b ) - 0.5;\n"
-	"   float opacity = clamp( sigDist * toPixels + 0.5, 0.0, 1.0 );\n"
-    "   // Apply pre-multiplied alpha with gamma correction.\n"
-    "   Color.a = pow( uFgColor.a * opacity, 1.0 / 2.2 );\n"
-    "   Color.rgb = uFgColor.rgb * Color.a;\n"
+	"    vec3 sample = texture( uTex0, TexCoord ).rgb;\n"
+	"    ivec2 sz = textureSize( uTex0, 0 );\n"
+	"    float dx = dFdx( TexCoord.x ) * sz.x;\n"
+	"    float dy = dFdy( TexCoord.y ) * sz.y;\n"
+	"    float toPixels = 8.0 * inversesqrt( dx * dx + dy * dy );\n"
+	"    float sigDist = median( sample.r, sample.g, sample.b ) - 0.5;\n"
+	"    float opacity = clamp( sigDist * toPixels + 0.5, 0.0, 1.0 );\n"
+    "    // If enabled apply pre-multiplied alpha with gamma correction.\n"
+	"    float m0 = 1.0 - uPremultiply;\n"
+	"    float m1 = uPremultiply;\n"
+	"    Color.a = m0 * ( uFgColor.a * opacity ) + m1 * pow( uFgColor.a * opacity, 1.0 / uGamma );\n"
+	"    Color.rgb = m0 * uFgColor.rgb + m1 * ( uFgColor.rgb * Color.a );\n"
 	"}\n";
 
 static std::string kSdfFragShader = 
 	"#version 150\n"
 	"uniform sampler2D uTex0;\n"
 	"uniform vec4      uFgColor;\n"
+	"uniform float     uPremultiply;\n"
+	"uniform float     uGamma;\n"
 	"in vec2           TexCoord;\n"
 	"out vec4          Color;\n"
 	"\n"
@@ -138,9 +144,11 @@ static std::string kSdfFragShader =
 	"    const float kNormalization = kThickness * 0.5 * sqrt( 2.0 );\n"
 	"    float afwidth = min( kNormalization * length( grad ), 0.5 );\n"
 	"    float opacity = smoothstep( 0.0 - afwidth, 0.0 + afwidth, sigDist );\n"
-	"    // Apply pre-multiplied alpha with gamma correction.\n"
-	"    Color.a = pow( uFgColor.a * opacity, 1.0 / 2.2 );\n"
-	"    Color.rgb = uFgColor.rgb * Color.a;\n"
+	"    // If enabled apply pre-multiplied alpha with gamma correction.\n"
+	"    float m0 = 1.0 - uPremultiply;\n"
+	"    float m1 = uPremultiply;\n"
+	"    Color.a = m0 * ( uFgColor.a * opacity ) + m1 * pow( uFgColor.a * opacity, 1.0 / uGamma );\n"
+	"    Color.rgb = m0 * uFgColor.rgb + m1 * ( uFgColor.rgb * Color.a );\n"
 	"}\n";
 
 static gl::GlslProgRef sDefaultMinimalShader;
@@ -611,6 +619,7 @@ void SdfTextManager::acquireFontNamesAndPaths()
 		// Process True Type font
 		if( std::string::npos != fontName.find( kTrueTypeTag ) ) {
 			boost::replace_all( fontName, kTrueTypeTag, "" );
+			boost::trim( fontName );
 			std::string fontKey = boost::to_lower_copy( fontName );
 			auto it = std::find_if( std::begin( mFontInfos ), std::end( mFontInfos ),
 				[fontKey]( const FontInfo& elem ) -> bool {
@@ -618,9 +627,33 @@ void SdfTextManager::acquireFontNamesAndPaths()
 				}
 			);
 			if( std::end( mFontInfos ) == it ) {
-				FontInfo fontInfo = FontInfo( fontKey, fontName, "C:\\Windows\\Fonts\\" + fontFilePath );
-				mFontInfos.push_back( fontInfo );
-				mFontNames.push_back( fontName );
+				fontFilePath = "C:\\Windows\\Fonts\\" + fontFilePath;
+				if( fs::exists( fontFilePath ) ) {
+					// Build font info
+					FontInfo fontInfo = FontInfo( fontKey, fontName, fontFilePath );
+					mFontInfos.push_back( fontInfo );
+					mFontNames.push_back( fontName );
+
+					/*
+					FT_Face face = nullptr;
+					FT_Error ftErr = FT_New_Face( mLibrary, fontFilePath.c_str(), 0, &face );
+					if( FT_Err_Ok == ftErr ) {
+						std::string styleName = face->style_name;
+						boost::trim( styleName );
+						std::string styleKey = boost::to_lower_copy( styleName );
+						if( "regular" != styleKey ) {
+							fontKey = fontKey + " " + styleKey;
+							fontName = fontName + " " + styleName;
+						}
+						// Build font info
+						FontInfo fontInfo = FontInfo( fontKey, fontName, fontFilePath );
+						mFontInfos.push_back( fontInfo );
+						mFontNames.push_back( fontName );
+						// Destroy face
+						FT_Done_Face( face );
+					}
+					*/
+				}
 			}
 		}
 	} 
@@ -757,21 +790,38 @@ SdfTextManager::FontInfo SdfTextManager::getFontInfo( const std::string& fontNam
 #endif
 
 	std::string lcfn = boost::to_lower_copy( fontName );
-	std::vector<std::string> tokens = ci::split( lcfn, ' ' );
-	float highScore = 0.0f;
-	for( const auto& fontInfos : mFontInfos ) {
-		int hits = 0;
-		for( const auto& tok : tokens ) {
-			if( std::string::npos != fontInfos.key.find( tok ) ) {
-				hits += static_cast<int>( tok.size() );	
-			}
-		}
+	boost::trim( lcfn );
 
-		if( hits > 0 ) {
-			float score = (float)hits/(float)(fontInfos.key.length());
-			if( score > highScore ) {
-				highScore = score;
-				result = fontInfos;
+	auto it = std::find_if( std::begin( mFontInfos ), std::end( mFontInfos ),
+		[lcfn]( const SdfTextManager::FontInfo &elem ) -> bool {
+			return elem.key == lcfn;
+		}
+	);
+
+	if( std::end( mFontInfos ) != it ) {
+		result = *it;
+	}
+	else {
+		std::vector<std::string> tokens = ci::split( lcfn, ' ' );
+		float highScore = 0.0f;
+		for( const auto& fontInfos : mFontInfos ) {
+			int hits = 0;
+			for( const auto& tok : tokens ) {
+				if( std::string::npos != fontInfos.key.find( tok ) ) {
+					hits += static_cast<int>( tok.size() );	
+				}
+			}
+
+			if( hits > 0 ) {
+				std::vector<std::string> keyTokens = ci::split( fontInfos.key, ' ' );
+				float keyScore = ( keyTokens.size() == tokens.size() ) ? 0.25f : 0.0f;
+				float hitScore = static_cast<float>( hits ) / static_cast<float>( fontInfos.key.length() - ( keyTokens.size() - 1 ) );
+				hitScore = 0.75f * std::min( hitScore, 1.0f );
+				float totalScore = keyScore + hitScore;
+				if( totalScore > highScore ) {
+					highScore = totalScore;
+					result = fontInfos;
+				}
 			}
 		}
 	}
@@ -1233,7 +1283,8 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 
 	if( ! options.getGlslProg() ) {
 		shader->uniform( "uFgColor", gl::context()->getCurrentColor() );
-		shader->uniform( "uBgColor", vec4( 0, 0, 0, 0) );
+		shader->uniform( "uPremultiply", options.getPremultiply() ? 1.0f : 0.0f );
+		shader->uniform( "uGamma", options.getGamma() );
 	}
 
 	const vec2 fontRenderScale = vec2( mFont.getSize() ) / ( 32.0f * mTextureAtlases->mSdfScale );
@@ -1396,7 +1447,8 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 
 	if( ! options.getGlslProg() ) {
 		shader->uniform( "uFgColor", gl::context()->getCurrentColor() );
-		shader->uniform( "uBgColor", vec4( 0, 0, 0, 0) );
+		shader->uniform( "uPremultiply", options.getPremultiply() ? 1.0f : 0.0f );
+		shader->uniform( "uGamma", options.getGamma() );
 	}
 
 	const vec2 fontRenderScale = vec2( mFont.getSize() ) / ( 32.0f * mTextureAtlases->mSdfScale );

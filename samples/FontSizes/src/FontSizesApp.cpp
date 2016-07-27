@@ -41,6 +41,7 @@ private:
 	void generateSdf();
 
 	gl::TextureRef			mTex;
+	bool					mPremultiply = false;
 };
 
 void FontSizesApp::setup()
@@ -78,6 +79,7 @@ void FontSizesApp::keyDown( KeyEvent event )
 
 void FontSizesApp::mouseDown( MouseEvent event )
 {
+	mPremultiply = ! mPremultiply;
 }
 
 void FontSizesApp::update()
@@ -114,7 +116,7 @@ void FontSizesApp::draw()
 				gl::scale( vec2( ti.mDrawScale ) );
 
 				gl::color( 1, 1, 1 );
-				ti.mSdfText->drawString( str, vec2( 0 ), gl::SdfText::DrawOptions().scale( 1.0f ) );
+				ti.mSdfText->drawString( str, vec2( 0 ), gl::SdfText::DrawOptions().scale( 1.0f ).premultiply( mPremultiply ) );
 			}
 
 			{
@@ -125,7 +127,7 @@ void FontSizesApp::draw()
 				gl::color( 0.1f, 1, 1 );
 				std::stringstream ss;
 				ss << ti.mFont.getSize() << "pt @ " << (int)(ti.mDrawScale*100.0f) << "%";
-				ti.mSdfText->drawString( ss.str(), vec2( 0 ), gl::SdfText::DrawOptions().scale( 1.0f ) );
+				ti.mSdfText->drawString( ss.str(), vec2( 0 ), gl::SdfText::DrawOptions().scale( 1.0f ).premultiply( mPremultiply ) );
 			}
 		}
 	}

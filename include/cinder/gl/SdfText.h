@@ -84,12 +84,12 @@ public:
 		const ivec2&	getSdfTileSpacing() const { return mSdfTileSpacing; }
 
 	private:
-		ivec2		mTextureSize = ivec2( 1024 );
-		vec2		mSdfScale = vec2( 2.0f );
-		ivec2		mSdfPadding = vec2( 2.0f );
-		float		mSdfRange = 4.0f;
-		float		mSdfAngle = 3.0f;
-		ivec2		mSdfTileSpacing = ivec2( 1 );
+		ivec2			mTextureSize = ivec2( 1024 );
+		vec2			mSdfScale = vec2( 2.0f );
+		ivec2			mSdfPadding = vec2( 2.0f );
+		float			mSdfRange = 4.0f;
+		float			mSdfAngle = 3.0f;
+		ivec2			mSdfTileSpacing = ivec2( 1 );
 	};
 
 	// ---------------------------------------------------------------------------------------------
@@ -130,18 +130,30 @@ public:
 		//! Sets the leading (aka line gap) used adjust the line height when wrapping. Default \c 0
 		DrawOptions&	leading( float value ) { mLeading = value; return *this; }
 
+		//! Sets whether the TextureFont render premultiplied output. Default \c false
+		DrawOptions&	premultiply( bool premult = true ) { mPremultiply = premult; return *this; }
+		//! Returns whether the TextureFont renders premultiplied output. Default \c false
+		bool			getPremultiply() const { return mPremultiply; }
+
+		//! Returns the gamma value that's used when drawing. \Default 2.2
+		float			getGamma() const { return mGamma; }
+		//! Sets the gamma value that's used when drawing. \Default 2.2
+		DrawOptions&	gamma( float value ) { mGamma = value; return *this; }
+
 		bool			getUseMinimalShader() const { return mUseMinimalShader; }
 		DrawOptions&	useMinimalShader( bool value = true ) { mUseMinimalShader = value; return *this; }
 
 		//! Returns the user-specified glsl program if set. Otherwise returns nullptr.
-		const GlslProgRef& getGlslProg() const { return mGlslProg; }
+		const GlslProgRef&	getGlslProg() const { return mGlslProg; }
 		//! Sets a custom shader to use when the type is rendered.
-		DrawOptions&	glslProg( const GlslProgRef &glslProg ) { mGlslProg = glslProg; return *this; }
+		DrawOptions&		glslProg( const GlslProgRef &glslProg ) { mGlslProg = glslProg; return *this; }
 
 	  protected:
 		bool			mClipHorizontal, mClipVertical, mPixelSnap, mLigate;
 		float			mScale = 2.0;
 		float			mLeading = 0.0f;
+		bool			mPremultiply = false;
+		float			mGamma = 2.2f;
 		bool			mUseMinimalShader = false;
 		GlslProgRef		mGlslProg;
 	};
