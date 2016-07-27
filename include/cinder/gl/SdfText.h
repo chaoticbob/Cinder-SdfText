@@ -130,6 +130,9 @@ public:
 		//! Sets the leading (aka line gap) used adjust the line height when wrapping. Default \c 0
 		DrawOptions&	leading( float value ) { mLeading = value; return *this; }
 
+		bool			getUseMinimalShader() const { return mUseMinimalShader; }
+		DrawOptions&	useMinimalShader( bool value = true ) { mUseMinimalShader = value; return *this; }
+
 		//! Returns the user-specified glsl program if set. Otherwise returns nullptr.
 		const GlslProgRef& getGlslProg() const { return mGlslProg; }
 		//! Sets a custom shader to use when the type is rendered.
@@ -139,6 +142,7 @@ public:
 		bool			mClipHorizontal, mClipVertical, mPixelSnap, mLigate;
 		float			mScale = 2.0;
 		float			mLeading = 0.0f;
+		bool			mUseMinimalShader = false;
 		GlslProgRef		mGlslProg;
 	};
 

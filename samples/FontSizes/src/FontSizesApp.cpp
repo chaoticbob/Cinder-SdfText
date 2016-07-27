@@ -68,7 +68,7 @@ void FontSizesApp::generateSdf()
 {
 	for( auto &ti : mTextInfos ) {
 		ti.mFont = gl::SdfText::Font( ti.mName, ti.mSize );
-		ti.mSdfText = gl::SdfText::create( ti.mFont, gl::SdfText::Format().sdfRange( 4 ).sdfScale( 2.0f ) );
+		ti.mSdfText = gl::SdfText::create( ti.mFont, gl::SdfText::Format().sdfScale( 2.0f ) );
 	}
 }
 

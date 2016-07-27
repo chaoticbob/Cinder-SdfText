@@ -32,7 +32,7 @@ void BasicApp::setup()
 #elif defined( CINDER_COCOA )
 	mFont = gl::SdfText::Font( "BigCaslon-Medium", 24 );
 #else
-	mFont = gl::SdfText::Font( "Arial", 24 );
+	mFont = gl::SdfText::Font( "Courier New", 24 );
 #endif
 	mSdfText = gl::SdfText::create( mFont );
 }

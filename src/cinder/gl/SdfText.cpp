@@ -79,10 +79,9 @@ static std::string kSdfVertShader =
 	"}\n";
 
 
-static std::string kSdfFragShader = 
+static std::string kSdfFragMinimalShader = 
 	"#version 150\n"
 	"uniform sampler2D uTex0;\n"
-	"uniform vec4      uBgColor;\n"
 	"uniform vec4      uFgColor;\n"
 	"in vec2           TexCoord;\n"
 	"out vec4          Color;\n"
@@ -99,17 +98,15 @@ static std::string kSdfFragShader =
 	"   float toPixels = 8.0 * inversesqrt( dx * dx + dy * dy );\n"
 	"   float sigDist = median( sample.r, sample.g, sample.b ) - 0.5;\n"
 	"   float opacity = clamp( sigDist * toPixels + 0.5, 0.0, 1.0 );\n"
-	"	Color = mix( uBgColor, uFgColor, opacity );\n"
-	"	Color.a = opacity;\n"
+    "   // Apply pre-multiplied alpha with gamma correction.\n"
+    "   Color.a = pow( uFgColor.a * opacity, 1.0 / 2.2 );\n"
+    "   Color.rgb = uFgColor.rgb * Color.a;\n"
 	"}\n";
 
-/*
 static std::string kSdfFragShader = 
 	"#version 150\n"
 	"uniform sampler2D uTex0;\n"
-	"uniform vec4      uBgColor;\n"
 	"uniform vec4      uFgColor;\n"
-	"uniform vec2      uTexRes;\n"
 	"in vec2           TexCoord;\n"
 	"out vec4          Color;\n"
 	"\n"
@@ -117,22 +114,36 @@ static std::string kSdfFragShader =
 	"	return max( min( r, g ), min( max( r, g ), b ) );\n"
 	"}\n"
 	"\n"
-	"void main() {\n"
-	"	float du = 0.5/uTexRes.x;\n"
-	"	float dv = 0.5/uTexRes.y;\n"
-	"	vec3 sample0 = texture( uTex0, TexCoord + vec2( -du, -dv ) ).rgb;\n"
-	"	vec3 sample1 = texture( uTex0, TexCoord + vec2(  du, -dv ) ).rgb;\n"
-	"	vec3 sample2 = texture( uTex0, TexCoord + vec2( -du,  dv ) ).rgb;\n"
-	"	vec3 sample3 = texture( uTex0, TexCoord + vec2(  du,  dv ) ).rgb;\n"
-	"	vec3 sample  = ( sample0 + sample1 + sample2 + sample3 )/4.0;\n"
-	"	float sigDist = median( sample.r, sample.g, sample.b );\n"
-	"   float w = fwidth( sigDist );\n"
-	"	float opacity = smoothstep( 0.5 - w, 0.5 + w, sigDist );\n"
-	"	Color = mix( uBgColor, uFgColor, opacity );\n"
-	"	Color.a = opacity;\n"
+	"vec2 safeNormalize( in vec2 v ) {\n"
+	"   float len = length( v );\n"
+	"   len = ( len > 0.0 ) ? 1.0 / len : 0.0;\n"
+	"   return v * len;\n"
+	"}\n"
+	"\n"
+	"void main(void) {\n"
+	"    // Convert normalized texcoords to absolute texcoords.\n"
+	"    vec2 uv = TexCoord * textureSize( uTex0, 0 );\n"
+	"    // Calculate derivates\n"
+	"    vec2 Jdx = dFdx( uv );\n"
+	"    vec2 Jdy = dFdy( uv );\n"
+	"    // Sample SDF texture (3 channels).\n"
+	"    vec3 sample = texture( uTex0, TexCoord ).rgb;\n"
+	"    // Calculate signed distance (in texels).\n"
+	"    float sigDist = median( sample.r, sample.g, sample.b ) - 0.5;\n"
+	"    // For proper anti-aliasing, we need to calculate signed distance in pixels. We do this using derivatives.\n"
+	"    vec2 gradDist = safeNormalize( vec2( dFdx( sigDist ), dFdy( sigDist ) ) );\n"
+	"    vec2 grad = vec2( gradDist.x * Jdx.x + gradDist.y * Jdy.x, gradDist.x * Jdx.y + gradDist.y * Jdy.y );\n"
+	"    // Apply anti-aliasing.\n"
+	"    const float kThickness = 0.125;\n"
+	"    const float kNormalization = kThickness * 0.5 * sqrt( 2.0 );\n"
+	"    float afwidth = min( kNormalization * length( grad ), 0.5 );\n"
+	"    float opacity = smoothstep( 0.0 - afwidth, 0.0 + afwidth, sigDist );\n"
+	"    // Apply pre-multiplied alpha with gamma correction.\n"
+	"    Color.a = pow( uFgColor.a * opacity, 1.0 / 2.2 );\n"
+	"    Color.rgb = uFgColor.rgb * Color.a;\n"
 	"}\n";
-*/
 
+static gl::GlslProgRef sDefaultMinimalShader;
 static gl::GlslProgRef sDefaultShader;
 
 // =================================================================================================
@@ -1192,16 +1203,28 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 
 	auto shader = options.getGlslProg();
 	if( ! shader ) {
-		if( ! sDefaultShader ) {
-			try {
-				sDefaultShader = gl::GlslProg::create( kSdfVertShader, kSdfFragShader );
+		if( options.getUseMinimalShader() ) {
+			if( ! sDefaultMinimalShader ) {
+				try {
+					sDefaultMinimalShader = gl::GlslProg::create( kSdfVertShader, kSdfFragMinimalShader );
+				}
+				catch( const std::exception& e ) {
+					CI_LOG_E( "sDefaultMinimalShader error: " << e.what() );
+				}
 			}
-			catch( const std::exception& e ) {
-				CI_LOG_E( "sDefaultShader error: " << e.what() );
-			}
+			shader = sDefaultMinimalShader;
 		}
-
-		shader = sDefaultShader;
+		else {
+			if( ! sDefaultShader ) {
+				try {
+					sDefaultShader = gl::GlslProg::create( kSdfVertShader, kSdfFragShader );
+				}
+				catch( const std::exception& e ) {
+					CI_LOG_E( "sDefaultShader error: " << e.what() );
+				}
+			}
+			shader = sDefaultShader;
+		}
 	}
 	ScopedTextureBind texBindScp( textures[0] );
 	ScopedGlslProg glslScp( shader );
@@ -1321,8 +1344,6 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 			}
 		}
 
-		shader->uniform( "uTexRes", vec2( curTex->getSize() ) );
-
 		defaultElementVbo->bufferSubData( 0, indices.size() * sizeof(curIdx), indices.data() );
 		ctx->getDefaultVao()->replacementBindEnd();
 		gl::setDefaultShaderVars();
@@ -1347,16 +1368,28 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 
 	auto shader = options.getGlslProg();
 	if( ! shader ) {
-		if( ! sDefaultShader ) {
-			try {
-				sDefaultShader = gl::GlslProg::create( kSdfVertShader, kSdfFragShader );
+		if( options.getUseMinimalShader() ) {
+			if( ! sDefaultMinimalShader ) {
+				try {
+					sDefaultMinimalShader = gl::GlslProg::create( kSdfVertShader, kSdfFragMinimalShader );
+				}
+				catch( const std::exception& e ) {
+					CI_LOG_E( "sDefaultMinimalShader error: " << e.what() );
+				}
 			}
-			catch( const std::exception& e ) {
-				CI_LOG_E( "sDefaultShader error: " << e.what() );
-			}
+			shader = sDefaultMinimalShader;
 		}
-
-		shader = sDefaultShader;
+		else {
+			if( ! sDefaultShader ) {
+				try {
+					sDefaultShader = gl::GlslProg::create( kSdfVertShader, kSdfFragShader );
+				}
+				catch( const std::exception& e ) {
+					CI_LOG_E( "sDefaultShader error: " << e.what() );
+				}
+			}
+			shader = sDefaultShader;
+		}
 	}
 	ScopedTextureBind texBindScp( textures[0] );
 	ScopedGlslProg glslScp( shader );
@@ -1489,8 +1522,6 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 				dataOffset += vertColors.size() * sizeof(ColorA8u);				
 			}
 		}
-
-		shader->uniform( "uTexRes", vec2( curTex->getSize() ) );
 
 		defaultElementVbo->bufferSubData( 0, indices.size() * sizeof(curIdx), indices.data() );
 		ctx->getDefaultVao()->replacementBindEnd();
