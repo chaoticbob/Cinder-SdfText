@@ -1023,6 +1023,9 @@ SdfText::Font::GlyphMeasures SdfTextBox::measureGlyphs( const SdfText::Font::Gly
 			FT_UInt glyphIndex = FT_Get_Char_Index( face, ch );
 
 			auto iter = cachedGlyphMetrics.find( glyphIndex );
+			if( cachedGlyphMetrics.end() == iter ) {
+				continue;
+			}
 			advance = iter->second.advance;
 
 			float xPos = pen.x;
