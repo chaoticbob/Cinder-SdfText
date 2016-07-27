@@ -68,6 +68,7 @@ public:
 		const ivec2&	getTextureSize() const { return mTextureSize; }
 
 		Format&			sdfScale( const vec2 &value ) { mSdfScale = value; return *this; }
+		Format&			sdfScale( float value ) { return sdfScale( vec2( value ) ); }
 		const vec2&		getSdfScale() const { return mSdfScale; }
 
 		Format&			sdfPadding( const ivec2 &value ) { mSdfScale = value; return *this; }
@@ -151,7 +152,7 @@ public:
 		typedef uint32_t Glyph;
 
 		struct GlyphMetrics {
-			ivec2 advance;
+			vec2  advance;
 		};
 
 		using GlyphMetricsMap = std::map<SdfText::Font::Glyph, SdfText::Font::GlyphMetrics>;

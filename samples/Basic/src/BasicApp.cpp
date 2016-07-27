@@ -34,7 +34,7 @@ void BasicApp::setup()
 #else
 	mFont = gl::SdfText::Font( "Arial", 24 );
 #endif
-	mSdfText = gl::SdfText::create( mFont );
+	mSdfText = gl::SdfText::create( mFont, gl::SdfText::Format().sdfRange( 4 ) );
 }
 
 void BasicApp::keyDown( KeyEvent event )

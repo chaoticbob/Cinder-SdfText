@@ -149,8 +149,9 @@ public:
 
 	// ---------------------------------------------------------------------------------------------
 
-	using CharMap = std::unordered_map<uint32_t, SdfText::Font::Glyph>;
-	using GlyphMap = std::unordered_map<SdfText::Font::Glyph, GlyphInfo>;
+	using CharToGlyphMap = std::unordered_map<uint32_t, SdfText::Font::Glyph>;
+	using GlyphToCharMap = std::unordered_map<SdfText::Font::Glyph, uint32_t>;
+	using GlyphInfoMap = std::unordered_map<SdfText::Font::Glyph, GlyphInfo>;
 
 	// ---------------------------------------------------------------------------------------------
 
@@ -192,8 +193,9 @@ private:
 
 	FT_Face						mFace = nullptr;
 	std::vector<gl::TextureRef>	mTextures;
-	CharMap						mCharMap;
-	GlyphMap					mGlyphMap;
+	CharToGlyphMap				mCharToGlyph;
+	GlyphToCharMap				mGlyphToChar;
+	GlyphInfoMap				mGlyphInfo;
 
 	//! Base scale that SDF generator uses is size 32 at 72 DPI. A scale of 1.5, 2.0, and 3.0 translates to size 48, 64 and 96 and 72 DPI.
 	vec2						mSdfScale = vec2( 1.0f );
@@ -222,8 +224,9 @@ SdfText::TextureAtlas::TextureAtlas( FT_Face face, const SdfText::Format &format
 		FT_UInt glyphIndex = FT_Get_Char_Index( face, static_cast<FT_ULong>( ch ) );
 		glyphIndices.insert( glyphIndex );
 
-		// Character to glyph index
-		mCharMap[static_cast<uint32_t>( ch )] = glyphIndex;
+		// Character to glyph index and vice versa
+		mCharToGlyph[static_cast<uint32_t>( ch )] = glyphIndex;
+		mGlyphToChar[glyphIndex] = static_cast<uint32_t>( ch );
 
 		// Glyph bounds, 
 		msdfgen::Shape shape;
@@ -232,15 +235,19 @@ SdfText::TextureAtlas::TextureAtlas( FT_Face face, const SdfText::Format &format
 			l = b = r = t = 0.0;
 			shape.bounds( l, b, r, t );
 			// Glyph bounds
-			Rectf bounds = Rectf( l, b, r, t );
-			mGlyphMap[glyphIndex].mOriginOffset = vec2( l, b );
+			Rectf bounds = Rectf( 
+				static_cast<float>( l ), 
+				static_cast<float>( b ), 
+				static_cast<float>( r ), 
+				static_cast<float>( t ) );
+			mGlyphInfo[glyphIndex].mOriginOffset = vec2( l, b );
 			// Max glyph size
 			mMaxGlyphSize.x = std::max( mMaxGlyphSize.x, bounds.getWidth() );
 			mMaxGlyphSize.y = std::max( mMaxGlyphSize.y, bounds.getHeight() );
 			// Max ascent, descent
 			mMaxAscent = std::max( mMaxAscent, static_cast<float>( t ) );
 			mMaxDescent = std::max( mMaxAscent, static_cast<float>( std::fabs( b ) ) );
-			//CI_LOG_I( (char)ch << " : " << bounds );
+			//CI_LOG_I( (char)ch << " : " << mGlyphInfo[glyphIndex].mOriginOffset );
 		}	
 	}
 
@@ -282,7 +289,7 @@ SdfText::TextureAtlas::TextureAtlas( FT_Face face, const SdfText::Format &format
 		curRenderPos.x += tileSpacing.x;
 		// Move to next row if needed
 		if( 0 == ( curRenderIndex % numGlyphColumns ) ) {
-			curRenderPos.x = 0.0f;
+			curRenderPos.x = 0;
 			curRenderPos.y += mSdfBitmapSize.y;
 			curRenderPos.y += tileSpacing.y;
 		}
@@ -322,9 +329,10 @@ SdfText::TextureAtlas::TextureAtlas( FT_Face face, const SdfText::Format &format
 				msdfgen::edgeColoringSimple( shape, sdfAngle );
 					
 				// Generate SDF
-				vec2 originOffset = mGlyphMap[renderGlyph.glyphIndex].mOriginOffset;
-				float tx = 0.0f + mSdfPadding.x;
+				vec2 originOffset = mGlyphInfo[renderGlyph.glyphIndex].mOriginOffset;
+				float tx = mSdfPadding.x;
 				float ty = std::fabs( originOffset.y ) + mSdfPadding.y;
+				// mSdfScale will get applied to <tx, ty> by msdfgen
 				msdfgen::generateMSDF( sdfBitmap, shape, sdfRange, msdfgen::Vector2( mSdfScale.x, mSdfScale.y ), msdfgen::Vector2( tx, ty ) );
 
 				// Copy bitmap
@@ -342,8 +350,8 @@ SdfText::TextureAtlas::TextureAtlas( FT_Face face, const SdfText::Format &format
 				}
 
 				// Tex coords
-				mGlyphMap[renderGlyph.glyphIndex].mTextureIndex = currentTextureIndex;
-				mGlyphMap[renderGlyph.glyphIndex].mTexCoords = Area( 0, 0, mSdfBitmapSize.x, mSdfBitmapSize.y ) + renderGlyph.position;
+				mGlyphInfo[renderGlyph.glyphIndex].mTextureIndex = currentTextureIndex;
+				mGlyphInfo[renderGlyph.glyphIndex].mTexCoords = Area( 0, 0, mSdfBitmapSize.x, mSdfBitmapSize.y ) + renderGlyph.position;
 			}
 		}
 		// Create texture
@@ -682,7 +690,11 @@ SdfText::TextureAtlasRef SdfTextManager::getTextureAtlas( FT_Face face, const Sd
 			l = b = r = t = 0.0;
 			shape.bounds( l, b, r, t );
 			// Glyph bounds
-			Rectf bounds = Rectf( l, b, r, t );
+			Rectf bounds = Rectf( 
+				static_cast<float>( l ), 
+				static_cast<float>( b ), 
+				static_cast<float>( r ), 
+				static_cast<float>( t ) );
 			// Max glyph size
 			maxGlyphSize.x = std::max( maxGlyphSize.x, bounds.getWidth() );
 			maxGlyphSize.y = std::max( maxGlyphSize.y, bounds.getHeight() );
@@ -711,6 +723,7 @@ SdfText::TextureAtlasRef SdfTextManager::getTextureAtlas( FT_Face face, const Sd
 	// ...otherwise build a new one
 	else {
 		result = SdfText::TextureAtlas::create( face, format, utf8Chars );
+		mTrackedTextureAtlases.push_back( std::make_pair( key, result ) );
 	}
 
 	return result;
@@ -739,7 +752,7 @@ SdfTextManager::FontInfo SdfTextManager::getFontInfo( const std::string& fontNam
 		int hits = 0;
 		for( const auto& tok : tokens ) {
 			if( std::string::npos != fontInfos.key.find( tok ) ) {
-				hits += tok.size();	
+				hits += static_cast<int>( tok.size() );	
 			}
 		}
 
@@ -879,7 +892,7 @@ struct LineProcessor
 
 struct LineMeasure 
 {
-	LineMeasure( int maxWidth, const SdfText::Font &font, const SdfText::Font::GlyphMetricsMap &cachedGlyphMetrics ) 
+	LineMeasure( float maxWidth, const SdfText::Font &font, const SdfText::Font::GlyphMetricsMap &cachedGlyphMetrics ) 
 		: mMaxWidth( maxWidth ), mFace( font.getFace() ), mCachedGlyphMerics( cachedGlyphMetrics ) {}
 
 	bool operator()( const char *line, size_t len ) const {
@@ -889,10 +902,10 @@ struct LineMeasure
 		}
 
 		std::u32string utf32Chars = ci::toUtf32( std::string( line, len ) );
-		int measuredWidth = 0;
-		FT_Vector pen = { 0, 0 };
+		float measuredWidth = 0;
+		vec2 pen = { 0, 0 };
 		for( const auto& ch : utf32Chars ) {
-			ivec2 advance = { 0, 0 };
+			vec2 advance = { 0, 0 };
 			FT_UInt glyphIndex = FT_Get_Char_Index( mFace, ch );
 
 			auto iter = mCachedGlyphMerics.find( glyphIndex );
@@ -901,14 +914,14 @@ struct LineMeasure
 			pen.x += advance.x;
 			pen.y += advance.y;
 
-			measuredWidth = ( pen.x >> 6 );
+			measuredWidth = pen.x;
 		}
 
 		bool result = ( measuredWidth <= mMaxWidth );
 		return result;
 	}
 
-	int										mMaxWidth = 0;
+	float									mMaxWidth = 0;
 	FT_Face									mFace = nullptr;
 	const SdfText::Font::GlyphMetricsMap	&mCachedGlyphMerics;
 };
@@ -917,7 +930,7 @@ std::vector<std::string> SdfTextBox::calculateLineBreaks( const SdfText::Font::G
 {
 	std::vector<std::string> result;
 	std::function<void(const char *,size_t)> lineFn = LineProcessor( &result );		
-	lineBreakUtf8( mText.c_str(), LineMeasure( ( mSize.x > 0 ) ? mSize.x : MAX_SIZE, mFont, cachedGlyphMetrics ), lineFn );
+	lineBreakUtf8( mText.c_str(), LineMeasure( ( mSize.x > 0 ) ? static_cast<float>( mSize.x ) : MAX_SIZE, mFont, cachedGlyphMetrics ), lineFn );
 	return result;
 }
 
@@ -935,27 +948,26 @@ SdfText::Font::GlyphMeasures SdfTextBox::measureGlyphs( const SdfText::Font::Gly
 	const float fontSizeScale = mFont.getSize() / 32.0f;
 	const float ascent        = mFont.getAscent();
 	const float descent       = mFont.getDescent();
-	//const float leading       = mFont.getLeading() + drawOptions.getLeading();
 	const float leading       = drawOptions.getLeading();
-	const float lineHeight    = fontSizeScale * ( ascent + descent + leading );
+	const float drawScale	  = drawOptions.getScale();
+	const float lineHeight    = fontSizeScale * drawScale * ( ascent + descent + leading );
 
 	float curY = 0;
 	for( std::vector<std::string>::const_iterator lineIt = mLines.begin(); lineIt != mLines.end(); ++lineIt ) {
 		std::u32string utf32Chars = ci::toUtf32( *lineIt );
 
-		FT_Vector pen = { 0, 0 };
+		vec2 pen = { 0, 0 };
 		for( const auto& ch : utf32Chars ) {
-			ivec2 advance = { 0, 0 };
+			vec2 advance = { 0, 0 };
 			FT_UInt glyphIndex = FT_Get_Char_Index( face, ch );
 
 			auto iter = cachedGlyphMetrics.find( glyphIndex );
 			advance = iter->second.advance;
 
-			float xPos = (pen.x / 64.0f) + 0.5f;
+			float xPos = pen.x;
 			result.push_back( std::make_pair( (uint32_t)glyphIndex, vec2( xPos, curY ) ) );
 
-			pen.x += advance.x;
-			pen.y += advance.y;	
+			pen += advance;
 		}
 
 		curY += lineHeight; 
@@ -1067,7 +1079,9 @@ void SdfText::Font::loadFontData( const ci::DataSourceRef &dataSource )
 {
 	mData = SdfText::FontData::create( dataSource );
 	FT_Select_Charmap( mData->getFace(), FT_ENCODING_UNICODE );
-	FT_Set_Char_Size( mData->getFace(), 0, mSize * 64, 0, 72 );
+
+	FT_F26Dot6 finalSize = static_cast<FT_F26Dot6>( mSize * 64.0f );
+	FT_Set_Char_Size( mData->getFace(), 0, finalSize , 0, 72 );
 }
 
 float SdfText::Font::getHeight() const
@@ -1163,7 +1177,8 @@ SdfTextRef SdfText::create( const SdfText::Font &font, const Format &format, con
 void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, const vec2 &baselineIn, const DrawOptions &options, const std::vector<ColorA8u> &colors )
 {
 	const auto& textures = mTextureAtlases->mTextures;
-	const auto& glyphMap = mTextureAtlases->mGlyphMap;
+	const auto& glyphMap = mTextureAtlases->mGlyphInfo;
+	const auto& sdfScale = mTextureAtlases->mSdfScale;
 	const auto& sdfPadding = mTextureAtlases->mSdfPadding;
 	const auto& sdfBitmapSize = mTextureAtlases->mSdfBitmapSize;
 
@@ -1216,7 +1231,7 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 		}
 			
 		for( std::vector<std::pair<SdfText::Font::Glyph,vec2> >::const_iterator glyphIt = glyphMeasures.begin(); glyphIt != glyphMeasures.end(); ++glyphIt ) {
-			SdfText::TextureAtlas::GlyphMap::const_iterator glyphInfoIt = glyphMap.find( glyphIt->first );
+			SdfText::TextureAtlas::GlyphInfoMap::const_iterator glyphInfoIt = glyphMap.find( glyphIt->first );
 			if(  glyphInfoIt == glyphMap.end() ) {
 				continue;
 			}
@@ -1225,20 +1240,25 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 			if( glyphInfo.mTextureIndex != texIdx ) {
 				continue;
 			}
-			
+
+			const auto &originOffset = glyphInfo.mOriginOffset;
+
 			Rectf srcTexCoords = curTex->getAreaTexCoords( glyphInfo.mTexCoords );
-			Rectf destRect( glyphInfo.mTexCoords );
-			destRect.scale( fontRenderScale );
-			destRect -= destRect.getUpperLeft();
+			Rectf destRect = Rectf( glyphInfo.mTexCoords );
 			destRect.scale( scale );
+			destRect -= destRect.getUpperLeft();
+			vec2 offset = vec2( 0, -( destRect.getHeight() ) );
+			// Reverse the transformation applied during SDF generation
+			float tx = sdfPadding.x;
+			float ty = std::fabs( originOffset.y ) + sdfPadding.y;
+			offset += scale * sdfScale * vec2( -tx, ty );
+			// Use origin scale for horizontal offset
+			offset += scale * fontOriginScale * vec2( originOffset.x, 0.0f );
+			destRect += offset;
+			destRect.scale( fontRenderScale );
+
 			destRect += glyphIt->second * scale;
-			destRect += vec2( baseline.x, baseline.y - ( sdfBitmapSize.y * fontRenderScale.y ) );
-			vec2 originOffset = fontOriginScale * glyphInfo.mOriginOffset;
-			destRect += vec2( floor( originOffset.x + 0.5f ), floor( -originOffset.y ) ) * scale;
-			destRect += fontRenderScale * vec2( -sdfPadding.x, sdfPadding.y );
-			if( options.getPixelSnap() ) {
-				destRect -= vec2( destRect.x1 - floor( destRect.x1 ), destRect.y1 - floor( destRect.y1 ) );	
-			}
+			destRect += baseline;
 			
 			verts.push_back( destRect.getX2() ); verts.push_back( destRect.getY1() );
 			verts.push_back( destRect.getX1() ); verts.push_back( destRect.getY1() );
@@ -1313,7 +1333,7 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, const Rectf &clip, vec2 offset, const DrawOptions &options, const std::vector<ColorA8u> &colors )
 {
 	const auto& textures = mTextureAtlases->mTextures;
-	const auto& glyphMap = mTextureAtlases->mGlyphMap;
+	const auto& glyphMap = mTextureAtlases->mGlyphInfo;
 	const auto& sdfPadding = mTextureAtlases->mSdfPadding;
 	const auto& sdfBitmapSize = mTextureAtlases->mSdfBitmapSize;
 
@@ -1364,7 +1384,7 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 		}
 
 		for( std::vector<std::pair<Font::Glyph,vec2> >::const_iterator glyphIt = glyphMeasures.begin(); glyphIt != glyphMeasures.end(); ++glyphIt ) {
-			SdfText::TextureAtlas::GlyphMap::const_iterator glyphInfoIt = glyphMap.find( glyphIt->first );
+			SdfText::TextureAtlas::GlyphInfoMap::const_iterator glyphInfoIt = glyphMap.find( glyphIt->first );
 			if( glyphInfoIt == glyphMap.end() ) {
 				continue;
 			}
@@ -1502,12 +1522,12 @@ void SdfText::drawStringWrapped( const std::string &str, const Rectf &fitRect, c
 
 vec2 SdfText::measureString( const std::string &str, const DrawOptions &options ) const
 {
-	const SdfText::TextureAtlas::GlyphMap& mGlyphMap = mTextureAtlases->mGlyphMap;
+	const SdfText::TextureAtlas::GlyphInfoMap& mGlyphMap = mTextureAtlases->mGlyphInfo;
 	SdfTextBox tbox = SdfTextBox().font( mFont ).text( str ).size( SdfTextBox::GROW, SdfTextBox::GROW ).ligate( options.getLigate() );
 	SdfText::Font::GlyphMeasures glyphMeasures = tbox.measureGlyphs( mCachedGlyphMetrics, options );
 	if( ! glyphMeasures.empty() ) {
 		vec2 result = glyphMeasures.back().second;
-		SdfText::TextureAtlas::GlyphMap::const_iterator glyphInfoIt = mGlyphMap.find( glyphMeasures.back().first );
+		SdfText::TextureAtlas::GlyphInfoMap::const_iterator glyphInfoIt = mGlyphMap.find( glyphMeasures.back().first );
 		if( glyphInfoIt != mGlyphMap.end() ) {
 			result += glyphInfoIt->second.mOriginOffset + vec2( glyphInfoIt->second.mTexCoords.getSize() );
 		}
@@ -1544,12 +1564,12 @@ std::string SdfText::defaultChars()
 void SdfText::cacheGlyphMetrics()
 {
 	FT_Face face = mFont.getFace();
-	for( const auto it : mTextureAtlases->mCharMap ) {
+	for( const auto it : mTextureAtlases->mCharToGlyph ) {
 		SdfText::Font::Glyph glyphIndex = it.second;
 		FT_Load_Glyph( face, glyphIndex, FT_LOAD_DEFAULT );
 		FT_GlyphSlot slot = face->glyph;
 		SdfText::Font::GlyphMetrics glyphMetrics;
-		glyphMetrics.advance = ivec2( slot->advance.x, slot->advance.y );
+		glyphMetrics.advance = vec2( slot->linearHoriAdvance , slot->linearVertAdvance ) / 65536.0f;
 		mCachedGlyphMetrics[glyphIndex] = glyphMetrics;
 	}
 }
