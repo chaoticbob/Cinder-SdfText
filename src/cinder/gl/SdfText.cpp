@@ -45,10 +45,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "cinder/app/App.h"
 
-#include "ft2build.h"
+#include <ft2build.h>
 #include FT_FREETYPE_H
-#include "freetype/ftsnames.h"
-#include "freetype/ttnameid.h"
+#include <ftsnames.h>
+#include <ttnameid.h>
 
 #include "msdfgen/msdfgen.h"
 #include "msdfgen/util.h"
@@ -536,7 +536,7 @@ SdfTextManager::~SdfTextManager()
 	}
 
 #if defined( CINDER_MAC )
-	[nsFontManager release];
+//	[nsFontManager release];
 #elif defined( CINDER_WINRT )
 #elif defined( CINDER_ANDROID ) || defined( CINDER_LINUX )
 #endif
@@ -778,6 +778,9 @@ SdfTextManager::FontInfo SdfTextManager::getFontInfo( const std::string& fontNam
 	SdfTextManager::FontInfo result;
 
 #if defined( CINDER_MAC )
+	result.key  = "arial";
+	result.name = "Arial";
+	result.path = "/Library/Fonts/Arial.ttf";
 #elif defined( CINDER_MSW ) || defined( CINDER_WINRT )
 	result.key  = "arial";
 	result.name = "Arial";
@@ -844,7 +847,7 @@ const std::vector<std::string>& SdfTextManager::getNames( bool forceRefresh )
 				if( ! mFontInfos.empty() ) {
 					break;
 				}
-				::Sleep( 10 );
+//				::Sleep( 10 );
 			}
 		}
 

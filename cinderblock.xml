@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<cinder>
+<block
+	name="Cinder-SdfText"
+	id="org.libcinder.SdfText"
+	author="Cinder Project"
+	license="BSD, MIT"
+	summary="Implements the Sdf text rendering on top of msdfgen (created by Viktor Chlumsky)"
+	core="true"
+	>
+
+	<supports os="ios" />
+	<supports os="macosx" />
+	<supports os="msw" />
+
+	<headerPattern>include/cinder/gl/*.h</headerPattern>
+	<headerPattern>include/msdfgen/*.h</headerPattern>
+	<headerPattern>include/msdfgen/core/*.h</headerPattern>
+	<sourcePattern>src/cinder/gl/*.cpp</sourcePattern>
+	<sourcePattern>src/msdfgen/*.cpp</sourcePattern>
+	<sourcePattern>src/msdfgen/core/*.cpp</sourcePattern>
+	<includePath>include</includePath>
+	<includePath system="true">include/freetype/include</includePath>
+
+	<platform os="ios">
+		<staticLibrary>lib/ios/libfreetype.a</staticLibrary>
+	</platform>
+	<platform os="macosx">
+		<staticLibrary>lib/macosx/libfreetype.a</staticLibrary>
+	</platform>
+	<platform os="msw">
+		<staticLibrary>lib/msw/freetype.lib</staticLibrary>
+	</platform>	
+
+</block>
+</cinder>

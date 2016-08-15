@@ -12,6 +12,42 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Blocks">
+      <UniqueIdentifier>{7989E8F5-A9EB-42D6-9BA8-702EF9EFC63E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Cinder-SdfText">
+      <UniqueIdentifier>{FAB20686-7965-4F02-8660-99E6CDD0D652}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Cinder-SdfText\include">
+      <UniqueIdentifier>{8FCBDC7A-8E34-4786-B8E0-89C83653F44F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Cinder-SdfText\include\cinder">
+      <UniqueIdentifier>{BB36504C-BFC8-42CF-9CB4-7305465B01B0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Cinder-SdfText\include\cinder\gl">
+      <UniqueIdentifier>{E5B79FD5-A896-408D-94AA-4C75BA613229}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Cinder-SdfText\include\msdfgen">
+      <UniqueIdentifier>{DDB18D4E-66E3-4CAB-BAA4-30E65C0C080F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Cinder-SdfText\include\msdfgen\core">
+      <UniqueIdentifier>{026E6814-DEF9-41A2-A78A-AE01D018DB05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Cinder-SdfText\src">
+      <UniqueIdentifier>{7312B351-F0DF-4E8B-97D1-631F97CE529E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Cinder-SdfText\src\cinder">
+      <UniqueIdentifier>{AD9DDFE5-2BAE-4AA3-92EA-569AAC76FAA1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Cinder-SdfText\src\cinder\gl">
+      <UniqueIdentifier>{85661F01-B869-449C-8C05-2F76A243930D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Cinder-SdfText\src\msdfgen">
+      <UniqueIdentifier>{B35626DF-C8AC-4894-836C-CE92AC4BB4D1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Cinder-SdfText\src\msdfgen\core">
+      <UniqueIdentifier>{50F6496F-18B3-42BD-996B-F88219B63577}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\BasicApp.cpp">
@@ -23,6 +59,99 @@
     <ClInclude Include="..\include\Resources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\include\cinder\gl\SdfText.h">
+      <Filter>Blocks\Cinder-SdfText\include\cinder\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\msdfgen\msdfgen.h">
+      <Filter>Blocks\Cinder-SdfText\include\msdfgen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\msdfgen\util.h">
+      <Filter>Blocks\Cinder-SdfText\include\msdfgen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\msdfgen\core\Bitmap.h">
+      <Filter>Blocks\Cinder-SdfText\include\msdfgen\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\msdfgen\core\Contour.h">
+      <Filter>Blocks\Cinder-SdfText\include\msdfgen\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\msdfgen\core\edge-coloring.h">
+      <Filter>Blocks\Cinder-SdfText\include\msdfgen\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\msdfgen\core\edge-segments.h">
+      <Filter>Blocks\Cinder-SdfText\include\msdfgen\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\msdfgen\core\EdgeColor.h">
+      <Filter>Blocks\Cinder-SdfText\include\msdfgen\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\msdfgen\core\EdgeHolder.h">
+      <Filter>Blocks\Cinder-SdfText\include\msdfgen\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\msdfgen\core\equation-solver.h">
+      <Filter>Blocks\Cinder-SdfText\include\msdfgen\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\msdfgen\core\render-sdf.h">
+      <Filter>Blocks\Cinder-SdfText\include\msdfgen\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\msdfgen\core\save-bmp.h">
+      <Filter>Blocks\Cinder-SdfText\include\msdfgen\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\msdfgen\core\shape-description.h">
+      <Filter>Blocks\Cinder-SdfText\include\msdfgen\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\msdfgen\core\Shape.h">
+      <Filter>Blocks\Cinder-SdfText\include\msdfgen\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\msdfgen\core\SignedDistance.h">
+      <Filter>Blocks\Cinder-SdfText\include\msdfgen\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\msdfgen\core\Vector2.h">
+      <Filter>Blocks\Cinder-SdfText\include\msdfgen\core</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\..\src\cinder\gl\SdfText.cpp">
+      <Filter>Blocks\Cinder-SdfText\src\cinder\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\msdfgen\msdfgen.cpp">
+      <Filter>Blocks\Cinder-SdfText\src\msdfgen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\msdfgen\util.cpp">
+      <Filter>Blocks\Cinder-SdfText\src\msdfgen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\msdfgen\core\Bitmap.cpp">
+      <Filter>Blocks\Cinder-SdfText\src\msdfgen\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\msdfgen\core\Contour.cpp">
+      <Filter>Blocks\Cinder-SdfText\src\msdfgen\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\msdfgen\core\edge-coloring.cpp">
+      <Filter>Blocks\Cinder-SdfText\src\msdfgen\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\msdfgen\core\edge-segments.cpp">
+      <Filter>Blocks\Cinder-SdfText\src\msdfgen\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\msdfgen\core\EdgeHolder.cpp">
+      <Filter>Blocks\Cinder-SdfText\src\msdfgen\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\msdfgen\core\equation-solver.cpp">
+      <Filter>Blocks\Cinder-SdfText\src\msdfgen\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\msdfgen\core\render-sdf.cpp">
+      <Filter>Blocks\Cinder-SdfText\src\msdfgen\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\msdfgen\core\save-bmp.cpp">
+      <Filter>Blocks\Cinder-SdfText\src\msdfgen\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\msdfgen\core\shape-description.cpp">
+      <Filter>Blocks\Cinder-SdfText\src\msdfgen\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\msdfgen\core\Shape.cpp">
+      <Filter>Blocks\Cinder-SdfText\src\msdfgen\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\msdfgen\core\SignedDistance.cpp">
+      <Filter>Blocks\Cinder-SdfText\src\msdfgen\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\msdfgen\core\Vector2.cpp">
+      <Filter>Blocks\Cinder-SdfText\src\msdfgen\core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h">
