@@ -1150,25 +1150,29 @@ void SdfText::Font::loadFontData( const ci::DataSourceRef &dataSource )
 
 float SdfText::Font::getHeight() const
 {
-	float result = ( mData->getFace()->height / 64.0f );
+	float glyphScale = 2048.0f / mData->getFace()->units_per_EM;
+	float result = glyphScale * ( mData->getFace()->height / 64.0f );
 	return result;
 }
 
 float SdfText::Font::getLeading() const
 {
-	float result = ( mData->getFace()->height - ( std::abs( mData->getFace()->ascender ) + std::abs( mData->getFace()->descender ) ) ) / 64.0f;
+	float glyphScale = 2048.0f / mData->getFace()->units_per_EM;
+	float result = glyphScale * ( mData->getFace()->height - ( std::abs( mData->getFace()->ascender ) + std::abs( mData->getFace()->descender ) ) ) / 64.0f;
 	return result;
 }
 
 float SdfText::Font::getAscent() const
 {
-	float result = std::fabs( mData->getFace()->ascender / 64.0f );
+	float glyphScale = 2048.0f / mData->getFace()->units_per_EM;
+	float result = glyphScale * std::fabs( mData->getFace()->ascender / 64.0f );
 	return result;
 }
 
 float SdfText::Font::getDescent() const
 {
-	float result = std::fabs( mData->getFace()->descender / 64.0f );
+	float glyphScale = 2048.0f / mData->getFace()->units_per_EM;
+	float result = glyphScale * std::fabs( mData->getFace()->descender / 64.0f );
 	return result;
 }
 
@@ -1650,12 +1654,12 @@ std::string SdfText::defaultChars()
 void SdfText::cacheGlyphMetrics()
 {
 	FT_Face face = mFont.getFace();
-	for( const auto it : mTextureAtlases->mCharToGlyph ) {
+	for( const auto &it : mTextureAtlases->mCharToGlyph ) {
 		SdfText::Font::Glyph glyphIndex = it.second;
 		FT_Load_Glyph( face, glyphIndex, FT_LOAD_DEFAULT );
 		FT_GlyphSlot slot = face->glyph;
 		SdfText::Font::GlyphMetrics glyphMetrics;
-		glyphMetrics.advance = vec2( slot->linearHoriAdvance , slot->linearVertAdvance ) / 65536.0f;
+		glyphMetrics.advance = vec2( slot->linearHoriAdvance, slot->linearVertAdvance ) / 65536.0f;
 		mCachedGlyphMetrics[glyphIndex] = glyphMetrics;
 	}
 }

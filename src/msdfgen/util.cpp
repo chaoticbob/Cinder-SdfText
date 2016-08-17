@@ -43,6 +43,8 @@ bool loadGlyph(Shape &output, FT_Face face, unsigned int glyphIndex, double *adv
     if (advance)
         *advance = face->glyph->advance.x/64.;
 
+    float glyphScale = 2048.0f / face->units_per_EM;
+
     int last = -1;
     // For each contour
     for (int i = 0; i < face->glyph->outline.n_contours; ++i) {
@@ -63,7 +65,7 @@ bool loadGlyph(Shape &output, FT_Face face, unsigned int glyphIndex, double *adv
                 round++;
             }
 
-            Point2 point(face->glyph->outline.points[index].x/64., face->glyph->outline.points[index].y/64.);
+            Point2 point( glyphScale * face->glyph->outline.points[index].x/64., glyphScale * face->glyph->outline.points[index].y/64.);
             PointType pointType = face->glyph->outline.tags[index]&1 ? PATH_POINT : face->glyph->outline.tags[index]&2 ? CUBIC_POINT : QUADRATIC_POINT;
 
             switch (state) {
