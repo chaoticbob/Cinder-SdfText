@@ -30,6 +30,8 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVE
 POSSIBILITY OF SUCH DAMAGE.
 */
 
+#pragma once
+
 #include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
 
