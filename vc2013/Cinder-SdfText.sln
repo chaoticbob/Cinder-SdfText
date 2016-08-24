@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cinder-SDF", "Cinder-SDF.vcxproj", "{BAD9F940-8AAD-4D72-8D8E-357E2233F1C1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cinder-SdfText", "Cinder-SdfText.vcxproj", "{BAD9F940-8AAD-4D72-8D8E-357E2233F1C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

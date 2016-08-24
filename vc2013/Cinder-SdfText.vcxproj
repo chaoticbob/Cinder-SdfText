@@ -229,20 +229,24 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>..\lib\msw\$(PlatformTarget)\</OutDir>
-    <TargetName>cinder-sdf-$(PlatformToolset)_d</TargetName>
+    <OutDir>..\lib\msw\$(PlatformTarget)\$(Configuration)\</OutDir>
+    <TargetName>cinder-sdftext-$(PlatformToolset)</TargetName>
+    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>..\lib\msw\$(PlatformTarget)\</OutDir>
-    <TargetName>cinder-sdf-$(PlatformToolset)</TargetName>
+    <OutDir>..\lib\msw\$(PlatformTarget)\$(Configuration)\</OutDir>
+    <TargetName>cinder-sdftext-$(PlatformToolset)</TargetName>
+    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\lib\msw\$(PlatformTarget)\</OutDir>
-    <TargetName>cinder-sdf-$(PlatformToolset)_d</TargetName>
+    <OutDir>..\lib\msw\$(PlatformTarget)\$(Configuration)\</OutDir>
+    <TargetName>cinder-sdftext-$(PlatformToolset)</TargetName>
+    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>..\lib\msw\$(PlatformTarget)\</OutDir>
-    <TargetName>cinder-sdf-$(PlatformToolset)</TargetName>
+    <OutDir>..\lib\msw\$(PlatformTarget)\$(Configuration)\</OutDir>
+    <TargetName>cinder-sdftext-$(PlatformToolset)</TargetName>
+    <IntDir>$(PlatformTarget)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
