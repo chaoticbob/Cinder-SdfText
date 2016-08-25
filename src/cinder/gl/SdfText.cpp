@@ -78,35 +78,6 @@ static std::string kSdfVertShader =
 	"	TexCoord = ciTexCoord0;\n"
 	"}\n";
 
-
-static std::string kSdfFragMinimalShader = 
-	"#version 150\n"
-	"uniform sampler2D uTex0;\n"
-	"uniform vec4      uFgColor;\n"
-	"uniform float     uPremultiply;\n"
-	"uniform float     uGamma;\n"
-	"in vec2           TexCoord;\n"
-	"out vec4          Color;\n"
-	"\n"
-	"float median( float r, float g, float b ) {\n"
-	"	return max( min( r, g ), min( max( r, g ), b ) );\n"
-	"}\n"
-	"\n"
-	"void main() {\n"
-	"    vec3 sample = texture( uTex0, TexCoord ).rgb;\n"
-	"    ivec2 sz = textureSize( uTex0, 0 );\n"
-	"    float dx = dFdx( TexCoord.x ) * sz.x;\n"
-	"    float dy = dFdy( TexCoord.y ) * sz.y;\n"
-	"    float toPixels = 8.0 * inversesqrt( dx * dx + dy * dy );\n"
-	"    float sigDist = median( sample.r, sample.g, sample.b ) - 0.5;\n"
-	"    float opacity = clamp( sigDist * toPixels + 0.5, 0.0, 1.0 );\n"
-    "    // If enabled apply pre-multiplied alpha with gamma correction.\n"
-	"    float m0 = 1.0 - uPremultiply;\n"
-	"    float m1 = uPremultiply;\n"
-	"    Color.a = m0 * ( uFgColor.a * opacity ) + m1 * pow( uFgColor.a * opacity, 1.0 / uGamma );\n"
-	"    Color.rgb = m0 * uFgColor.rgb + m1 * ( uFgColor.rgb * Color.a );\n"
-	"}\n";
-
 static std::string kSdfFragShader = 
 	"#version 150\n"
 	"uniform sampler2D uTex0;\n"
@@ -231,6 +202,10 @@ SdfText::TextureAtlas::TextureAtlas( FT_Face face, const SdfText::Format &format
 {
 	const ivec2& tileSpacing = format.getSdfTileSpacing();
 
+	// CW (TTF) vs CCW (OTF) - SDF needs to be inverted if font is OTF
+	bool invertSdf = ( std::string( "OTTO" ) ==  std::string( reinterpret_cast<const char *>( face->stream->base ) ) );
+
+	// Convert characters from UTF8 to UTF32
 	std::u32string utf32Chars = ci::toUtf32( utf8Chars );
 	// Add a space if needed
 	if( std::string::npos == utf8Chars.find( ' ' ) ) {
@@ -346,13 +321,26 @@ SdfText::TextureAtlas::TextureAtlas( FT_Face face, const SdfText::Format &format
 				
 				// Edge color
 				msdfgen::edgeColoringSimple( shape, sdfAngle );
-					
+				
 				// Generate SDF
 				vec2 originOffset = mGlyphInfo[renderGlyph.glyphIndex].mOriginOffset;
 				float tx = mSdfPadding.x;
 				float ty = std::fabs( originOffset.y ) + mSdfPadding.y;
 				// mSdfScale will get applied to <tx, ty> by msdfgen
 				msdfgen::generateMSDF( sdfBitmap, shape, sdfRange, msdfgen::Vector2( mSdfScale.x, mSdfScale.y ), msdfgen::Vector2( tx, ty ) );
+
+				// Invert the SDF if needed, but only for glyphs that have contours to render. 
+				// Glyph without contours will produce and blank bitmap, inverting this produces
+				// a solid block. Which is undesirable.
+				if( invertSdf && ( ! shape.contours.empty() ) ) {
+					for( int y = 0; y < sdfBitmap.height(); ++y ) {
+						for( int x = 0; x < sdfBitmap.width(); ++x ) {
+							sdfBitmap( x, y ).r = 1.0f - sdfBitmap( x, y ).r;
+							sdfBitmap( x, y ).g = 1.0f - sdfBitmap( x, y ).g;
+							sdfBitmap( x, y ).b = 1.0f - sdfBitmap( x, y ).b;
+						}
+					}
+				}
 
 				// Copy bitmap
 				size_t dstOffset = ( renderGlyph.position.y * surfaceRowBytes ) + ( renderGlyph.position.x * surfacePixelInc );
@@ -1260,28 +1248,15 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 
 	auto shader = options.getGlslProg();
 	if( ! shader ) {
-		if( options.getUseMinimalShader() ) {
-			if( ! sDefaultMinimalShader ) {
-				try {
-					sDefaultMinimalShader = gl::GlslProg::create( kSdfVertShader, kSdfFragMinimalShader );
-				}
-				catch( const std::exception& e ) {
-					CI_LOG_E( "sDefaultMinimalShader error: " << e.what() );
-				}
+		if( ! sDefaultShader ) {
+			try {
+				sDefaultShader = gl::GlslProg::create( kSdfVertShader, kSdfFragShader );
 			}
-			shader = sDefaultMinimalShader;
-		}
-		else {
-			if( ! sDefaultShader ) {
-				try {
-					sDefaultShader = gl::GlslProg::create( kSdfVertShader, kSdfFragShader );
-				}
-				catch( const std::exception& e ) {
-					CI_LOG_E( "sDefaultShader error: " << e.what() );
-				}
+			catch( const std::exception& e ) {
+				CI_LOG_E( "sDefaultShader error: " << e.what() );
 			}
-			shader = sDefaultShader;
 		}
+		shader = sDefaultShader;
 	}
 	ScopedTextureBind texBindScp( textures[0] );
 	ScopedGlslProg glslScp( shader );
@@ -1426,28 +1401,15 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, con
 
 	auto shader = options.getGlslProg();
 	if( ! shader ) {
-		if( options.getUseMinimalShader() ) {
-			if( ! sDefaultMinimalShader ) {
-				try {
-					sDefaultMinimalShader = gl::GlslProg::create( kSdfVertShader, kSdfFragMinimalShader );
-				}
-				catch( const std::exception& e ) {
-					CI_LOG_E( "sDefaultMinimalShader error: " << e.what() );
-				}
+		if( ! sDefaultShader ) {
+			try {
+				sDefaultShader = gl::GlslProg::create( kSdfVertShader, kSdfFragShader );
 			}
-			shader = sDefaultMinimalShader;
-		}
-		else {
-			if( ! sDefaultShader ) {
-				try {
-					sDefaultShader = gl::GlslProg::create( kSdfVertShader, kSdfFragShader );
-				}
-				catch( const std::exception& e ) {
-					CI_LOG_E( "sDefaultShader error: " << e.what() );
-				}
+			catch( const std::exception& e ) {
+				CI_LOG_E( "sDefaultShader error: " << e.what() );
 			}
-			shader = sDefaultShader;
 		}
+		shader = sDefaultShader;
 	}
 	ScopedTextureBind texBindScp( textures[0] );
 	ScopedGlslProg glslScp( shader );

@@ -142,9 +142,6 @@ public:
 		//! Sets the gamma value that's used when drawing. \Default 2.2
 		DrawOptions&	gamma( float value ) { mGamma = value; return *this; }
 
-		bool			getUseMinimalShader() const { return mUseMinimalShader; }
-		DrawOptions&	useMinimalShader( bool value = true ) { mUseMinimalShader = value; return *this; }
-
 		//! Returns the user-specified glsl program if set. Otherwise returns nullptr.
 		const GlslProgRef&	getGlslProg() const { return mGlslProg; }
 		//! Sets a custom shader to use when the type is rendered.
@@ -156,7 +153,6 @@ public:
 		float			mLeading = 0.0f;
 		bool			mPremultiply = false;
 		float			mGamma = 2.2f;
-		bool			mUseMinimalShader = false;
 		GlslProgRef		mGlslProg;
 	};
 
