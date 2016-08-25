@@ -1,5 +1,9 @@
-# Cinder-SDF
+# Cinder-SdfText
 Based on [msdfgen](https://github.com/Chlumsky/msdfgen) by Viktor Chlumský.
+
+## Building
+1. Build lib first in ```vc2013```
+1. Build samples in ```smaples```
 
 ## Windows only for now! Linux and OS X coming soon!
 
