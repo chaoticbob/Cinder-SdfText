@@ -83,7 +83,7 @@ bool loadGlyph(Shape &output, FT_Face face, unsigned int glyphIndex, double *adv
                         firstPathPoint = index;
 						Point2 firstPoint( glyphScale * face->glyph->outline.points[first].x/64., glyphScale * face->glyph->outline.points[first].y/64.);
 						Point2 lastPoint( glyphScale * face->glyph->outline.points[last].x/64., glyphScale * face->glyph->outline.points[last].y/64.);
-						startPoint = 0.5*(firstPoint + lastPoint);
+						startPoint = .5*(firstPoint + lastPoint);
                         controlPoint[0] = point;						
                         state = QUADRATIC_POINT;
 					}
