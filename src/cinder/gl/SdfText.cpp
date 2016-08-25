@@ -1579,7 +1579,7 @@ vec2 SdfText::measureString( const std::string &str, const DrawOptions &options 
 		vec2 result = glyphMeasures.back().second;
 		SdfText::TextureAtlas::GlyphInfoMap::const_iterator glyphInfoIt = mGlyphMap.find( glyphMeasures.back().first );
 		if( glyphInfoIt != mGlyphMap.end() ) {
-			result += glyphInfoIt->second.mOriginOffset + vec2( glyphInfoIt->second.mTexCoords.getSize() );
+			result += glyphInfoIt->second.mOriginOffset + vec2( glyphInfoIt->second.mTexCoords.getSize() ) * mFont.getSize() / 32.0f;
 		}
 		return result;
 	}
