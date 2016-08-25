@@ -1,5 +1,7 @@
 #include "msdfgen/util.h"
 
+#include "cinder/Log.h"
+
 #include "ft2build.h"
 #include FT_FREETYPE_H
 
@@ -24,7 +26,7 @@ bool getFontWhitespaceWidth(double &spaceAdvance, double &tabAdvance, FT_Face fa
     return true;
 }
 
-bool loadGlyph(Shape &output, FT_Face face, unsigned int glyphIndex, double *advance) {
+bool loadGlyph(Shape &output, FT_Face face, unsigned int glyphIndex, double *advance, bool printInfo) {
     enum PointType {
         NONE = 0,
         PATH_POINT,
@@ -77,7 +79,14 @@ bool loadGlyph(Shape &output, FT_Face face, unsigned int glyphIndex, double *adv
                         firstPathPoint = index;
                         startPoint = point;
                         state = PATH_POINT;
-                    }
+                    } else if((face->glyph->outline.tags[first] == FT_Curve_Tag_Conic) && (face->glyph->outline.tags[last] == FT_Curve_Tag_Conic)) {
+                        firstPathPoint = index;
+						Point2 firstPoint( glyphScale * face->glyph->outline.points[first].x/64., glyphScale * face->glyph->outline.points[first].y/64.);
+						Point2 lastPoint( glyphScale * face->glyph->outline.points[last].x/64., glyphScale * face->glyph->outline.points[last].y/64.);
+						startPoint = 0.5*(firstPoint + lastPoint);
+                        controlPoint[0] = point;						
+                        state = QUADRATIC_POINT;
+					}
                     break;
                 case PATH_POINT:
                     if (pointType == PATH_POINT) {
@@ -99,6 +108,7 @@ bool loadGlyph(Shape &output, FT_Face face, unsigned int glyphIndex, double *adv
                         contour.addEdge(new QuadraticSegment(startPoint, controlPoint[0], midPoint));
                         startPoint = midPoint;
                         controlPoint[0] = point;
+
                     }
                     break;
                 case CUBIC_POINT:

@@ -319,7 +319,7 @@ SdfText::TextureAtlas::TextureAtlas( FT_Face face, const SdfText::Format &format
 				
 				// Edge color
 				msdfgen::edgeColoringSimple( shape, sdfAngle );
-				
+
 				// Generate SDF
 				vec2 originOffset = mGlyphInfo[renderGlyph.glyphIndex].mOriginOffset;
 				float tx = mSdfPadding.x;
