@@ -275,6 +275,8 @@ public:
 	const SdfText::Font::GlyphMetricsMap&	getGlyphMetrics() const { return mGlyphMetrics; }
 	const SdfText::Font::CharToGlyphMap&	getCharToGlyph() const { return mCharToGlyph; }
 
+	static gl::GlslProgRef	defaultShader();
+
 private:
 	SdfText( const SdfText::Font &font, const Format &format, const std::string &utf8Chars, bool generateSdf = true );
 	friend class SdfTextManager;

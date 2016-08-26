@@ -120,7 +120,6 @@ static std::string kSdfFragShader =
 	"    Color.rgb = mix( uFgColor.rgb, uFgColor.rgb * Color.a, uPremultiply );\n"
 	"}\n";
 
-static gl::GlslProgRef sDefaultMinimalShader;
 static gl::GlslProgRef sDefaultShader;
 
 // =================================================================================================
@@ -1651,15 +1650,7 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasuresList &glyphMeasures,
 
 	auto shader = options.getGlslProg();
 	if( ! shader ) {
-		if( ! sDefaultShader ) {
-			try {
-				sDefaultShader = gl::GlslProg::create( kSdfVertShader, kSdfFragShader );
-			}
-			catch( const std::exception& e ) {
-				CI_LOG_E( "sDefaultShader error: " << e.what() );
-			}
-		}
-		shader = sDefaultShader;
+		shader = SdfText::defaultShader();
 	}
 	ScopedTextureBind texBindScp( textures[0] );
 	ScopedGlslProg glslScp( shader );
@@ -1804,15 +1795,7 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasuresList &glyphMeasures,
 
 	auto shader = options.getGlslProg();
 	if( ! shader ) {
-		if( ! sDefaultShader ) {
-			try {
-				sDefaultShader = gl::GlslProg::create( kSdfVertShader, kSdfFragShader );
-			}
-			catch( const std::exception& e ) {
-				CI_LOG_E( "sDefaultShader error: " << e.what() );
-			}
-		}
-		shader = sDefaultShader;
+		shader = SdfText::defaultShader();
 	}
 	ScopedTextureBind texBindScp( textures[0] );
 	ScopedGlslProg glslScp( shader );
@@ -2024,6 +2007,19 @@ uint32_t SdfText::getNumTextures() const
 const gl::TextureRef& SdfText::getTexture(uint32_t n) const
 {
 	return mTextureAtlases->mTextures[static_cast<size_t>( n )];
+}
+
+gl::GlslProgRef SdfText::defaultShader()
+{
+	if( ! sDefaultShader ) {
+		try {
+			sDefaultShader = gl::GlslProg::create( kSdfVertShader, kSdfFragShader );
+		}
+		catch( const std::exception& e ) {
+			CI_LOG_E( "SdfText::defaultShader error: " << e.what() );
+		}
+	}
+	return sDefaultShader;
 }
 
 }} // namespace cinder::gl
