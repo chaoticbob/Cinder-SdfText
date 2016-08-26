@@ -225,13 +225,15 @@ public:
 
 	virtual ~SdfText();
 
-	//! Creates a new TextureFontRef with font \a font, ensuring that glyphs necessary to render \a supportedChars are renderable, and format \a format
+	//! Creates a new SdfTextRef with font \a font, ensuring that glyphs necessary to render \a supportedChars are renderable, and format \a format
 	static SdfTextRef		create( const SdfText::Font &font, const Format &format = Format(), const std::string &utf8Chars = SdfText::defaultChars() );
+	//! Creates a new SdfTextRef with SDFT file at \a fontpath if it exists otherwise uses \a font and then saves SDFT file at \a filepath , ensuring that glyphs necessary to render \a supportedChars are renderable, and format \a format
+	static SdfTextRef		create( const fs::path& filePath, const SdfText::Font &font, const Format &format = Format(), const std::string &utf8Chars = SdfText::defaultChars() );
 
-	static void				save( const ci::DataTargetRef& target, const SdfTextRef& sdfText );
-	static void				save( const ci::fs::path& filePath, const SdfTextRef& sdfText );
-	static SdfTextRef		load( const ci::DataSourceRef& source, float size = 0 );
-	static SdfTextRef		load( const ci::fs::path& filePath, float size = 0 );
+	static void				save( const DataTargetRef& target, const SdfTextRef& sdfText );
+	static void				save( const fs::path& filePath, const SdfTextRef& sdfText );
+	static SdfTextRef		load( const DataSourceRef& source, float size = 0 );
+	static SdfTextRef		load( const fs::path& filePath, float size = 0 );
 
 	//! Draws string \a str at baseline \a baseline with DrawOptions \a options
 	void	drawString( const std::string &str, const vec2 &baseline, const DrawOptions &options = DrawOptions() );

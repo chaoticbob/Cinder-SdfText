@@ -12,7 +12,7 @@ using namespace std;
 //! \class BasciApp
 //!
 //!
-class BasicApp : public App {
+class SaveLoadApp : public App {
 public:
 	void setup() override;
 	void keyDown( KeyEvent event ) override;
@@ -32,7 +32,7 @@ private:
 	std::string					mCurrentSdfFile;
 };
 
-void BasicApp::setup()
+void SaveLoadApp::setup()
 {
 #if defined( CINDER_MSW )
 	// For AllSamples
@@ -60,7 +60,7 @@ void BasicApp::setup()
 	mFont = mSdfText->getFont();
 }
 
-void BasicApp::keyDown( KeyEvent event )
+void SaveLoadApp::keyDown( KeyEvent event )
 {
 	switch( event.getChar() ) {
 		case '=':
@@ -114,7 +114,7 @@ void BasicApp::keyDown( KeyEvent event )
 	}
 }
 
-void BasicApp::mouseDown( MouseEvent event )
+void SaveLoadApp::mouseDown( MouseEvent event )
 {
 	// NOTE: This may take a little bit since it has to generate the SDF data!
 	while( true ) { // find the next random font with a letter 'a' in it
@@ -128,11 +128,11 @@ void BasicApp::mouseDown( MouseEvent event )
 	}
 }
 
-void BasicApp::update()
+void SaveLoadApp::update()
 {
 }
 
-void BasicApp::draw()
+void SaveLoadApp::draw()
 {
 	gl::setMatricesWindow( getWindowSize() );
 	gl::enableAlphaBlending();
@@ -167,4 +167,4 @@ void prepareSettings( App::Settings *settings )
 {
 }
 
-CINDER_APP( BasicApp, RendererGl, prepareSettings );
+CINDER_APP( SaveLoadApp, RendererGl, prepareSettings );

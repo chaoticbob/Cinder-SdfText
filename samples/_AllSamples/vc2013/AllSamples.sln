@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Languages", "..\..\Language
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SaveLoad", "..\..\SaveLoad\vc2013\SaveLoad.vcxproj", "{EFC6A28D-5F52-483E-8667-795AF308C8EF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CreateSaveLoad", "..\..\CreateSaveLoad\vc2013\CreateSaveLoad.vcxproj", "{13191B3D-DEBE-49F0-800F-32048614949C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -51,6 +53,14 @@ Global
 		{EFC6A28D-5F52-483E-8667-795AF308C8EF}.Release|Win32.Build.0 = Release|Win32
 		{EFC6A28D-5F52-483E-8667-795AF308C8EF}.Release|x64.ActiveCfg = Release|x64
 		{EFC6A28D-5F52-483E-8667-795AF308C8EF}.Release|x64.Build.0 = Release|x64
+		{13191B3D-DEBE-49F0-800F-32048614949C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{13191B3D-DEBE-49F0-800F-32048614949C}.Debug|Win32.Build.0 = Debug|Win32
+		{13191B3D-DEBE-49F0-800F-32048614949C}.Debug|x64.ActiveCfg = Debug|x64
+		{13191B3D-DEBE-49F0-800F-32048614949C}.Debug|x64.Build.0 = Debug|x64
+		{13191B3D-DEBE-49F0-800F-32048614949C}.Release|Win32.ActiveCfg = Release|Win32
+		{13191B3D-DEBE-49F0-800F-32048614949C}.Release|Win32.Build.0 = Release|Win32
+		{13191B3D-DEBE-49F0-800F-32048614949C}.Release|x64.ActiveCfg = Release|x64
+		{13191B3D-DEBE-49F0-800F-32048614949C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

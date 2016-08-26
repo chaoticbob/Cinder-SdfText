@@ -1275,7 +1275,25 @@ SdfTextRef SdfText::create( const SdfText::Font &font, const Format &format, con
 	return result;
 }
 
-void SdfText::save( const ci::DataTargetRef& target, const SdfTextRef& sdfText )
+cinder::gl::SdfTextRef SdfText::create( const fs::path& filePath, const SdfText::Font &font, const Format &format, const std::string &utf8Chars )
+{
+	SdfTextRef result;
+	if( fs::exists( filePath ) ) {
+		result = SdfText::load( filePath );
+	}
+	else {
+		result = create( font, format, utf8Chars );
+		if( result ) {
+			// Save first
+			SdfText::save( filePath, result );
+			// Load to ensure parity
+			result = SdfText::load( filePath );
+		}
+	}
+	return result;
+}
+
+void SdfText::save(const ci::DataTargetRef& target, const SdfTextRef& sdfText)
 {
 	const uint32_t kCurrentVersion = 0x00000001;
 
