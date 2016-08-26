@@ -163,14 +163,20 @@ public:
 
 	class Font {
 	public:
-		typedef uint32_t Glyph;
+		using Char = std::u32string::value_type;
+		using Glyph = uint32_t;
 
+		using CharToGlyphMap = std::unordered_map<SdfText::Font::Char, SdfText::Font::Glyph>;
+		using GlyphToCharMap = std::unordered_map<SdfText::Font::Glyph, SdfText::Font::Char>;
+		
 		struct GlyphMetrics {
 			vec2  advance;
 		};
 
+		using GlyphMeasure = vec2;
+
 		using GlyphMetricsMap = std::map<SdfText::Font::Glyph, SdfText::Font::GlyphMetrics>;
-		using GlyphMeasures = std::vector<std::pair<SdfText::Font::Glyph, vec2>>;
+		using GlyphMeasuresList = std::vector<std::pair<SdfText::Font::Glyph, SdfText::Font::GlyphMeasure>>;
 
 		Font() {}
 		Font( const std::string &name, float size );
@@ -234,9 +240,9 @@ public:
 	//! Draws word-wrapped string \a str fit inside \a fitRect, with internal offset \a offset and DrawOptions \a options.
 	void	drawStringWrapped( const std::string &str, const Rectf &fitRect, const vec2 &offset = vec2(), const DrawOptions &options = DrawOptions() );
 	//! Draws the glyphs in \a glyphMeasures at baseline \a baseline with DrawOptions \a options. \a glyphMeasures is a vector of pairs of glyph indices and offsets for the glyph baselines
-	void	drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, const vec2 &baseline, const DrawOptions &options = DrawOptions(), const std::vector<ColorA8u> &colors = std::vector<ColorA8u>() );
+	void	drawGlyphs( const SdfText::Font::GlyphMeasuresList &glyphMeasures, const vec2 &baseline, const DrawOptions &options = DrawOptions(), const std::vector<ColorA8u> &colors = std::vector<ColorA8u>() );
 	//! Draws the glyphs in \a glyphMeasures clipped by \a clip, with \a offset added to each of the glyph offsets with DrawOptions \a options. \a glyphMeasures is a vector of pairs of glyph indices and offsets for the glyph baselines.
-	void	drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, const Rectf &clip, vec2 offset, const DrawOptions &options = DrawOptions(), const std::vector<ColorA8u> &colors = std::vector<ColorA8u>() );
+	void	drawGlyphs( const SdfText::Font::GlyphMeasuresList &glyphMeasures, const Rectf &clip, vec2 offset, const DrawOptions &options = DrawOptions(), const std::vector<ColorA8u> &colors = std::vector<ColorA8u>() );
 
 	//! Returns the size in pixels necessary to render the string \a str with DrawOptions \a options.
 	vec2	measureString( const std::string &str, const DrawOptions &options = DrawOptions() ) const;
@@ -264,19 +270,22 @@ public:
 	uint32_t				getNumTextures() const;
 	const gl::TextureRef&	getTexture( uint32_t n ) const;
 
+	const SdfText::Font::GlyphMetricsMap&	getGlyphMetrics() const { return mGlyphMetrics; }
+	const SdfText::Font::CharToGlyphMap&	getCharToGlyph() const { return mCharToGlyph; }
+
 private:
-	SdfText( const SdfText::Font &font, const Format &format, const std::string &utf8Chars );
+	SdfText( const SdfText::Font &font, const Format &format, const std::string &utf8Chars, bool generateSdf = true );
 	friend class SdfTextManager;
 
 	class TextureAtlas;
 	using TextureAtlasRef = std::shared_ptr<TextureAtlas>;
 
-	SdfText::Font					mFont;
-	Format							mFormat;
-	TextureAtlasRef					mTextureAtlases;
-
-	SdfText::Font::GlyphMetricsMap	mCachedGlyphMetrics;
-	void							cacheGlyphMetrics();
+	SdfText::Font						mFont;
+	Format								mFormat;
+	TextureAtlasRef						mTextureAtlases;
+	SdfText::Font::GlyphMetricsMap		mGlyphMetrics;
+	SdfText::Font::CharToGlyphMap		mCharToGlyph;
+	SdfText::Font::GlyphToCharMap		mGlyphToChar;
 };
 
 }} // namespace cinder::gl
