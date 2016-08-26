@@ -1,0 +1,170 @@
+#include "cinder/app/App.h"
+#include "cinder/app/RendererGl.h"
+#include "cinder/gl/gl.h"
+#include "cinder/gl/SdfText.h"
+#include "cinder/Rand.h"
+#include "cinder/Utilities.h"
+
+using namespace ci;
+using namespace ci::app;
+using namespace std;
+
+//! \class BasciApp
+//!
+//!
+class BasicApp : public App {
+public:
+	void setup() override;
+	void keyDown( KeyEvent event ) override;
+	void mouseDown( MouseEvent event ) override;
+	void update() override;
+	void draw() override;
+
+private:
+	gl::SdfTextRef		mStatusText;
+	gl::SdfText::Font	mFont;
+	gl::SdfTextRef		mSdfText;
+	bool				mPremultiply = false;
+	bool				mUseSdftFile = true;
+
+	std::vector<std::string>	mSdftFileNames;
+	size_t						mSdftIndex = 0;
+	std::string					mCurrentSdfFile;
+};
+
+void BasicApp::setup()
+{
+#if defined( CINDER_MSW )
+	// For AllSamples
+	addAssetDirectory( getAppPath() / "../../../../SaveLoad/assets" );
+#endif
+
+	mSdftFileNames = {
+		"AlfaSlabOne.sdft",
+		"Arial.sdft",
+		"Candal.sdft",
+		"Cinzel.sdft",
+		"FontdinerSwanky.sdft",
+		"Lobster.sdft",
+		"LuckiestGuy.sdft",
+		"PoiretOne.sdft",
+		"system_font.sdft",
+		"TimesNewRoman.sdft",
+		"VarelaRound.sdft"
+	};
+
+	mCurrentSdfFile = mSdftFileNames[mSdftIndex];
+
+	mStatusText = gl::SdfText::load( getAssetPath( "VarelaRound.sdft" ) );
+	mSdfText = gl::SdfText::load( getAssetPath( mCurrentSdfFile ) );
+	mFont = mSdfText->getFont();
+}
+
+void BasicApp::keyDown( KeyEvent event )
+{
+	switch( event.getChar() ) {
+		case '=':
+		case '+':
+			if( mUseSdftFile ) {
+				mSdfText = gl::SdfText::load( getAssetPath( mCurrentSdfFile ), mFont.getSize() + 1 );
+				mFont = mSdfText->getFont();
+			}
+			else {
+				mFont = gl::SdfText::Font( mFont.getName(), mFont.getSize() + 1 );
+				mSdfText = gl::SdfText::create( mFont );
+			}
+		break;
+		case '-':
+			if( mUseSdftFile ) {
+				mSdfText = gl::SdfText::load( getAssetPath( mCurrentSdfFile ), mFont.getSize() - 1 );
+				mFont = mSdfText->getFont();
+			}
+			else {
+				mFont = gl::SdfText::Font( mFont.getName(), mFont.getSize() - 1 );
+				mSdfText = gl::SdfText::create( mFont );
+			}
+		break;
+		case 'p':
+		case 'P':
+			mPremultiply = ! mPremultiply;
+		break;
+		case 's':
+		case 'S': {
+			if( ! mUseSdftFile ) {
+				// Save the font to a SDFT file
+				console() << "Saving " << mSdfText->getName() << "..." << std::endl;
+				gl::SdfText::save( getAssetPath( "" ) / "system_font.sdft", mSdfText );
+				// Reload the font from the SDFT file
+				mSdfText = gl::SdfText::load( getAssetPath( "" ) / "system_font.sdft" );
+				mCurrentSdfFile = "system_font.sdft";
+				mUseSdftFile = true;
+			}
+		}
+		break;
+		case 'n':
+		case 'N': {
+			++mSdftIndex;
+			mSdftIndex %= mSdftFileNames.size();
+			mCurrentSdfFile = mSdftFileNames[mSdftIndex];
+			mSdfText = gl::SdfText::load( getAssetPath( mCurrentSdfFile ), mFont.getSize() );
+			mFont = mSdfText->getFont();
+			mUseSdftFile = true;
+		}
+		break;
+	}
+}
+
+void BasicApp::mouseDown( MouseEvent event )
+{
+	// NOTE: This may take a little bit since it has to generate the SDF data!
+	while( true ) { // find the next random font with a letter 'a' in it
+		mFont = gl::SdfText::Font( gl::SdfText::Font::getNames()[Rand::randInt() % gl::SdfText::Font::getNames().size()], mFont.getSize() );
+		if( mFont.getGlyphChar( 'a' ) == 0 )
+			continue;
+		console() << mFont.getName() << std::endl;
+		mSdfText = gl::SdfText::create( mFont );
+		mUseSdftFile = false;
+		break;
+	}
+}
+
+void BasicApp::update()
+{
+}
+
+void BasicApp::draw()
+{
+	gl::setMatricesWindow( getWindowSize() );
+	gl::enableAlphaBlending();
+	gl::clear( Color( 0, 0, 0 ) );
+	
+	std::string str( "Granted, then, that certain transformations do happen, it is essential that we should regard them in the philosophic manner of fairy tales, not in the unphilosophic manner of science and the \"Laws of Nature.\" When we are asked why eggs turn into birds or fruits fall in autumn, we must answer exactly as the fairy godmother would answer if Cinderella asked her why mice turned into horses or her clothes fell from her at twelve o'clock. We must answer that it is MAGIC. It is not a \"law,\" for we do not understand its general formula." );
+	Rectf boundsRect( 40, mSdfText->getAscent() + 50, getWindowWidth() - 40, getWindowHeight() - 40 );
+
+	gl::color( ColorA( 1, 0.5f, 0.25f, 1.0f ) );
+
+	auto drawOptions = gl::SdfText::DrawOptions().premultiply( mPremultiply );
+
+	mSdfText->drawStringWrapped( str, boundsRect, vec2( 0 ), drawOptions );
+
+	// Draw FPS
+	gl::color( Color::white() );
+	mSdfText->drawString( toString( floor( getAverageFps() ) ) + " FPS | " + std::string( mPremultiply ? "premult" : "" ), vec2( 10, getWindowHeight() - mSdfText->getDescent() ), drawOptions );
+    
+    // Draw Font Name
+	float fontNameWidth = mSdfText->measureString( mSdfText->getName() ).x;
+	mSdfText->drawString( mSdfText->getName(), vec2( getWindowWidth() - fontNameWidth - 10, getWindowHeight() - mSdfText->getDescent() ), drawOptions );
+
+	std::string msg = "Rendering using system font";
+	if( mUseSdftFile ) {
+		msg = "Rendering with SDFT file: " + mCurrentSdfFile;
+	}
+	gl::color( Color( 1, 1, 1 ) );
+	mStatusText->drawString( msg, vec2( 8, mStatusText->getFont().getHeight() - 6 ) );
+}
+
+void prepareSettings( App::Settings *settings )
+{
+}
+
+CINDER_APP( BasicApp, RendererGl, prepareSettings );

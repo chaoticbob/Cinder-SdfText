@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FontSizes", "..\..\FontSize
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Languages", "..\..\Languages\vc2013\Languages.vcxproj", "{BAB4EBF4-E361-4E51-B743-C6FDC86A7464}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SaveLoad", "..\..\SaveLoad\vc2013\SaveLoad.vcxproj", "{EFC6A28D-5F52-483E-8667-795AF308C8EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -41,6 +43,14 @@ Global
 		{BAB4EBF4-E361-4E51-B743-C6FDC86A7464}.Release|Win32.Build.0 = Release|Win32
 		{BAB4EBF4-E361-4E51-B743-C6FDC86A7464}.Release|x64.ActiveCfg = Release|x64
 		{BAB4EBF4-E361-4E51-B743-C6FDC86A7464}.Release|x64.Build.0 = Release|x64
+		{EFC6A28D-5F52-483E-8667-795AF308C8EF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EFC6A28D-5F52-483E-8667-795AF308C8EF}.Debug|Win32.Build.0 = Debug|Win32
+		{EFC6A28D-5F52-483E-8667-795AF308C8EF}.Debug|x64.ActiveCfg = Debug|x64
+		{EFC6A28D-5F52-483E-8667-795AF308C8EF}.Debug|x64.Build.0 = Debug|x64
+		{EFC6A28D-5F52-483E-8667-795AF308C8EF}.Release|Win32.ActiveCfg = Release|Win32
+		{EFC6A28D-5F52-483E-8667-795AF308C8EF}.Release|Win32.Build.0 = Release|Win32
+		{EFC6A28D-5F52-483E-8667-795AF308C8EF}.Release|x64.ActiveCfg = Release|x64
+		{EFC6A28D-5F52-483E-8667-795AF308C8EF}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

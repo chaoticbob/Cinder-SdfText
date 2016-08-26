@@ -230,8 +230,8 @@ public:
 
 	static void				save( const ci::DataTargetRef& target, const SdfTextRef& sdfText );
 	static void				save( const ci::fs::path& filePath, const SdfTextRef& sdfText );
-	static SdfTextRef		load( const ci::DataSourceRef& source );
-	static SdfTextRef		load( const ci::fs::path& filePath );
+	static SdfTextRef		load( const ci::DataSourceRef& source, float size = 0 );
+	static SdfTextRef		load( const ci::fs::path& filePath, float size = 0 );
 
 	//! Draws string \a str at baseline \a baseline with DrawOptions \a options
 	void	drawString( const std::string &str, const vec2 &baseline, const DrawOptions &options = DrawOptions() );
