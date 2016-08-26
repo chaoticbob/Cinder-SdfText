@@ -184,10 +184,10 @@ public:
 		const std::string&		getName() const { return mName; }
 		std::string				getFullName() const { return mName; }
 
-		float					getHeight() const;
-		float					getLeading() const;
-		float					getAscent() const;
-		float					getDescent() const;
+		float					getHeight() const { return mHeight; }
+		float					getLeading() const { return mLeading; }
+		float					getAscent() const { return mAscent; }
+		float					getDescent() const { return mDescent; }
 
 		size_t					getNumGlyphs() const { return mNumGlyphs; }
 		Glyph					getGlyphIndex( size_t idx ) const;
@@ -200,11 +200,19 @@ public:
 		static SdfText::Font					getDefault();
 
 	private:
-		float					mSize;
-		FontDataRef				mData;
+		float					mSize = 0;
 		std::string				mName;
+		float					mHeight = 0;
+		float					mLeading = 0;
+		float					mAscent = 0;
+		float					mDescent = 0;
 		size_t					mNumGlyphs = 0;
+
+		uint32_t				mUnitsPerEm = 0;
+
+		FontDataRef				mData;
 		void					loadFontData( const ci::DataSourceRef &dataSource );
+		friend class SdfText;
 	};
 
 	// ---------------------------------------------------------------------------------------------
@@ -213,6 +221,11 @@ public:
 
 	//! Creates a new TextureFontRef with font \a font, ensuring that glyphs necessary to render \a supportedChars are renderable, and format \a format
 	static SdfTextRef		create( const SdfText::Font &font, const Format &format = Format(), const std::string &utf8Chars = SdfText::defaultChars() );
+
+	static void				save( const ci::DataTargetRef& target, const SdfTextRef& sdfText );
+	static void				save( const ci::fs::path& filePath, const SdfTextRef& sdfText );
+	static SdfTextRef		load( const ci::DataSourceRef& source );
+	static SdfTextRef		load( const ci::fs::path& filePath );
 
 	//! Draws string \a str at baseline \a baseline with DrawOptions \a options
 	void	drawString( const std::string &str, const vec2 &baseline, const DrawOptions &options = DrawOptions() );

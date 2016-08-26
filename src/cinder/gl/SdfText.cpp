@@ -192,7 +192,6 @@ private:
 	vec2						mMaxGlyphSize = vec2( 0.0f );
 	float						mMaxAscent = 0.0f;
 	float						mMaxDescent = 0.0f;
-
 };
 
 SdfText::TextureAtlas::TextureAtlas( FT_Face face, const SdfText::Format &format, const std::string &utf8Chars )
@@ -1108,17 +1107,6 @@ SdfText::Font::Font( DataSourceRef dataSource, float size )
 	else {
 		loadFontData( dataSource );
 	}
-
-	FT_SfntName sn = {};
-	if( FT_Err_Ok == FT_Get_Sfnt_Name( mData->getFace(), TT_NAME_ID_FULL_NAME, &sn ) ) {
-		// Possible Unicode name, just use filename for now
-		if( sn.string_len > 0  && ( 0 == sn.string[0] ) ) {
-			mName = "(Unknown)";
-		}
-		else {
-			mName = std::string( reinterpret_cast<const char *>( sn.string ), sn.string_len );
-		}
-	}	
 }
 
 SdfText::Font::~Font()
@@ -1132,8 +1120,50 @@ void SdfText::Font::loadFontData( const ci::DataSourceRef &dataSource )
 
 	FT_F26Dot6 finalSize = static_cast<FT_F26Dot6>( mSize * 64.0f );
 	FT_Set_Char_Size( mData->getFace(), 0, finalSize , 0, 72 );
+
+	// Extract the name if needed
+	if( mName.empty() ) {
+		FT_SfntName sn = {};
+		if( FT_Err_Ok == FT_Get_Sfnt_Name( mData->getFace(), TT_NAME_ID_FULL_NAME, &sn ) ) {
+			// If full name isn't available use family and style name
+			if( sn.string_len > 0  && ( 0 == sn.string[0] ) ) {
+				// Fallback to this name
+				mName = "(Unknown)";
+				std::string familyName = mData->getFace()->family_name;
+				std::string styleName = mData->getFace()->style_name;
+				if( ! familyName.empty() ) {
+					mName = familyName;
+					if( ! styleName.empty() ) {
+						styleName += ( " " + styleName );
+					}
+				}
+			}
+			else {
+				mName = std::string( reinterpret_cast<const char *>( sn.string ), sn.string_len );
+			}
+		}
+	}
+
+	// Units per EM
+	mUnitsPerEm = mData->getFace()->units_per_EM;
+
+	// Glyph scale
+	float glyphScale = 2048.0f / static_cast<float>( mUnitsPerEm );
+
+	// Height
+	mHeight = glyphScale * ( mData->getFace()->height / 64.0f );
+
+	// Leading
+	mLeading = glyphScale * ( mData->getFace()->height - ( std::abs( mData->getFace()->ascender ) + std::abs( mData->getFace()->descender ) ) ) / 64.0f;
+
+	// Ascent
+	mAscent = glyphScale * std::fabs( mData->getFace()->ascender / 64.0f );
+
+	// Descent
+	mDescent = glyphScale * std::fabs( mData->getFace()->descender / 64.0f );
 }
 
+/*
 float SdfText::Font::getHeight() const
 {
 	float glyphScale = 2048.0f / mData->getFace()->units_per_EM;
@@ -1161,6 +1191,7 @@ float SdfText::Font::getDescent() const
 	float result = glyphScale * std::fabs( mData->getFace()->descender / 64.0f );
 	return result;
 }
+*/
 
 SdfText::Font::Glyph SdfText::Font::getGlyphIndex( size_t idx ) const
 {
@@ -1228,7 +1259,153 @@ SdfTextRef SdfText::create( const SdfText::Font &font, const Format &format, con
 	return result;
 }
 
-void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasures &glyphMeasures, const vec2 &baselineIn, const DrawOptions &options, const std::vector<ColorA8u> &colors )
+void SdfText::save( const ci::DataTargetRef& target, const SdfTextRef& sdfText )
+{
+	const uint32_t kCurrentVersion = 0x00000001;
+
+	if( ! target ) {
+		throw ci::Exception( "Invalid data target" );
+	}
+
+	auto os = target->getStream();
+	if( ! os ) {
+		throw ci::Exception( "Invalid out stream" );
+	}
+
+	if( ! sdfText->mTextureAtlases ) {
+		throw ci::Exception( "No texture atlases" );
+	}
+
+	// File ident: SDFT
+	os->write( static_cast<uint8_t>( 'S' ) );
+	os->write( static_cast<uint8_t>( 'D' ) );
+	os->write( static_cast<uint8_t>( 'F' ) );
+	os->write( static_cast<uint8_t>( 'T' ) );
+
+	// Version
+	os->writeLittle( kCurrentVersion );
+
+	// Name
+	const uint32_t nameLenth = static_cast<uint32_t>( sdfText->getFont().getName().length() );
+	os->writeLittle( nameLenth );
+	os->write( sdfText->getFont().getName() );
+
+	// Size
+	os->writeLittle( sdfText->getFont().getSize() );
+	// Leading
+	os->writeLittle( sdfText->getFont().getLeading() );
+	// Height
+	os->writeLittle( sdfText->getFont().getHeight() );
+	// Ascent
+	os->writeLittle( sdfText->getFont().getAscent() );
+	// Descent
+	os->writeLittle( sdfText->getFont().getDescent() );
+
+	// Glyph metrics
+	{
+		// Glyph metrics ident: GLMT
+		os->write( static_cast<uint8_t>( 'G' ) );
+		os->write( static_cast<uint8_t>( 'L' ) );
+		os->write( static_cast<uint8_t>( 'M' ) );
+		os->write( static_cast<uint8_t>( 'T' ) );
+	
+
+		// Glyph metrics
+		for( const auto& it : sdfText->mCachedGlyphMetrics ) {
+			const SdfText::Font::Glyph& glyph = it.first;
+			const SdfText::Font::GlyphMetrics& metrics = it.second;
+			os->writeLittle( glyph );
+			os->writeLittle( metrics.advance.x );
+			os->writeLittle( metrics.advance.y );
+		}
+	}
+
+	// Texture atlases
+	{
+		// Texture atlases ident: TXAT
+		os->write( static_cast<uint8_t>( 'T' ) );
+		os->write( static_cast<uint8_t>( 'X' ) );
+		os->write( static_cast<uint8_t>( 'A' ) );
+		os->write( static_cast<uint8_t>( 'T' ) );
+
+		// SDF scale
+		os->writeLittle( sdfText->mTextureAtlases->mSdfScale.x );
+		os->writeLittle( sdfText->mTextureAtlases->mSdfScale.y );
+		// SDF padding
+		os->writeLittle( sdfText->mTextureAtlases->mSdfPadding.x );
+		os->writeLittle( sdfText->mTextureAtlases->mSdfPadding.y );
+		// SDF bitmap size
+		os->writeLittle( sdfText->mTextureAtlases->mSdfBitmapSize.x );
+		os->writeLittle( sdfText->mTextureAtlases->mSdfBitmapSize.y );
+		// Max glyph size
+		os->writeLittle( sdfText->mTextureAtlases->mMaxGlyphSize.x );
+		os->writeLittle( sdfText->mTextureAtlases->mMaxGlyphSize.y );
+		// Max ascent
+		os->writeLittle( sdfText->mTextureAtlases->mMaxAscent );
+		// Max descent
+		os->writeLittle( sdfText->mTextureAtlases->mMaxDescent );
+	
+		// Number of chars
+		const uint32_t numChars = static_cast<uint32_t>( sdfText->mTextureAtlases->mCharToGlyph.size() );
+		os->writeLittle( numChars );
+		// Glyph info
+		for( const auto& it : sdfText->mTextureAtlases->mCharToGlyph ) {
+			const uint32_t& ch = it.first;
+			const SdfText::Font::Glyph& glyph = it.second;
+			const SdfText::TextureAtlas::GlyphInfo glyphInfo = sdfText->mTextureAtlases->mGlyphInfo[glyph];
+			os->writeLittle( ch );
+			os->writeLittle( glyph );
+			os->writeLittle( glyphInfo.mTextureIndex );
+			os->writeLittle( glyphInfo.mTexCoords.x1 );
+			os->writeLittle( glyphInfo.mTexCoords.y1 );
+			os->writeLittle( glyphInfo.mTexCoords.x2 );
+			os->writeLittle( glyphInfo.mTexCoords.y2 );
+			os->writeLittle( glyphInfo.mOriginOffset.x );
+			os->writeLittle( glyphInfo.mOriginOffset.y );
+		}
+
+		// Number of textures
+		const uint32_t numTextures = static_cast<uint32_t>( sdfText->mTextureAtlases->mTextures.size() );
+		os->writeLittle( numTextures );
+		// Textures
+		for( const auto& tex : sdfText->mTextureAtlases->mTextures ) {
+			// Write texture to PNG using memory buffer
+			ci::ImageSourceRef pngSource = tex->createSource();
+			ci::OStreamMemRef pngStream = ci::OStreamMem::create();
+			ci::DataTargetStreamRef pngTarget = ci::DataTargetStream::createRef( pngStream );
+			writeImage( pngTarget, pngSource, ci::ImageTarget::Options(), "png" );					
+			// PNG ident: PNG
+			os->write( static_cast<uint8_t>( 'P' ) );
+			os->write( static_cast<uint8_t>( 'N' ) );
+			os->write( static_cast<uint8_t>( 'G' ) );
+			os->write( static_cast<uint8_t>( 'F' ) );			
+			// Create buffer
+			const size_t pngBufferSize = static_cast<size_t>( pngStream->tell() );
+			ci::Buffer buffer = ci::Buffer( pngStream->getBuffer(), pngBufferSize );
+			// Write buffer
+			os->writeLittle( static_cast<uint32_t>( buffer.getSize() ) );
+			os->write( buffer );
+		}
+	}
+}
+
+void SdfText::save( const ci::fs::path& filePath, const SdfTextRef& sdfText )
+{
+	SdfText::save( ci::writeFile( filePath, true ), sdfText );
+}
+
+SdfTextRef SdfText::load( const ci::DataSourceRef& source )
+{
+	cinder::gl::SdfTextRef result;
+	return result;
+}
+
+SdfTextRef SdfText::load( const ci::fs::path& filePath )
+{
+	return SdfText::load( ci::DataSourcePath::create( filePath ) );
+}
+
+void SdfText::drawGlyphs(const SdfText::Font::GlyphMeasures &glyphMeasures, const vec2 &baselineIn, const DrawOptions &options, const std::vector<ColorA8u> &colors)
 {
 	const auto& textures = mTextureAtlases->mTextures;
 	const auto& glyphMap = mTextureAtlases->mGlyphInfo;
