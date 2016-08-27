@@ -49,6 +49,7 @@ using SdfTextRef = std::shared_ptr<SdfText>;
 //!
 class SdfText {
 public:
+	typedef enum Alignment { LEFT, CENTER, RIGHT } Alignment;
 
 	//! \class Options
 	//!
@@ -132,6 +133,11 @@ public:
 		//! Sets the leading (aka line gap) used adjust the line height when wrapping. Default \c 0
 		DrawOptions&	leading( float value ) { mLeading = value; return *this; }
 
+		//! Returns the horizontal alignment (LEFT, CENTER, RIGHT) of the type. Default \c LEFT
+		Alignment		getAlignment() const { return mAlign; }
+		//! Sets the horizontal alignment (LEFT, CENTER, RIGHT) of the type. Default \c LEFT
+		DrawOptions&	alignment( Alignment align ) { mAlign = align; return *this; }
+
 		//! Sets whether the TextureFont render premultiplied output. Default \c false
 		DrawOptions&	premultiply( bool premult = true ) { mPremultiply = premult; return *this; }
 		//! Returns whether the TextureFont renders premultiplied output. Default \c false
@@ -153,6 +159,7 @@ public:
 		float			mLeading = 0.0f;
 		bool			mPremultiply = false;
 		float			mGamma = 2.2f;
+		Alignment		mAlign = LEFT;
 		GlslProgRef		mGlslProg;
 	};
 
@@ -171,6 +178,8 @@ public:
 		
 		struct GlyphMetrics {
 			vec2  advance;
+			vec2  minimum;
+			vec2  maximum;
 		};
 
 		using GlyphMeasure = vec2;
