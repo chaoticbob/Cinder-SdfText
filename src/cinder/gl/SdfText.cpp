@@ -1010,6 +1010,7 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 
 		size_t               index = result.size();
 		size_t               spaceCount = 0;
+		size_t               glyphCount = 0;
 		SdfText::Font::Glyph spaceIndex = ~0;
 		SdfText::Font::Glyph glyphIndex = ~0;
 		vec2                 advance = vec2( 0 );
@@ -1031,6 +1032,7 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 			advance = glyphMetricIt->second.advance;
 			adjust = advance - glyphMetricIt->second.maximum;
 
+			glyphCount++;
 			if( ch == 32 ) {
 				spaceCount++;
 				spaceIndex = glyphIndex;
@@ -1064,13 +1066,14 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 			case SdfText::JUSTIFY: {
 				const bool isLastLine = ( lineIt + 1 == mLines.end() );
 				if( spaceCount > 0 && !isLastLine ) {
-					float add = ( mSize.x - ( pen.x + advance.x - adjust.x ) ) / spaceCount;
-
-					float offset = 0.0f;
+					float space = ( mSize.x - ( pen.x + advance.x - adjust.x ) ); // Total space left to fill.
+					float offset = 0.0f; // Extra space added to each white space character.
+					float every = 0.0f; // Extra space added to every character.
 					for( size_t i = index; i < result.size(); ++i ) {
-						result[i].second.x += offset;
+						result[i].second.x += offset + every;
+						every += ( 0.75f * space ) / glyphCount; // 75% of the extra spacing comes from adjusting every character.
 						if( result[i].first == spaceIndex )
-							offset += add;
+							offset += ( 0.25f * space ) / spaceCount; // 25% of the extra spacing comes from adjusting white space characters only.
 					}
 				}
 			}
