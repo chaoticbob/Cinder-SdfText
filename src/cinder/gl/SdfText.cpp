@@ -1006,10 +1006,14 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 	const auto& glyphMetrics = mSdfText->getGlyphMetrics();
 	float curY = 0;
 	for( std::vector<std::string>::const_iterator lineIt = mLines.begin(); lineIt != mLines.end(); ++lineIt ) {
-		std::u32string utf32Chars = ci::toUtf32( *lineIt );
+		std::u32string utf32Chars = ci::rtrimmed( ci::toUtf32( *lineIt ) );
 
-		size_t index = result.size();
-		vec2   adjust = vec2( 0 ); //! Difference between the last glyph's 'advance' and maximum glyph bounds, required for perfect CENTER and RIGHT alignment.
+		size_t               index = result.size();
+		size_t               spaceCount = 0;
+		SdfText::Font::Glyph spaceIndex = ~0;
+		SdfText::Font::Glyph glyphIndex = ~0;
+		vec2                 advance = vec2( 0 );
+		vec2                 adjust = vec2( 0 );
 
 		vec2 pen = { 0, 0 };
 		for( const auto& ch : utf32Chars ) {
@@ -1018,13 +1022,19 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 				continue;
 			}
 			 
-			SdfText::Font::Glyph glyphIndex = glyphIndexIt->second;
+			glyphIndex = glyphIndexIt->second;
 			auto glyphMetricIt = glyphMetrics.find( glyphIndex );
 			if( glyphMetrics.end() == glyphMetricIt ) {
 				continue;
 			}
-			vec2 advance = glyphMetricIt->second.advance;
+
+			advance = glyphMetricIt->second.advance;
 			adjust = advance - glyphMetricIt->second.maximum;
+
+			if( ch == 32 ) {
+				spaceCount++;
+				spaceIndex = glyphIndex;
+			}
 
 			float xPos = pen.x;
 			result.push_back( std::make_pair( (uint32_t)glyphIndex, vec2( xPos, curY ) ) );
@@ -1032,11 +1042,39 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 			pen += advance;
 		}
 
-		// Horizontal align the line by shifting it to the right.
-		float offsetX = ( align == SdfText::LEFT ) ? 0.0f : ( align == SdfText::CENTER ) ? 0.5f * ( mSize.x - pen.x + adjust.x ) : ( mSize.x - pen.x + adjust.x );
-		if( offsetX > 0.0f ){
-			for( size_t i = index; i < result.size(); ++i )
-				result[i].second.x += offsetX;
+		switch( align ) {
+			case SdfText::LEFT:
+			break;
+			case SdfText::CENTER: {
+				float offset = ( mSize.x - ( pen.x + advance.x - adjust.x ) ) * 0.5f;
+				if( offset > 0.0f ) {
+					for( size_t i = index; i < result.size(); ++i )
+						result[i].second.x += offset;
+				}
+			}
+			break;
+			case SdfText::RIGHT: {
+				float offset = ( mSize.x - ( pen.x + advance.x - adjust.x ) );
+				if( offset > 0.0f ) {
+					for( size_t i = index; i < result.size(); ++i )
+						result[i].second.x += offset;
+				}
+			}
+			break;
+			case SdfText::JUSTIFY: {
+				const bool isLastLine = ( lineIt + 1 == mLines.end() );
+				if( spaceCount > 0 && !isLastLine ) {
+					float add = ( mSize.x - ( pen.x + advance.x - adjust.x ) ) / spaceCount;
+
+					float offset = 0.0f;
+					for( size_t i = index; i < result.size(); ++i ) {
+						result[i].second.x += offset;
+						if( result[i].first == spaceIndex )
+							offset += add;
+					}
+				}
+			}
+			break;
 		}
 
 		curY += lineHeight; 
