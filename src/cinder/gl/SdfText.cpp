@@ -423,10 +423,9 @@ private:
 // =================================================================================================
 class SdfTextBox {
 public:
-	typedef enum Alignment { LEFT, CENTER, RIGHT } Alignment;
 	enum { GROW = 0 };
 	
-	SdfTextBox( const SdfText *sdfText ) : mSdfText( sdfText ), mAlign( LEFT ), mSize( GROW, GROW ), mInvalid( true ), mLigate( true ) {}
+	SdfTextBox( const SdfText *sdfText ) : mSdfText( sdfText ), mAlign( SdfText::LEFT ), mSize( GROW, GROW ), mInvalid( true ), mLigate( true ) {}
 
 	SdfTextBox&				size( ivec2 sz ) { setSize( sz ); return *this; }
 	SdfTextBox&				size( int width, int height ) { setSize( ivec2( width, height ) ); return *this; }
@@ -442,16 +441,20 @@ public:
 	bool					getLigate() const { return mLigate; }
 	void					setLigate( bool ligateText ) { mLigate = ligateText; }
 
+	SdfTextBox&				alignment( SdfText::Alignment align ) { setAlignment( align ); return *this; }
+	SdfText::Alignment		getAlignment() const { return mAlign; }
+	void					setAlignment( SdfText::Alignment align ) { mAlign = align; mInvalid = true; }
+
 	std::vector<std::string>			calculateLineBreaks() const;
 	SdfText::Font::GlyphMeasuresList	measureGlyphs( const SdfText::DrawOptions& drawOptions ) const;
 
 private:
-	const SdfText	*mSdfText = nullptr;
-	Alignment		mAlign;
-	ivec2			mSize;
-	std::string		mText;
-	bool			mLigate;
-	mutable bool	mInvalid;
+	const SdfText		*mSdfText = nullptr;
+	SdfText::Alignment	mAlign;
+	ivec2				mSize;
+	std::string			mText;
+	bool				mLigate;
+	mutable bool		mInvalid;
 };
 
 // =================================================================================================
@@ -992,6 +995,7 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 	const float descent       = font.getDescent();
 	const float leading       = drawOptions.getLeading();
 	const float drawScale	  = drawOptions.getScale();
+	const auto  align         = drawOptions.getAlignment();
 	const float lineHeight    = fontSizeScale * drawScale * ( ascent + descent + leading );
 
 	// Calculate the line breaks
@@ -1003,6 +1007,9 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 	float curY = 0;
 	for( std::vector<std::string>::const_iterator lineIt = mLines.begin(); lineIt != mLines.end(); ++lineIt ) {
 		std::u32string utf32Chars = ci::toUtf32( *lineIt );
+
+		size_t index = result.size();
+		vec2   adjust = vec2( 0 ); //! Difference between the last glyph's 'advance' and maximum glyph bounds, required for perfect CENTER and RIGHT alignment.
 
 		vec2 pen = { 0, 0 };
 		for( const auto& ch : utf32Chars ) {
@@ -1017,11 +1024,19 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 				continue;
 			}
 			vec2 advance = glyphMetricIt->second.advance;
+			adjust = advance - glyphMetricIt->second.maximum;
 
 			float xPos = pen.x;
 			result.push_back( std::make_pair( (uint32_t)glyphIndex, vec2( xPos, curY ) ) );
 
 			pen += advance;
+		}
+
+		// Horizontal align the line by shifting it to the right.
+		float offsetX = ( align == SdfText::LEFT ) ? 0.0f : ( align == SdfText::CENTER ) ? 0.5f * ( mSize.x - pen.x + adjust.x ) : ( mSize.x - pen.x + adjust.x );
+		if( offsetX > 0.0f ){
+			for( size_t i = index; i < result.size(); ++i )
+				result[i].second.x += offsetX;
 		}
 
 		curY += lineHeight; 
@@ -1258,6 +1273,8 @@ SdfText::SdfText( const SdfText::Font &font, const Format &format, const std::st
 				FT_GlyphSlot slot = face->glyph;
 				SdfText::Font::GlyphMetrics glyphMetrics;
 				glyphMetrics.advance = vec2( slot->linearHoriAdvance, slot->linearVertAdvance ) / 65536.0f;
+				glyphMetrics.minimum = vec2( slot->metrics.horiBearingX, slot->metrics.vertBearingY - slot->metrics.height ) / 65536.0f;
+				glyphMetrics.maximum = vec2( slot->metrics.horiBearingX + slot->metrics.width, slot->metrics.vertBearingY ) / 65536.0f;
 				mGlyphMetrics[glyphIndex] = glyphMetrics;
 			}
 		}
@@ -1375,6 +1392,10 @@ void SdfText::save(const ci::DataTargetRef& target, const SdfTextRef& sdfText)
 			os->writeLittle( glyph );
 			os->writeLittle( metrics.advance.x );
 			os->writeLittle( metrics.advance.y );
+			os->writeLittle( metrics.minimum.x );
+			os->writeLittle( metrics.minimum.y );
+			os->writeLittle( metrics.maximum.x );
+			os->writeLittle( metrics.maximum.y );
 		}
 	}
 
@@ -1546,7 +1567,13 @@ SdfTextRef SdfText::load( const ci::DataSourceRef& source, float size )
 			is->readLittle( &glyph );
 			is->readLittle( &(metrics.advance.x) );
 			is->readLittle( &(metrics.advance.y) );
+			is->readLittle( &( metrics.minimum.x ) );
+			is->readLittle( &( metrics.minimum.y ) );
+			is->readLittle( &( metrics.maximum.x ) );
+			is->readLittle( &( metrics.maximum.y ) );
 			metrics.advance *= fontSizeScale;
+			metrics.minimum *= fontSizeScale;
+			metrics.maximum *= fontSizeScale;
 			sdfText->mGlyphMetrics[glyph] = metrics;
 		}
 	}
