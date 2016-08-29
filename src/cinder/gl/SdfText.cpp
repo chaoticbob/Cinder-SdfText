@@ -1066,14 +1066,16 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 			case SdfText::JUSTIFY: {
 				const bool isLastLine = ( lineIt + 1 == mLines.end() );
 				if( spaceCount > 0 && !isLastLine ) {
-					float space = ( mSize.x - ( pen.x + advance.x - adjust.x ) ); // Total space left to fill.
-					float offset = 0.0f; // Extra space added to each white space character.
-					float every = 0.0f; // Extra space added to every character.
+					float space = ( mSize.x - ( pen.x + advance.x - adjust.x ) ); 
+					float offset = 0.0f;
 					for( size_t i = index; i < result.size(); ++i ) {
-						result[i].second.x += offset + every;
-						every += ( 0.75f * space ) / glyphCount; // 75% of the extra spacing comes from adjusting every character.
-						if( result[i].first == spaceIndex )
-							offset += ( 0.25f * space ) / spaceCount; // 25% of the extra spacing comes from adjusting white space characters only.
+						result[i].second.x += offset;
+						// 75% of the extra spacing comes from adjusting every character.
+						offset += ( 0.75f * space ) / glyphCount;
+						if( result[i].first == spaceIndex ) {
+							// 25% of the extra spacing comes from adjusting white space characters only.
+							offset += ( 0.25f * space ) / spaceCount; 
+						}
 					}
 				}
 			}
