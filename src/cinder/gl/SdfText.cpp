@@ -1006,7 +1006,7 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 	const auto& glyphMetrics = mSdfText->getGlyphMetrics();
 	float curY = 0;
 	for( std::vector<std::string>::const_iterator lineIt = mLines.begin(); lineIt != mLines.end(); ++lineIt ) {
-		std::u32string utf32Chars = ci::rtrimmed( ci::toUtf32( *lineIt ) );
+		std::u32string utf32Chars = boost::algorithm::trim_right_copy( ci::toUtf32( *lineIt ) );
 
 		size_t               index = result.size();
 		size_t               spaceCount = 0;
@@ -2014,14 +2014,14 @@ void SdfText::drawString( const std::string &str, const vec2 &baseline, const Dr
 
 void SdfText::drawString( const std::string &str, const Rectf &fitRect, const vec2 &offset, const DrawOptions &options )
 {
-	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( SdfTextBox::GROW, fitRect.getHeight() ).ligate( options.getLigate() );
+	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( SdfTextBox::GROW, (int)fitRect.getHeight() ).ligate( options.getLigate() );
 	SdfText::Font::GlyphMeasuresList glyphMeasures = tbox.measureGlyphs( options );
 	drawGlyphs( glyphMeasures, fitRect, fitRect.getUpperLeft() + offset, options );	
 }
 
 void SdfText::drawStringWrapped( const std::string &str, const Rectf &fitRect, const vec2 &offset, const DrawOptions &options )
 {
-	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( fitRect.getWidth(), fitRect.getHeight() ).ligate( options.getLigate() );
+	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( (int)fitRect.getWidth(), (int)fitRect.getHeight() ).ligate( options.getLigate() );
 	SdfText::Font::GlyphMeasuresList glyphMeasures = tbox.measureGlyphs( options );
 	drawGlyphs( glyphMeasures, fitRect.getUpperLeft() + offset, options );
 }
@@ -2052,13 +2052,13 @@ std::vector<std::pair<SdfText::Font::Glyph, vec2>> SdfText::getGlyphPlacements( 
 
 std::vector<std::pair<SdfText::Font::Glyph, vec2>> SdfText::getGlyphPlacements( const std::string &str, const Rectf &fitRect, const DrawOptions &options ) const
 {
-	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( SdfTextBox::GROW, fitRect.getHeight() ).ligate( options.getLigate() );
+	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( SdfTextBox::GROW, (int)fitRect.getHeight() ).ligate( options.getLigate() );
 	return tbox.measureGlyphs( options );
 }
 
 std::vector<std::pair<SdfText::Font::Glyph, vec2>> SdfText::getGlyphPlacementsWrapped( const std::string &str, const Rectf &fitRect, const DrawOptions &options ) const
 {
-	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( fitRect.getWidth(), fitRect.getHeight() ).ligate( options.getLigate() );
+	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( (int)fitRect.getWidth(), (int)fitRect.getHeight() ).ligate( options.getLigate() );
 	return tbox.measureGlyphs( options );
 }
 
