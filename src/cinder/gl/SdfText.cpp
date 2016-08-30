@@ -1064,42 +1064,46 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 		}
 
 		// Apply alignment as a post-process.
-		switch( align ) {
-			case SdfText::LEFT:
-			break;
-			case SdfText::CENTER: {
-				float offset = ( mSize.x - ( pen.x + advance.x - adjust.x ) ) * 0.5f;
-				if( offset > 0.0f ) {
-					for( size_t i = index; i < result.size(); ++i )
-						result[i].second.x += offset;
-				}
-			}
-			break;
-			case SdfText::RIGHT: {
-				float offset = ( mSize.x - ( pen.x + advance.x - adjust.x ) );
-				if( offset > 0.0f ) {
-					for( size_t i = index; i < result.size(); ++i )
-						result[i].second.x += offset;
-				}
-			}
-			break;
-			case SdfText::JUSTIFY: {
-				const bool isLastLine = nextUtf32Chars.empty();
-				if( spaceCount > 0 && !isLastLine ) {
-					float space = ( mSize.x - ( pen.x + advance.x - adjust.x ) ); 
-					float offset = 0.0f;
-					for( size_t i = index; i < result.size(); ++i ) {
-						result[i].second.x += offset;
-						// 75% of the extra spacing comes from adjusting every character.
-						offset += ( 0.75f * space ) / glyphCount;
-						if( result[i].first == spaceIndex ) {
-							// 25% of the extra spacing comes from adjusting white space characters only.
-							offset += ( 0.25f * space ) / spaceCount; 
-						}
+		bool aligned = false;
+		if( drawOptions.getJustify() ) {
+			const bool isLastLine = nextUtf32Chars.empty();
+			if( spaceCount > 0 && !isLastLine ) {
+				float space = ( mSize.x - ( pen.x + advance.x - adjust.x ) );
+				float offset = 0.0f;
+				for( size_t i = index; i < result.size(); ++i ) {
+					result[i].second.x += offset;
+					// 75% of the extra spacing comes from adjusting every character.
+					offset += ( 0.75f * space ) / glyphCount;
+					if( result[i].first == spaceIndex ) {
+						// 25% of the extra spacing comes from adjusting white space characters only.
+						offset += ( 0.25f * space ) / spaceCount;
 					}
 				}
+				aligned = true;
 			}
-			break;
+		}
+
+		if( ! aligned ){
+			switch( align ) {
+				case SdfText::LEFT:
+				break;
+				case SdfText::CENTER: {
+					float offset = ( mSize.x - ( pen.x + advance.x - adjust.x ) ) * 0.5f;
+					if( offset > 0.0f ) {
+						for( size_t i = index; i < result.size(); ++i )
+							result[i].second.x += offset;
+					}
+				}
+				break;
+				case SdfText::RIGHT: {
+					float offset = ( mSize.x - ( pen.x + advance.x - adjust.x ) );
+					if( offset > 0.0f ) {
+						for( size_t i = index; i < result.size(); ++i )
+							result[i].second.x += offset;
+					}
+				}
+				break;
+			}
 		}
 
 		curY += lineHeight; 

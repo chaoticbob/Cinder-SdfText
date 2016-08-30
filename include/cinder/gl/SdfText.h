@@ -49,7 +49,7 @@ using SdfTextRef = std::shared_ptr<SdfText>;
 //!
 class SdfText {
 public:
-	typedef enum Alignment { LEFT, CENTER, RIGHT, JUSTIFY } Alignment;
+	typedef enum Alignment { LEFT, CENTER, RIGHT } Alignment;
 
 	//! \class Options
 	//!
@@ -138,6 +138,11 @@ public:
 		//! Sets the horizontal alignment (LEFT, CENTER, RIGHT, JUSTIFY) of the type. Default \c LEFT
 		DrawOptions&	alignment( Alignment align ) { mAlign = align; return *this; }
 
+		//! Returns whether the type is flushed to both the left and right sides. Default \c false
+		bool			getJustify() const { return mJustify; }
+		//! Sets whether the type is flushed to both the left and right sides. Default \c false
+		DrawOptions&	justify( bool enabled = true ) { mJustify = enabled; return *this; }
+
 		//! Sets whether the TextureFont render premultiplied output. Default \c false
 		DrawOptions&	premultiply( bool premult = true ) { mPremultiply = premult; return *this; }
 		//! Returns whether the TextureFont renders premultiplied output. Default \c false
@@ -158,6 +163,7 @@ public:
 		float			mScale = 2.0;
 		float			mLeading = 0.0f;
 		bool			mPremultiply = false;
+		bool			mJustify = false;
 		float			mGamma = 2.2f;
 		Alignment		mAlign = LEFT;
 		GlslProgRef		mGlslProg;
