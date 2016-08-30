@@ -1000,14 +1000,33 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 
 	// Calculate the line breaks
 	std::vector<std::string> mLines = calculateLineBreaks();
+	if( mLines.empty() ) {
+		return result;
+	}
 
 	// Build measures
 	const auto& charToGlyph = mSdfText->getCharToGlyph();
 	const auto& glyphMetrics = mSdfText->getGlyphMetrics();
+	std::u32string utf32Chars, nextUtf32Chars;
 	float curY = 0;
-	for( std::vector<std::string>::const_iterator lineIt = mLines.begin(); lineIt != mLines.end(); ++lineIt ) {
-		std::u32string utf32Chars = boost::algorithm::trim_right_copy( ci::toUtf32( *lineIt ) );
 
+	for( std::vector<std::string>::const_iterator lineIt = mLines.begin(); lineIt != mLines.end(); ++lineIt ) {
+		// Fetch current line and prefetch next. This way we can look ahead.
+		if( nextUtf32Chars.empty() ) {
+			utf32Chars = boost::algorithm::trim_right_copy( ci::toUtf32( *lineIt ) );
+		}
+		else {
+			std::swap( utf32Chars, nextUtf32Chars );
+		}
+
+		if( ( lineIt + 1 ) != mLines.end() ) {
+			nextUtf32Chars = boost::algorithm::trim_right_copy( ci::toUtf32( *( lineIt + 1 ) ) );
+		}
+		else {
+			nextUtf32Chars.clear();
+		}
+
+		// Layout current line of text.
 		size_t               index = result.size();
 		size_t               spaceCount = 0;
 		size_t               glyphCount = 0;
@@ -1044,6 +1063,7 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 			pen += advance;
 		}
 
+		// Apply alignment as a post-process.
 		switch( align ) {
 			case SdfText::LEFT:
 			break;
@@ -1064,7 +1084,7 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 			}
 			break;
 			case SdfText::JUSTIFY: {
-				const bool isLastLine = ( lineIt + 1 == mLines.end() );
+				const bool isLastLine = nextUtf32Chars.empty();
 				if( spaceCount > 0 && !isLastLine ) {
 					float space = ( mSize.x - ( pen.x + advance.x - adjust.x ) ); 
 					float offset = 0.0f;
@@ -2037,9 +2057,9 @@ vec2 SdfText::measureString( const std::string &str, const DrawOptions &options 
 		vec2 result = glyphMeasures.back().second;
 		SdfText::TextureAtlas::GlyphInfoMap::const_iterator glyphInfoIt = mGlyphMap.find( glyphMeasures.back().first );
 		if( glyphInfoIt != mGlyphMap.end() ) {
-			result += glyphInfoIt->second.mOriginOffset + vec2( glyphInfoIt->second.mTexCoords.getSize() ) * mFont.getSize() / 32.0f;
+			result += glyphInfoIt->second.mOriginOffset + vec2( glyphInfoIt->second.mTexCoords.getSize() );
 		}
-		return result;
+		return result * mFont.getSize() / 32.0f;
 	}
 	else {
 		return vec2();
