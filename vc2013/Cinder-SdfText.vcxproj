@@ -61,6 +61,7 @@
     <ClCompile Include="..\..\..\src\freetype\type42\type42.c" />
     <ClCompile Include="..\..\..\src\freetype\winfonts\winfnt.c" />
     <ClCompile Include="..\src\cinder\gl\SdfText.cpp" />
+    <ClCompile Include="..\src\cinder\gl\SdfTextMesh.cpp" />
     <ClCompile Include="..\src\msdfgen\core\Bitmap.cpp" />
     <ClCompile Include="..\src\msdfgen\core\Contour.cpp" />
     <ClCompile Include="..\src\msdfgen\core\edge-coloring.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="..\..\..\include\freetype\tttags.h" />
     <ClInclude Include="..\..\..\include\freetype\ttunpat.h" />
     <ClInclude Include="..\include\cinder\gl\SdfText.h" />
+    <ClInclude Include="..\include\cinder\gl\SdfTextMesh.h" />
     <ClInclude Include="..\include\msdfgen\core\arithmetics.hpp" />
     <ClInclude Include="..\include\msdfgen\core\Bitmap.h" />
     <ClInclude Include="..\include\msdfgen\core\Contour.h" />

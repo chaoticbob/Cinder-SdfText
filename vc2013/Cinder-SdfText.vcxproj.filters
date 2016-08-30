@@ -291,6 +291,9 @@
     <ClCompile Include="..\src\cinder\gl\SdfText.cpp">
       <Filter>Source Files\cinder\gl</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\cinder\gl\SdfTextMesh.cpp">
+      <Filter>Source Files\cinder\gl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\freetype\config\ftconfig.h">
@@ -597,6 +600,9 @@
       <Filter>Header Files\msdfgen</Filter>
     </ClInclude>
     <ClInclude Include="..\include\cinder\gl\SdfText.h">
+      <Filter>Header Files\cinder\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cinder\gl\SdfTextMesh.h">
       <Filter>Header Files\cinder\gl</Filter>
     </ClInclude>
   </ItemGroup>
