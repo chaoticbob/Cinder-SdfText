@@ -133,10 +133,15 @@ public:
 		//! Sets the leading (aka line gap) used adjust the line height when wrapping. Default \c 0
 		DrawOptions&	leading( float value ) { mLeading = value; return *this; }
 
-		//! Returns the horizontal alignment (LEFT, CENTER, RIGHT) of the type. Default \c LEFT
+		//! Returns the horizontal alignment (LEFT, CENTER, RIGHT, JUSTIFY) of the type. Default \c LEFT
 		Alignment		getAlignment() const { return mAlign; }
-		//! Sets the horizontal alignment (LEFT, CENTER, RIGHT) of the type. Default \c LEFT
+		//! Sets the horizontal alignment (LEFT, CENTER, RIGHT, JUSTIFY) of the type. Default \c LEFT
 		DrawOptions&	alignment( Alignment align ) { mAlign = align; return *this; }
+
+		//! Returns whether the type is flushed to both the left and right sides. Default \c false
+		bool			getJustify() const { return mJustify; }
+		//! Sets whether the type is flushed to both the left and right sides. Default \c false
+		DrawOptions&	justify( bool enabled = true ) { mJustify = enabled; return *this; }
 
 		//! Sets whether the TextureFont render premultiplied output. Default \c false
 		DrawOptions&	premultiply( bool premult = true ) { mPremultiply = premult; return *this; }
@@ -158,6 +163,7 @@ public:
 		float			mScale = 2.0;
 		float			mLeading = 0.0f;
 		bool			mPremultiply = false;
+		bool			mJustify = false;
 		float			mGamma = 2.2f;
 		Alignment		mAlign = LEFT;
 		GlslProgRef		mGlslProg;
