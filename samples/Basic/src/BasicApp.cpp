@@ -120,10 +120,10 @@ void BasicApp::draw()
 	else if( gl::SdfText::Alignment::CENTER == mAlignment ) {
 		alignment = "CENTER";
 	}
-	mSdfText->drawString( alignment + ( mJustify ? std::string( " | JUSTIFIED" ): std::string( "" ) ), vec2( 10, 30 ), drawOptions );
+	mSdfText->drawString( alignment + ( mJustify ? " | JUSTIFIED" : "" ), vec2( 10, 30 ), drawOptions );
 
 	// Draw FPS
-	mSdfText->drawString( toString( floor( getAverageFps() ) ) + " FPS | " + std::string( mPremultiply ? "premult" : "" ), vec2( 10, getWindowHeight() - mSdfText->getDescent() ), drawOptions );
+	mSdfText->drawString( toString( floor( getAverageFps() ) ) + " FPS" + std::string( mPremultiply ? " | premult" : "" ), vec2( 10, getWindowHeight() - mSdfText->getDescent() ), drawOptions );
     
     // Draw Font Name
 	float fontNameWidth = mSdfText->measureString( mSdfText->getName() ).x;
