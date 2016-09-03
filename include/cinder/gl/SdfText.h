@@ -133,9 +133,9 @@ public:
 		//! Sets the leading (aka line gap) used adjust the line height when wrapping. Default \c 0
 		DrawOptions&	leading( float value ) { mLeading = value; return *this; }
 
-		//! Returns the horizontal alignment (LEFT, CENTER, RIGHT, JUSTIFY) of the type. Default \c LEFT
+		//! Returns the horizontal alignment (LEFT, CENTER, RIGHT) of the type. Default \c LEFT
 		Alignment		getAlignment() const { return mAlign; }
-		//! Sets the horizontal alignment (LEFT, CENTER, RIGHT, JUSTIFY) of the type. Default \c LEFT
+		//! Sets the horizontal alignment (LEFT, CENTER, RIGHT) of the type. Default \c LEFT
 		DrawOptions&	alignment( Alignment align ) { mAlign = align; return *this; }
 
 		//! Returns whether the type is flushed to both the left and right sides. Default \c false
@@ -281,7 +281,7 @@ public:
 	float					getDescent() const { return mFont.getDescent(); }
 
 	//! Returns the default set of characters for a TextureFont, suitable for most English text, including some common ligatures and accented vowels.
-	//! \c "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890().?!,:;'\"&*=+-/\\@#_[]<>%^llflfiphridséáèà"
+	//! \c "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890().?!,:;'\"&*=+-/\\|@#_[]<>%^llflfiphridséáèà"
 	static std::string		defaultChars();
 
 	uint32_t				getNumTextures() const;

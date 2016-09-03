@@ -2090,7 +2090,7 @@ std::vector<std::pair<SdfText::Font::Glyph, vec2>> SdfText::getGlyphPlacementsWr
 
 std::string SdfText::defaultChars() 
 { 
-	return "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890().?!,:;'\"&*=+-/\\@#_[]<>%^llflfiphrids\303\251\303\241\303\250\303\240"; 
+	return "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890().?!,:;'\"&*=+-/\\|@#_[]<>%^llflfiphrids\303\251\303\241\303\250\303\240"; 
 }
 
 uint32_t SdfText::getNumTextures() const

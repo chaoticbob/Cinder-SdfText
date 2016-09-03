@@ -21,9 +21,11 @@ public:
 	void draw() override;
 
 private:
-	gl::SdfText::Font	mFont;
-	gl::SdfTextRef		mSdfText;
-	bool				mPremultiply = false;
+	gl::SdfText::Font		mFont;
+	gl::SdfTextRef			mSdfText;
+	bool					mPremultiply = false;
+	gl::SdfText::Alignment	mAlignment = gl::SdfText::Alignment::LEFT;
+	bool					mJustify = false;
 };
 
 void BasicApp::setup()
@@ -35,7 +37,7 @@ void BasicApp::setup()
 #else
 	mFont = gl::SdfText::Font( "Arial", 24 );
 #endif
-	mSdfText = gl::SdfText::create( mFont );
+	mSdfText = gl::SdfText::create( getAssetPath( "" ) / "cached_font.sdft", mFont );
 }
 
 void BasicApp::keyDown( KeyEvent event )
@@ -53,6 +55,22 @@ void BasicApp::keyDown( KeyEvent event )
 		case 'p':
 		case 'P':
 			mPremultiply = ! mPremultiply;
+		break;
+		case 'l':
+		case 'L':
+			mAlignment = gl::SdfText::Alignment::LEFT;
+		break;
+		case 'r':
+		case 'R':
+			mAlignment = gl::SdfText::Alignment::RIGHT;
+		break;
+		case 'c':
+		case 'C':
+			mAlignment = gl::SdfText::Alignment::CENTER;
+		break;
+		case 'j':
+		case 'J':
+			mJustify = ! mJustify;
 		break;
 	}
 }
@@ -86,12 +104,25 @@ void BasicApp::draw()
 
 	gl::color( ColorA( 1, 0.5f, 0.25f, 1.0f ) );
 
-	auto drawOptions = gl::SdfText::DrawOptions().premultiply( mPremultiply );
+	auto drawOptions = gl::SdfText::DrawOptions()
+		.premultiply( mPremultiply )
+		.alignment( mAlignment )
+		.justify( mJustify );
 
 	mSdfText->drawStringWrapped( str, boundsRect, vec2( 0 ), drawOptions );
 
-	// Draw FPS
+	// Draw alignment
 	gl::color( Color::white() );
+	std::string alignment = "LEFT";
+	if( gl::SdfText::Alignment::RIGHT == mAlignment ) {
+		alignment = "RIGHT";
+	}
+	else if( gl::SdfText::Alignment::CENTER == mAlignment ) {
+		alignment = "CENTER";
+	}
+	mSdfText->drawString( alignment + ( mJustify ? std::string( " | JUSTIFIED" ): std::string( "" ) ), vec2( 10, 30 ), drawOptions );
+
+	// Draw FPS
 	mSdfText->drawString( toString( floor( getAverageFps() ) ) + " FPS | " + std::string( mPremultiply ? "premult" : "" ), vec2( 10, getWindowHeight() - mSdfText->getDescent() ), drawOptions );
     
     // Draw Font Name
