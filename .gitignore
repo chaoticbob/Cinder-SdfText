@@ -1,0 +1,10 @@
+# Windows cruft
+*.suo
+*.ncb
+*.sdf
+*.VC.opendb
+*.VC.db
+*.opensdf
+*.vcxproj.user
+Debug/
+Release/
