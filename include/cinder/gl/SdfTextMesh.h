@@ -99,19 +99,20 @@ public:
 	virtual ~SdfTextMesh() {}
 
 	static SdfTextMeshRef		create();
-	static SdfTextMeshRef		create( const SdfTextRef &sdfText );
-	static SdfTextMeshRef		create( const SdfText::Font &font );
 
 	SdfTextMesh::RunRef			appendText( const std::string &utf8, const SdfTextRef &sdfText );
 	SdfTextMesh::RunRef			appendText( const std::string &utf8, const SdfText::Font &font );
 	void						appendText( const SdfTextMesh::RunRef &run );
 
+	void						cache();
+
 	void						draw();
 	void						draw( const SdfTextMesh::RunRef &run );
 
 private:
-	SdfTextMesh( const SdfTextRef &sdfText );
+	SdfTextMesh();
 
+	Feature						mFeatures = Feature::TEXT;
 	std::vector<RunRef>			mRuns;
 	std::vector<Texture2dRef>	mTextures;
 

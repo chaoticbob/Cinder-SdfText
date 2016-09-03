@@ -12,6 +12,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
 Copyright (c) 2016, The Cinder Project, All rights reserved.
 This code is intended for use with the Cinder C++ library: http://libcinder.org
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that
@@ -37,6 +38,50 @@ namespace cinder { namespace gl {
 SdfTextMesh::Run::Run( const std::string& utf8,const gl::SdfTextRef& sdfText, SdfTextMesh *sdfTextMesh )
 	: mUtf8( utf8 ), mSdfText( sdfText ), mSdfTextMesh( sdfTextMesh )
 {
+}
+
+SdfTextMesh::SdfTextMesh()
+{
+
+}
+
+SdfTextMeshRef SdfTextMesh::create()
+{
+	SdfTextMeshRef result = SdfTextMeshRef( new SdfTextMesh() );
+	return result;
+}
+
+SdfTextMesh::RunRef SdfTextMesh::appendText( const std::string &utf8, const SdfTextRef &sdfText )
+{
+	SdfTextMesh::RunRef run = SdfTextMesh::RunRef( new SdfTextMesh::Run( utf8, sdfText, this ) );
+	mRuns.push_back( run );
+}
+
+SdfTextMesh::RunRef SdfTextMesh::appendText( const std::string &utf8, const SdfText::Font &font )
+{
+	SdfTextRef sdfText = SdfText::create( font );
+	SdfTextMesh::RunRef run = SdfTextMesh::RunRef( new SdfTextMesh::Run( utf8, sdfText, this ) );
+	mRuns.push_back( run );
+}
+
+void SdfTextMesh::appendText( const SdfTextMesh::RunRef &run )
+{
+	mRuns.push_back( run );
+}
+
+void SdfTextMesh::cache()
+{
+
+}
+
+void SdfTextMesh::draw()
+{
+	cache();
+}
+
+void SdfTextMesh::draw( const SdfTextMesh::RunRef &run )
+{
+	cache();
 }
 
 }} // namespace cinder::gl

@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CreateSaveLoad", "CreateSaveLoad.vcxproj", "{EFC6A28D-5F52-483E-8667-795AF308C8EF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic3D", "Basic3D.vcxproj", "{EFC6A28D-5F52-483E-8667-795AF308C8EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

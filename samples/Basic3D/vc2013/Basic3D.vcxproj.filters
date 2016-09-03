@@ -30,7 +30,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\CreateSaveLoad.cpp">
+    <ClCompile Include="..\src\Basic3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

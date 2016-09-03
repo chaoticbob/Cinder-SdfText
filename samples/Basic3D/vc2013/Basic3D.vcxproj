@@ -189,10 +189,10 @@
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\CreateSaveLoad.cpp" />
+    <ClInclude Include="..\include\Resources.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\Resources.h" />
+    <ClCompile Include="..\src\Basic3D.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

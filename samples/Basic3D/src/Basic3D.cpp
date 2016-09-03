@@ -9,10 +9,10 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-//! \class BasciApp
+//! \class Basic3DApp
 //!
 //!
-class CreateSaveLoadApp : public App {
+class Basic3DApp : public App {
 public:
 	void setup() override;
 	void keyDown( KeyEvent event ) override;
@@ -26,11 +26,11 @@ private:
 	bool				mPremultiply = false;
 };
 
-void CreateSaveLoadApp::setup()
+void Basic3DApp::setup()
 {
 #if defined( CINDER_MSW )
 	// For AllSamples
-	addAssetDirectory( getAppPath() / "../../../../CreateSaveLoad/assets" );
+	addAssetDirectory( getAppPath() / "../../../../Basic3D/assets" );
 #endif
 
 	// Select original font
@@ -44,7 +44,7 @@ void CreateSaveLoadApp::setup()
 	mFont = mSdfText->getFont();
 }
 
-void CreateSaveLoadApp::keyDown( KeyEvent event )
+void Basic3DApp::keyDown( KeyEvent event )
 {
 	switch( event.getChar() ) {
 		case '=':
@@ -63,20 +63,29 @@ void CreateSaveLoadApp::keyDown( KeyEvent event )
 	}
 }
 
-void CreateSaveLoadApp::mouseDown( MouseEvent event )
+void Basic3DApp::mouseDown( MouseEvent event )
 {
 }
 
-void CreateSaveLoadApp::update()
+void Basic3DApp::update()
 {
 }
 
-void CreateSaveLoadApp::draw()
+void Basic3DApp::draw()
 {
-	gl::setMatricesWindow( getWindowSize() );
+	gl::setMatricesWindowPersp( getWindowSize() );
 	gl::enableAlphaBlending();
 	gl::clear( Color( 0, 0, 0 ) );
 	
+	gl::ScopedMatrices scopedMatrices;
+	gl::translate( vec2( getWindowSize() ) / 2.0f );
+	gl::rotate( 0.8f * getElapsedSeconds(), vec3( 1, 0, 0 ) );
+	gl::scale( vec3( 8.0f ) );
+
+	gl::color( Color::white() );
+	mSdfText->drawString( "Hello", vec2( 0 ) );
+
+	/*
 	std::string str( "Granted, then, that certain transformations do happen, it is essential that we should regard them in the philosophic manner of fairy tales, not in the unphilosophic manner of science and the \"Laws of Nature.\" When we are asked why eggs turn into birds or fruits fall in autumn, we must answer exactly as the fairy godmother would answer if Cinderella asked her why mice turned into horses or her clothes fell from her at twelve o'clock. We must answer that it is MAGIC. It is not a \"law,\" for we do not understand its general formula." );
 	Rectf boundsRect( 40, mSdfText->getAscent() + 50, getWindowWidth() - 40, getWindowHeight() - 40 );
 
@@ -93,10 +102,11 @@ void CreateSaveLoadApp::draw()
     // Draw Font Name
 	float fontNameWidth = mSdfText->measureString( mSdfText->getName() ).x;
 	mSdfText->drawString( mSdfText->getName(), vec2( getWindowWidth() - fontNameWidth - 10, getWindowHeight() - mSdfText->getDescent() ), drawOptions );
+	*/
 }
 
 void prepareSettings( App::Settings *settings )
 {
 }
 
-CINDER_APP( CreateSaveLoadApp, RendererGl, prepareSettings );
+CINDER_APP( Basic3DApp, RendererGl, prepareSettings );
