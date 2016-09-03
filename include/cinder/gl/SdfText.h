@@ -139,6 +139,11 @@ public:
 		//! Sets the horizontal alignment (LEFT, CENTER, RIGHT) of the type. Default \c LEFT
 		DrawOptions&	alignment( Alignment align ) { mAlign = align; return *this; }
 
+		//! Returns whether the type is flushed to both the left and right sides. Default \c false
+		bool			getJustify() const { return mJustify; }
+		//! Sets whether the type is flushed to both the left and right sides. Default \c false
+		DrawOptions&	justify( bool enabled = true ) { mJustify = enabled; return *this; }
+
 		//! Sets whether the TextureFont render premultiplied output. Default \c false
 		DrawOptions&	premultiply( bool premult = true ) { mPremultiply = premult; return *this; }
 		//! Returns whether the TextureFont renders premultiplied output. Default \c false
@@ -159,6 +164,7 @@ public:
 		float			mScale = 2.0;
 		float			mLeading = 0.0f;
 		bool			mPremultiply = false;
+		bool			mJustify = false;
 		float			mGamma = 2.2f;
 		Alignment		mAlign = LEFT;
 		GlslProgRef		mGlslProg;
@@ -276,7 +282,7 @@ public:
 	float					getDescent() const { return mFont.getDescent(); }
 
 	//! Returns the default set of characters for a TextureFont, suitable for most English text, including some common ligatures and accented vowels.
-	//! \c "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890().?!,:;'\"&*=+-/\\@#_[]<>%^llflfiphridséáèà"
+	//! \c "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890().?!,:;'\"&*=+-/\\|@#_[]<>%^llflfiphridséáèà"
 	static std::string		defaultChars();
 
 	uint32_t				getNumTextures() const;

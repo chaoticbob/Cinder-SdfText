@@ -1001,16 +1001,40 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 
 	// Calculate the line breaks
 	std::vector<std::string> mLines = calculateLineBreaks();
+	if( mLines.empty() ) {
+		return result;
+	}
 
 	// Build measures
 	const auto& charToGlyph = mSdfText->getCharToGlyph();
 	const auto& glyphMetrics = mSdfText->getGlyphMetrics();
+	std::u32string utf32Chars, nextUtf32Chars;
 	float curY = 0;
-	for( std::vector<std::string>::const_iterator lineIt = mLines.begin(); lineIt != mLines.end(); ++lineIt ) {
-		std::u32string utf32Chars = ci::toUtf32( *lineIt );
 
-		size_t index = result.size();
-		vec2   adjust = vec2( 0 ); //! Difference between the last glyph's 'advance' and maximum glyph bounds, required for perfect CENTER and RIGHT alignment.
+	for( std::vector<std::string>::const_iterator lineIt = mLines.begin(); lineIt != mLines.end(); ++lineIt ) {
+		// Fetch current line and prefetch next. This way we can look ahead.
+		if( nextUtf32Chars.empty() ) {
+			utf32Chars = boost::algorithm::trim_right_copy( ci::toUtf32( *lineIt ) );
+		}
+		else {
+			std::swap( utf32Chars, nextUtf32Chars );
+		}
+
+		if( ( lineIt + 1 ) != mLines.end() ) {
+			nextUtf32Chars = boost::algorithm::trim_right_copy( ci::toUtf32( *( lineIt + 1 ) ) );
+		}
+		else {
+			nextUtf32Chars.clear();
+		}
+
+		// Layout current line of text.
+		size_t               index = result.size();
+		size_t               spaceCount = 0;
+		size_t               glyphCount = 0;
+		SdfText::Font::Glyph spaceIndex = ~0;
+		SdfText::Font::Glyph glyphIndex = ~0;
+		vec2                 advance = vec2( 0 );
+		vec2                 adjust = vec2( 0 );
 
 		vec2 pen = { 0, 0 };
 		for( const auto& ch : utf32Chars ) {
@@ -1019,13 +1043,20 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 				continue;
 			}
 			 
-			SdfText::Font::Glyph glyphIndex = glyphIndexIt->second;
+			glyphIndex = glyphIndexIt->second;
 			auto glyphMetricIt = glyphMetrics.find( glyphIndex );
 			if( glyphMetrics.end() == glyphMetricIt ) {
 				continue;
 			}
-			vec2 advance = glyphMetricIt->second.advance;
+
+			advance = glyphMetricIt->second.advance;
 			adjust = advance - glyphMetricIt->second.maximum;
+
+			glyphCount++;
+			if( ch == 32 ) {
+				spaceCount++;
+				spaceIndex = glyphIndex;
+			}
 
 			float xPos = pen.x;
 			result.push_back( std::make_pair( (uint32_t)glyphIndex, vec2( xPos, curY ) ) );
@@ -1033,11 +1064,47 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 			pen += advance;
 		}
 
-		// Horizontal align the line by shifting it to the right.
-		float offsetX = ( align == SdfText::LEFT ) ? 0.0f : ( align == SdfText::CENTER ) ? 0.5f * ( mSize.x - pen.x + adjust.x ) : ( mSize.x - pen.x + adjust.x );
-		if( offsetX > 0.0f ){
-			for( size_t i = index; i < result.size(); ++i )
-				result[i].second.x += offsetX;
+		// Apply alignment as a post-process.
+		bool aligned = false;
+		if( drawOptions.getJustify() ) {
+			const bool isLastLine = nextUtf32Chars.empty();
+			if( spaceCount > 0 && !isLastLine ) {
+				float space = ( mSize.x - ( pen.x + advance.x - adjust.x ) );
+				float offset = 0.0f;
+				for( size_t i = index; i < result.size(); ++i ) {
+					result[i].second.x += offset;
+					// 75% of the extra spacing comes from adjusting every character.
+					offset += ( 0.75f * space ) / glyphCount;
+					if( result[i].first == spaceIndex ) {
+						// 25% of the extra spacing comes from adjusting white space characters only.
+						offset += ( 0.25f * space ) / spaceCount;
+					}
+				}
+				aligned = true;
+			}
+		}
+
+		if( ! aligned ){
+			switch( align ) {
+				case SdfText::LEFT:
+				break;
+				case SdfText::CENTER: {
+					float offset = ( mSize.x - ( pen.x + advance.x - adjust.x ) ) * 0.5f;
+					if( offset > 0.0f ) {
+						for( size_t i = index; i < result.size(); ++i )
+							result[i].second.x += offset;
+					}
+				}
+				break;
+				case SdfText::RIGHT: {
+					float offset = ( mSize.x - ( pen.x + advance.x - adjust.x ) );
+					if( offset > 0.0f ) {
+						for( size_t i = index; i < result.size(); ++i )
+							result[i].second.x += offset;
+					}
+				}
+				break;
+			}
 		}
 
 		curY += lineHeight; 
@@ -1296,7 +1363,7 @@ cinder::gl::SdfTextRef SdfText::create( const fs::path& filePath, const SdfText:
 {
 	SdfTextRef result;
 	if( fs::exists( filePath ) ) {
-		result = SdfText::load( filePath );
+		result = SdfText::load( filePath, font.getSize() );
 	}
 	else {
 		result = create( font, format, utf8Chars );
@@ -1304,7 +1371,7 @@ cinder::gl::SdfTextRef SdfText::create( const fs::path& filePath, const SdfText:
 			// Save first
 			SdfText::save( filePath, result );
 			// Load to ensure parity
-			result = SdfText::load( filePath );
+			result = SdfText::load( filePath, font.getSize() );
 		}
 	}
 	return result;
@@ -1974,14 +2041,14 @@ void SdfText::drawString( const std::string &str, const vec2 &baseline, const Dr
 
 void SdfText::drawString( const std::string &str, const Rectf &fitRect, const vec2 &offset, const DrawOptions &options )
 {
-	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( SdfTextBox::GROW, fitRect.getHeight() ).ligate( options.getLigate() );
+	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( SdfTextBox::GROW, (int)fitRect.getHeight() ).ligate( options.getLigate() );
 	SdfText::Font::GlyphMeasuresList glyphMeasures = tbox.measureGlyphs( options );
 	drawGlyphs( glyphMeasures, fitRect, fitRect.getUpperLeft() + offset, options );	
 }
 
 void SdfText::drawStringWrapped( const std::string &str, const Rectf &fitRect, const vec2 &offset, const DrawOptions &options )
 {
-	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( fitRect.getWidth(), fitRect.getHeight() ).ligate( options.getLigate() );
+	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( (int)fitRect.getWidth(), (int)fitRect.getHeight() ).ligate( options.getLigate() );
 	SdfText::Font::GlyphMeasuresList glyphMeasures = tbox.measureGlyphs( options );
 	drawGlyphs( glyphMeasures, fitRect.getUpperLeft() + offset, options );
 }
@@ -1995,9 +2062,9 @@ vec2 SdfText::measureString( const std::string &str, const DrawOptions &options 
 		vec2 result = glyphMeasures.back().second;
 		SdfText::TextureAtlas::GlyphInfoMap::const_iterator glyphInfoIt = mGlyphMap.find( glyphMeasures.back().first );
 		if( glyphInfoIt != mGlyphMap.end() ) {
-			result += glyphInfoIt->second.mOriginOffset + vec2( glyphInfoIt->second.mTexCoords.getSize() ) * mFont.getSize() / 32.0f;
+			result += glyphInfoIt->second.mOriginOffset + vec2( glyphInfoIt->second.mTexCoords.getSize() );
 		}
-		return result;
+		return result * mFont.getSize() / 32.0f;
 	}
 	else {
 		return vec2();
@@ -2012,19 +2079,19 @@ std::vector<std::pair<SdfText::Font::Glyph, vec2>> SdfText::getGlyphPlacements( 
 
 std::vector<std::pair<SdfText::Font::Glyph, vec2>> SdfText::getGlyphPlacements( const std::string &str, const Rectf &fitRect, const DrawOptions &options ) const
 {
-	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( SdfTextBox::GROW, fitRect.getHeight() ).ligate( options.getLigate() );
+	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( SdfTextBox::GROW, (int)fitRect.getHeight() ).ligate( options.getLigate() );
 	return tbox.measureGlyphs( options );
 }
 
 std::vector<std::pair<SdfText::Font::Glyph, vec2>> SdfText::getGlyphPlacementsWrapped( const std::string &str, const Rectf &fitRect, const DrawOptions &options ) const
 {
-	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( fitRect.getWidth(), fitRect.getHeight() ).ligate( options.getLigate() );
+	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( (int)fitRect.getWidth(), (int)fitRect.getHeight() ).ligate( options.getLigate() );
 	return tbox.measureGlyphs( options );
 }
 
 std::string SdfText::defaultChars() 
 { 
-	return "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890().?!,:;'\"&*=+-/\\@#_[]<>%^llflfiphrids\303\251\303\241\303\250\303\240"; 
+	return "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890().?!,:;'\"&*=+-/\\|@#_[]<>%^llflfiphrids\303\251\303\241\303\250\303\240"; 
 }
 
 uint32_t SdfText::getNumTextures() const

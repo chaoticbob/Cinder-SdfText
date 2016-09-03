@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{13191B3D-DEBE-49F0-800F-32048614949C}</ProjectGuid>
+    <ProjectGuid>{05F9432E-4396-4427-9B78-A9DB680C7140}</ProjectGuid>
     <RootNamespace>Basic</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
@@ -189,8 +189,9 @@
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\CreateSaveLoad.cpp" />
+    <ClCompile Include="..\src\StarWarsApp.cpp" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h" />
   </ItemGroup>
