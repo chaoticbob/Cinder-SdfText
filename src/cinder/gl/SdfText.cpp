@@ -1295,7 +1295,7 @@ cinder::gl::SdfTextRef SdfText::create( const fs::path& filePath, const SdfText:
 {
 	SdfTextRef result;
 	if( fs::exists( filePath ) ) {
-		result = SdfText::load( filePath );
+		result = SdfText::load( filePath, font.getSize() );
 	}
 	else {
 		result = create( font, format, utf8Chars );
@@ -1303,7 +1303,7 @@ cinder::gl::SdfTextRef SdfText::create( const fs::path& filePath, const SdfText:
 			// Save first
 			SdfText::save( filePath, result );
 			// Load to ensure parity
-			result = SdfText::load( filePath );
+			result = SdfText::load( filePath, font.getSize() );
 		}
 	}
 	return result;
