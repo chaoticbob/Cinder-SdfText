@@ -191,8 +191,15 @@ public:
 
 		using GlyphMeasure = vec2;
 
+		struct GlyphInfo {
+			uint32_t	mTextureIndex;
+			Area		mTexCoords;
+			vec2		mOriginOffset;
+		};
+
 		using GlyphMetricsMap = std::map<SdfText::Font::Glyph, SdfText::Font::GlyphMetrics>;
 		using GlyphMeasuresList = std::vector<std::pair<SdfText::Font::Glyph, SdfText::Font::GlyphMeasure>>;
+		using GlyphInfoMap = std::unordered_map<SdfText::Font::Glyph, SdfText::Font::GlyphInfo>;
 
 		Font() {}
 		Font( const std::string &name, float size );
@@ -235,6 +242,15 @@ public:
 		FontDataRef				mData;
 		void					loadFontData( const ci::DataSourceRef &dataSource );
 		friend class SdfText;
+	};
+
+	// ---------------------------------------------------------------------------------------------
+
+	struct PlacedChar {
+		Font::Glyph		mGlyph;
+		uint8_t			mTexIndex;
+		Rectf			mTexCoords;
+		Rectf			mVertCoords;
 	};
 
 	// ---------------------------------------------------------------------------------------------

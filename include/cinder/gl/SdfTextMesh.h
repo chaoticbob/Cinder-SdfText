@@ -54,6 +54,8 @@ public:
 		ROTATION	= 0x00000008,
 		SCALE		= 0x00000010,
 		BOUNDS		= 0x00000020,
+		ALIGNMENT	= 0x00000040,
+		JUSTIFY		= 0x00000080,
 		ALL			= 0x7FFFFFFF
 	};
 
@@ -65,9 +67,34 @@ public:
 	//!
 	class Run {
 	public:
+		//! \class DrawOptions
+		//!
+		//!
+		class DrawOptions {
+		public:
+			DrawOptions() {}
+			virtual ~DrawOptions() {}
+			const vec3&			getPosition() const { return mPosition; }
+			DrawOptions&		setPosition( const ci::vec2 &value ) { mPosition = vec3( value, 0.0f ); return *this; }
+			DrawOptions&		setPosition( const ci::vec3 &value ) { mPosition = value; return *this; }
+			float				getScale() const { return mScale; }
+			DrawOptions&		setScale( float value ) { mScale = value; return *this; }
+			SdfText::Alignment	getAlignment() const { return mAlignment; }
+			DrawOptions&		setAlignment( SdfText::Alignment value ) { mAlignment = value; return *this; }
+			bool				getJustify() const { return mJustify; }
+			DrawOptions&		setJustify( bool value = true ) { mJustify = value; return *this; }
+		private:
+			friend class SdfTextMesh::Run;
+			vec3				mPosition = vec3( 0 );
+			quat				mRotation = quat( 1, vec3( 0 ) );
+			float				mScale = 1.0f;
+			Rectf				mBounds;
+			SdfText::Alignment	mAlignment = SdfText::Alignment::LEFT;
+			bool				mJustify = false;
+		};
 		virtual ~Run() {}
-		static RunRef			create( const std::string &utf8, const SdfTextRef &sdfText );
-		static RunRef			create( const std::string &utf8, const SdfText::Font &font );
+		static RunRef			create( const std::string &utf8, const SdfTextRef &sdfText, const Run::DrawOptions &drawOptions = Run::DrawOptions() );
+		static RunRef			create( const std::string &utf8, const SdfText::Font &font, const Run::DrawOptions &drawOptions = Run::DrawOptions() );
 		const SdfTextMesh*		getSdfTextMesh() const { return mSdfTextMesh; }
 		const SdfTextRef&		getSdfText() const { return mSdfText; }
 		uint32_t				getFeatures() const { return mFeatures; }
@@ -80,22 +107,24 @@ public:
 		const std::string&		getText() const { return getUtf8(); }
 		void					setUtf8( const std::string &utf8 ) { if( utf8 != mUtf8 ) { mUtf8 = utf8; setDirty( Feature::TEXT ); } }
 		void					setText( const std::string &utf8 ) { setUtf8( utf8 ); }
-		void					setPosition( const ci::vec2 &position ) { mPosition = vec3( position, 0.0f ); setDirty( Feature::POSITION ); }
-		void					setPosition( const ci::vec3 &position ) { mPosition = position; setDirty( Feature::POSITION ); }
-		void					setScale( const ci::vec2 &scale ) { mScale = scale; setDirty( Feature::SCALE ); }
+		const vec3&				getPosition() const { return mDrawOptions.getPosition(); }
+		void					setPosition( const ci::vec2 &value ) { mDrawOptions.setPosition( value ); setDirty( Feature::POSITION ); }
+		void					setPosition( const ci::vec3 &value ) { mDrawOptions.setPosition( value ); setDirty( Feature::POSITION ); }
+		float					getScale() const { return mDrawOptions.getScale(); }
+		void					setScale( float value ) { mDrawOptions.setScale( value ); setDirty( Feature::SCALE ); }
+		SdfText::Alignment		getAlignment() const { return mDrawOptions.getAlignment(); }
+		void					setAlignment( SdfText::Alignment value ) { mDrawOptions.setAlignment( value ); setDirty( Feature::ALIGNMENT ); }
+		bool					getJustify() const { return mDrawOptions.getJustify(); }
+		void					setJustify( bool value = true ) { mDrawOptions.setJustify( value ); setDirty( Feature::JUSTIFY ); }
 	private:
-		Run( const std::string& utf8, const SdfTextRef& sdfText, SdfTextMesh *sdfTextMesh );
+		Run( const std::string& utf8, const SdfTextRef& sdfText, SdfTextMesh *sdfTextMesh, const Run::DrawOptions &drawOptions );
 		friend class SdfTextMesh;
 		SdfTextMesh				*mSdfTextMesh = nullptr;
 		SdfTextRef				mSdfText;
 		uint32_t				mFeatures = Feature::TEXT;
 		uint32_t				mDirty = Feature::NONE;
 		std::string				mUtf8;
-		float					mFontSize = -1.0f;
-		Rectf					mBounds;
-		vec3					mPosition = vec3( 0 );
-		quat					mRotation = quat( 1, vec3( 0 ) );
-		vec2					mScale = vec2( 1 );
+		Run::DrawOptions		mDrawOptions;
 		uint32_t				mVertexStart = 0;
 		uint32_t				mVertexCount = 0;
 	};
@@ -105,8 +134,8 @@ public:
 	static SdfTextMeshRef		create();
 
 	void						appendText( const SdfTextMesh::RunRef &run );
-	SdfTextMesh::RunRef			appendText( const std::string &utf8, const SdfTextRef &sdfText );
-	SdfTextMesh::RunRef			appendText( const std::string &utf8, const SdfText::Font &font );
+	SdfTextMesh::RunRef			appendText( const std::string &utf8, const SdfTextRef &sdfText, const Run::DrawOptions &drawOptions = Run::DrawOptions() );
+	SdfTextMesh::RunRef			appendText( const std::string &utf8, const SdfText::Font &font, const Run::DrawOptions &drawOptions = Run::DrawOptions() );
 
 	void						cache();
 
@@ -121,16 +150,22 @@ private:
 		gl::BatchRef			mBatch;
 	};
 
+	struct RunDraw {
+		uint32_t				mVertexStart = 0;
+		uint32_t				mVertexCount = 0;
+		TextBatch				mTextBatch;
+	};
+
 	struct TextDraw {
 		uint32_t				mFeatures = Feature::TEXT;
 		uint32_t				mDirty = Feature::NONE;
-		std::vector<TextBatch>	mBatches;
+		std::vector<TextBatch>	mTextBatches;
 	};
 
 	using TextDrawRef = std::shared_ptr<TextDraw>;
 	using RunMap = std::unordered_map<SdfTextRef, std::vector<RunRef>>;
 	using TextDrawMap = std::unordered_map<SdfTextRef, TextDrawRef>;
-	using RunDrawMap = std::unordered_map<RunRef, TextDrawRef>;
+	using RunDrawMap = std::unordered_map<RunRef, std::vector<RunDraw>>;
 
 	bool						mDirty = false;
 	RunMap						mRunMaps;
@@ -140,7 +175,7 @@ private:
 	void						updateFeatures( const Run *run );
 	void						updateDirty( const Run *run );
 
-	void						draw( const TextDrawRef &textDraw );
+	//void						draw( const TextDrawRef &textDraw );
 };
 
 }} // namespace cinder::gl

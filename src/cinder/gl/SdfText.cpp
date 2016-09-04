@@ -129,18 +129,6 @@ static gl::GlslProgRef sDefaultShader;
 class SdfText::TextureAtlas {
 public:
 
-	struct GlyphInfo {
-		uint32_t	mTextureIndex;
-		Area		mTexCoords;
-		vec2		mOriginOffset;
-	};
-
-	// ---------------------------------------------------------------------------------------------
-
-	using GlyphInfoMap = std::unordered_map<SdfText::Font::Glyph, GlyphInfo>;
-
-	// ---------------------------------------------------------------------------------------------
-
 	struct CacheKey {
 		std::string mFamilyName;
 		std::string mStyleName;
@@ -180,7 +168,7 @@ private:
 
 	FT_Face							mFace = nullptr;
 	std::vector<gl::TextureRef>		mTextures;
-	GlyphInfoMap					mGlyphInfo;
+	SdfText::Font::GlyphInfoMap		mGlyphInfo;
 
 	//! Base scale that SDF generator uses is size 32 at 72 DPI. A scale of 1.5, 2.0, and 3.0 translates to size 48, 64 and 96 and 72 DPI.
 	vec2						mSdfScale = vec2( 1.0f );
@@ -1498,7 +1486,7 @@ void SdfText::save(const ci::DataTargetRef& target, const SdfTextRef& sdfText)
 		// Glyph info
 		for( const auto& it : sdfText->mTextureAtlases->mGlyphInfo ) {
 			const SdfText::Font::Glyph& glyph = it.first;
-			const SdfText::TextureAtlas::GlyphInfo& glyphInfo = it.second;
+			const SdfText::Font::GlyphInfo& glyphInfo = it.second;
 			os->writeLittle( glyph );
 			os->writeLittle( glyphInfo.mTextureIndex );
 			os->writeLittle( glyphInfo.mTexCoords.x1 );
@@ -1681,7 +1669,7 @@ SdfTextRef SdfText::load( const ci::DataSourceRef& source, float size )
 		// Glyph info
 		for( uint32_t i = 0; i < numGlyphs; ++i ) {
 			SdfText::Font::Glyph glyph = 0;
-			SdfText::TextureAtlas::GlyphInfo glyphInfo = {};
+			SdfText::Font::GlyphInfo glyphInfo = {};
 			is->readLittle( &glyph );
 			is->readLittle( &(glyphInfo.mTextureIndex) );
 			is->readLittle( &(glyphInfo.mTexCoords.x1) );
@@ -1776,7 +1764,7 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasuresList &glyphMeasures,
 		}
 			
 		for( std::vector<std::pair<SdfText::Font::Glyph,vec2> >::const_iterator glyphIt = glyphMeasures.begin(); glyphIt != glyphMeasures.end(); ++glyphIt ) {
-			SdfText::TextureAtlas::GlyphInfoMap::const_iterator glyphInfoIt = glyphMap.find( glyphIt->first );
+			SdfText::Font::GlyphInfoMap::const_iterator glyphInfoIt = glyphMap.find( glyphIt->first );
 			if(  glyphInfoIt == glyphMap.end() ) {
 				continue;
 			}
@@ -1919,7 +1907,7 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasuresList &glyphMeasures,
 		}
 
 		for( std::vector<std::pair<Font::Glyph,vec2> >::const_iterator glyphIt = glyphMeasures.begin(); glyphIt != glyphMeasures.end(); ++glyphIt ) {
-			SdfText::TextureAtlas::GlyphInfoMap::const_iterator glyphInfoIt = glyphMap.find( glyphIt->first );
+			SdfText::Font::GlyphInfoMap::const_iterator glyphInfoIt = glyphMap.find( glyphIt->first );
 			if( glyphInfoIt == glyphMap.end() ) {
 				continue;
 			}
@@ -2055,12 +2043,12 @@ void SdfText::drawStringWrapped( const std::string &str, const Rectf &fitRect, c
 
 vec2 SdfText::measureString( const std::string &str, const DrawOptions &options ) const
 {
-	const SdfText::TextureAtlas::GlyphInfoMap& mGlyphMap = mTextureAtlases->mGlyphInfo;
+	const SdfText::Font::GlyphInfoMap& mGlyphMap = mTextureAtlases->mGlyphInfo;
 	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( SdfTextBox::GROW, SdfTextBox::GROW ).ligate( options.getLigate() );
 	SdfText::Font::GlyphMeasuresList glyphMeasures = tbox.measureGlyphs( options );
 	if( ! glyphMeasures.empty() ) {
 		vec2 result = glyphMeasures.back().second;
-		SdfText::TextureAtlas::GlyphInfoMap::const_iterator glyphInfoIt = mGlyphMap.find( glyphMeasures.back().first );
+		SdfText::Font::GlyphInfoMap::const_iterator glyphInfoIt = mGlyphMap.find( glyphMeasures.back().first );
 		if( glyphInfoIt != mGlyphMap.end() ) {
 			result += glyphInfoIt->second.mOriginOffset + vec2( glyphInfoIt->second.mTexCoords.getSize() );
 		}

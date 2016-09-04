@@ -32,14 +32,18 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "cinder/gl/SdfTextMesh.h"
+#include "cinder/gl/scoped.h"
 
 namespace cinder { namespace gl {
 
 // -------------------------------------------------------------------------------------------------
 // SdfTextMesh::Run
 // -------------------------------------------------------------------------------------------------
-SdfTextMesh::Run::Run( const std::string& utf8, const gl::SdfTextRef& sdfText, SdfTextMesh *sdfTextMesh )
-: mUtf8( utf8 ), mSdfText( sdfText ), mSdfTextMesh( sdfTextMesh )
+SdfTextMesh::Run::Run( const std::string& utf8, const gl::SdfTextRef& sdfText, SdfTextMesh *sdfTextMesh, const Run::DrawOptions &drawOptions )
+	: mUtf8( utf8 ),
+	  mSdfText( sdfText ), 
+	  mSdfTextMesh( sdfTextMesh ), 
+	  mDrawOptions( drawOptions )
 {
 }
 
@@ -64,17 +68,17 @@ SdfTextMeshRef SdfTextMesh::create()
 	return result;
 }
 
-SdfTextMesh::RunRef SdfTextMesh::appendText( const std::string &utf8, const SdfTextRef &sdfText )
+SdfTextMesh::RunRef SdfTextMesh::appendText( const std::string &utf8, const SdfTextRef &sdfText, const Run::DrawOptions &drawOptions )
 {
-	SdfTextMesh::RunRef run = SdfTextMesh::RunRef( new SdfTextMesh::Run( utf8, sdfText, this ) );
+	SdfTextMesh::RunRef run = SdfTextMesh::RunRef( new SdfTextMesh::Run( utf8, sdfText, this, drawOptions ) );
 	appendText( run );
 	return run;
 }
 
-SdfTextMesh::RunRef SdfTextMesh::appendText( const std::string &utf8, const SdfText::Font &font )
+SdfTextMesh::RunRef SdfTextMesh::appendText( const std::string &utf8, const SdfText::Font &font, const Run::DrawOptions &drawOptions )
 {
 	SdfTextRef sdfText = SdfText::create( font );
-	SdfTextMesh::RunRef run = SdfTextMesh::RunRef( new SdfTextMesh::Run( utf8, sdfText, this ) );
+	SdfTextMesh::RunRef run = SdfTextMesh::RunRef( new SdfTextMesh::Run( utf8, sdfText, this, drawOptions ) );
 	appendText( run );
 	return run;
 }
@@ -151,18 +155,26 @@ void SdfTextMesh::cache()
 	mDirty = false;
 }
 
-void SdfTextMesh::draw( const TextDrawRef &textDraw )
-{
-
-}
+//void SdfTextMesh::draw( const TextDrawRef &textDraw )
+//{
+//	if( ! textDraw ) {
+//		return;
+//	}
+//
+//	for( const auto& batchIt : textDraw->mBatches ) {
+//		auto& tex = batchIt.mTexture;
+//		auto& batch = batchIt.mBatch;
+//		ScopedTextureBind scopedTexture( tex );
+//		batch->draw();
+//	}
+//}
 
 void SdfTextMesh::draw()
 {
 	cache();
 
-	for( const auto& it : mTextDrawMaps ) {
-		const auto& textDraw = it.second;
-		draw( textDraw );
+	for( const auto& textDrawIt : mTextDrawMaps ) {
+		const auto& textDraw = textDrawIt.second;
 	}
 }
 
@@ -175,8 +187,9 @@ void SdfTextMesh::draw( const SdfTextMesh::RunRef &run )
 
 	cache();
 
-	const auto& textDraw = it->second;
-	draw( textDraw );
+	auto& runDraws = mRunDrawMaps[run];
+	for( auto &runDrawIt : runDraws ) {
+	}
 }
 
 }} // namespace cinder::gl
