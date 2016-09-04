@@ -35,14 +35,27 @@ POSSIBILITY OF SUCH DAMAGE.
 
 namespace cinder { namespace gl {
 
-SdfTextMesh::Run::Run( const std::string& utf8,const gl::SdfTextRef& sdfText, SdfTextMesh *sdfTextMesh )
-	: mUtf8( utf8 ), mSdfText( sdfText ), mSdfTextMesh( sdfTextMesh )
+// -------------------------------------------------------------------------------------------------
+// SdfTextMesh::Run
+// -------------------------------------------------------------------------------------------------
+SdfTextMesh::Run::Run( const std::string& utf8, const gl::SdfTextRef& sdfText, SdfTextMesh *sdfTextMesh )
+: mUtf8( utf8 ), mSdfText( sdfText ), mSdfTextMesh( sdfTextMesh )
 {
 }
 
+void SdfTextMesh::Run::setDirty( Feature value )
+{
+	mDirty |= value;
+	if( nullptr != mSdfTextMesh ) {
+		mSdfTextMesh->updateDirty( this );
+	}
+}
+
+// -------------------------------------------------------------------------------------------------
+// SdfTextMesh
+// -------------------------------------------------------------------------------------------------
 SdfTextMesh::SdfTextMesh()
 {
-
 }
 
 SdfTextMeshRef SdfTextMesh::create()
@@ -54,22 +67,91 @@ SdfTextMeshRef SdfTextMesh::create()
 SdfTextMesh::RunRef SdfTextMesh::appendText( const std::string &utf8, const SdfTextRef &sdfText )
 {
 	SdfTextMesh::RunRef run = SdfTextMesh::RunRef( new SdfTextMesh::Run( utf8, sdfText, this ) );
-	mRuns.push_back( run );
+	appendText( run );
+	return run;
 }
 
 SdfTextMesh::RunRef SdfTextMesh::appendText( const std::string &utf8, const SdfText::Font &font )
 {
 	SdfTextRef sdfText = SdfText::create( font );
 	SdfTextMesh::RunRef run = SdfTextMesh::RunRef( new SdfTextMesh::Run( utf8, sdfText, this ) );
-	mRuns.push_back( run );
+	appendText( run );
+	return run;
 }
 
 void SdfTextMesh::appendText( const SdfTextMesh::RunRef &run )
 {
-	mRuns.push_back( run );
+	const auto& sdfText = run->getSdfText();
+	if( ! sdfText ) {
+		throw ci::Exception( "run does not contain valid gl::SdfText" );
+	}
+
+	auto& runs = mRunMaps[sdfText];
+
+	// Bail if the run already exists
+	auto runIt = std::find_if( std::begin( runs ), std::end( runs ),
+		[run]( const RunRef &elem ) -> bool {
+			return elem == run;
+		}
+	);
+	if( std::end( runs ) != runIt ) {
+		return;
+	}
+
+	// Add run
+	runs.push_back( run );
+
+	// Check and add draw info if necessary
+	auto drawIt = mTextDrawMaps.find( sdfText );
+	if( mTextDrawMaps.end() == drawIt ) {
+		mTextDrawMaps[sdfText] = SdfTextMesh::TextDrawRef( new SdfTextMesh::TextDraw() );
+	}
+
+	// Map run to text draw
+	auto& textDraw = mTextDrawMaps[sdfText];
+	mRunDrawMaps[run] = textDraw;
+
+	// Update flags
+	updateFeatures( run.get() );
+	updateDirty( run.get() );
+}
+
+void SdfTextMesh::updateFeatures( const Run *run )
+{
+	const auto& sdfText = run->getSdfText();
+	auto drawIt = mTextDrawMaps.find( sdfText );
+	if( mTextDrawMaps.end() != drawIt ) {
+		auto& textDraw = drawIt->second;
+		textDraw->mFeatures |= run->getFeatures();
+	}
+}
+
+void SdfTextMesh::updateDirty( const Run *run )
+{
+	const auto& sdfText = run->getSdfText();
+	auto drawIt = mTextDrawMaps.find( sdfText );
+	if( mTextDrawMaps.end() != drawIt ) {
+		auto& textDraw = drawIt->second;
+		textDraw->mDirty |= run->getDirty();
+		mDirty = true;
+	}
 }
 
 void SdfTextMesh::cache()
+{
+	if( ! mDirty ) {
+		return;
+	}
+
+	for( auto& runMapIt : mRunMaps ) {
+		auto& sdfText = runMapIt.first;
+		auto& runs = runMapIt.second;
+	}
+
+	mDirty = false;
+}
+
+void SdfTextMesh::draw( const TextDrawRef &textDraw )
 {
 
 }
@@ -77,11 +159,24 @@ void SdfTextMesh::cache()
 void SdfTextMesh::draw()
 {
 	cache();
+
+	for( const auto& it : mTextDrawMaps ) {
+		const auto& textDraw = it.second;
+		draw( textDraw );
+	}
 }
 
 void SdfTextMesh::draw( const SdfTextMesh::RunRef &run )
 {
+	auto it = mRunDrawMaps.find( run );
+	if( mRunDrawMaps.end() == it ) {
+		return;
+	}
+
 	cache();
+
+	const auto& textDraw = it->second;
+	draw( textDraw );
 }
 
 }} // namespace cinder::gl

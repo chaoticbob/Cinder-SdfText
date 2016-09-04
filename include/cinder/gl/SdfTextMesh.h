@@ -66,43 +66,47 @@ public:
 	class Run {
 	public:
 		virtual ~Run() {}
-		static RunRef		create( const std::string &utf8, const SdfTextRef &sdfText );
-		static RunRef		create( const std::string &utf8, const SdfText::Font &font );
-		void				enableFeature( Feature value ) { mFeatures |= value; }
-		void				disableFeature( Feature value ) { mFeatures = ( mVertexStart & ~value ); }
-		void				setDirty( Feature value = Feature::TEXT ) { mDirty |= value; }
-		void				clearDirty() { mDirty = Feature::NONE; }
-		const std::string&	getUtf8() const { return mUtf8; }
-		const std::string&	getText() const { return getUtf8(); }
-		void				setUtf8( const std::string &utf8 ) { if( utf8 != mUtf8 ) { mUtf8 = utf8; setDirty( Feature::TEXT ); } }
-		void				setText( const std::string &utf8 ) { setUtf8( utf8 ); }
-		void				setPosition( const ci::vec2 &position ) { mPosition = vec3( position, 0.0f ); setDirty( Feature::POSITION ); }
-		void				setPosition( const ci::vec3 &position ) { mPosition = position; setDirty( Feature::POSITION ); }
-		void				setScale( const ci::vec2 &scale ) { mScale = scale; setDirty( Feature::SCALE ); }
+		static RunRef			create( const std::string &utf8, const SdfTextRef &sdfText );
+		static RunRef			create( const std::string &utf8, const SdfText::Font &font );
+		const SdfTextMesh*		getSdfTextMesh() const { return mSdfTextMesh; }
+		const SdfTextRef&		getSdfText() const { return mSdfText; }
+		uint32_t				getFeatures() const { return mFeatures; }
+		void					enableFeature( Feature value ) { mFeatures |= value; }
+		void					disableFeature( Feature value ) { mFeatures = ( mVertexStart & ~value ); }
+		uint32_t				getDirty() const { return mDirty; }
+		void					setDirty( Feature value = Feature::TEXT );
+		void					clearDirty() { mDirty = Feature::NONE; }
+		const std::string&		getUtf8() const { return mUtf8; }
+		const std::string&		getText() const { return getUtf8(); }
+		void					setUtf8( const std::string &utf8 ) { if( utf8 != mUtf8 ) { mUtf8 = utf8; setDirty( Feature::TEXT ); } }
+		void					setText( const std::string &utf8 ) { setUtf8( utf8 ); }
+		void					setPosition( const ci::vec2 &position ) { mPosition = vec3( position, 0.0f ); setDirty( Feature::POSITION ); }
+		void					setPosition( const ci::vec3 &position ) { mPosition = position; setDirty( Feature::POSITION ); }
+		void					setScale( const ci::vec2 &scale ) { mScale = scale; setDirty( Feature::SCALE ); }
 	private:
 		Run( const std::string& utf8, const SdfTextRef& sdfText, SdfTextMesh *sdfTextMesh );
 		friend class SdfTextMesh;
-		SdfTextMesh			*mSdfTextMesh = nullptr;
-		SdfTextRef			mSdfText;
-		uint32_t			mFeatures = Feature::TEXT;
-		uint32_t			mDirty = Feature::NONE;
-		std::string			mUtf8;
-		float				mFontSize = -1.0f;
-		Rectf				mBounds;
-		vec3				mPosition = vec3( 0 );
-		quat				mRotation = quat( 1, vec3( 0 ) );
-		vec2				mScale = vec2( 1 );
-		uint32_t			mVertexStart = 0;
-		uint32_t			mVertexCount = 0;
+		SdfTextMesh				*mSdfTextMesh = nullptr;
+		SdfTextRef				mSdfText;
+		uint32_t				mFeatures = Feature::TEXT;
+		uint32_t				mDirty = Feature::NONE;
+		std::string				mUtf8;
+		float					mFontSize = -1.0f;
+		Rectf					mBounds;
+		vec3					mPosition = vec3( 0 );
+		quat					mRotation = quat( 1, vec3( 0 ) );
+		vec2					mScale = vec2( 1 );
+		uint32_t				mVertexStart = 0;
+		uint32_t				mVertexCount = 0;
 	};
 
 	virtual ~SdfTextMesh() {}
 
 	static SdfTextMeshRef		create();
 
+	void						appendText( const SdfTextMesh::RunRef &run );
 	SdfTextMesh::RunRef			appendText( const std::string &utf8, const SdfTextRef &sdfText );
 	SdfTextMesh::RunRef			appendText( const std::string &utf8, const SdfText::Font &font );
-	void						appendText( const SdfTextMesh::RunRef &run );
 
 	void						cache();
 
@@ -112,13 +116,31 @@ public:
 private:
 	SdfTextMesh();
 
-	Feature						mFeatures = Feature::TEXT;
-	std::vector<RunRef>			mRuns;
-	std::vector<Texture2dRef>	mTextures;
+	struct TextBatch {
+		gl::Texture2dRef		mTexture;
+		gl::BatchRef			mBatch;
+	};
 
-	// Texture index and batch map
-	using CharsBatch = std::pair<uint32_t, BatchRef>;
-	std::vector<CharsBatch>		mBatches;
+	struct TextDraw {
+		uint32_t				mFeatures = Feature::TEXT;
+		uint32_t				mDirty = Feature::NONE;
+		std::vector<TextBatch>	mBatches;
+	};
+
+	using TextDrawRef = std::shared_ptr<TextDraw>;
+	using RunMap = std::unordered_map<SdfTextRef, std::vector<RunRef>>;
+	using TextDrawMap = std::unordered_map<SdfTextRef, TextDrawRef>;
+	using RunDrawMap = std::unordered_map<RunRef, TextDrawRef>;
+
+	bool						mDirty = false;
+	RunMap						mRunMaps;
+	TextDrawMap					mTextDrawMaps;
+	RunDrawMap					mRunDrawMaps;
+
+	void						updateFeatures( const Run *run );
+	void						updateDirty( const Run *run );
+
+	void						draw( const TextDrawRef &textDraw );
 };
 
 }} // namespace cinder::gl
