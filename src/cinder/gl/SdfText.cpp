@@ -805,6 +805,7 @@ const std::vector<std::string>& SdfTextManager::getNames( bool forceRefresh )
 		mFontNames.clear();
 
 		acquireFontNamesAndPaths();
+#if defined( CINDER_MSW )
 		// Registry operations can be rejected by Windows so no fonts will be picked up 
 		// on the initial scan. So we can multiple times.
 		if( mFontInfos.empty() ) {
@@ -816,7 +817,7 @@ const std::vector<std::string>& SdfTextManager::getNames( bool forceRefresh )
 				::Sleep( 10 );
 			}
 		}
-
+#endif
 		mFontsEnumerated = true;
 	}
 
@@ -1436,7 +1437,7 @@ void SdfText::save(const ci::DataTargetRef& target, const SdfTextRef& sdfText)
 		for( const auto& it : sdfText->mCharToGlyph ) {
 			const SdfText::Font::Char& ch = it.first;
 			const SdfText::Font::Glyph& glyph = it.second;
-			os->writeLittle( ch );
+			os->writeLittle( (uint_least32_t)ch );
 			os->writeLittle( glyph );
 		}		
 	}
@@ -1608,7 +1609,7 @@ SdfTextRef SdfText::load( const ci::DataSourceRef& source, float size )
 		for( uint32_t i = 0; i < numChars; ++i ) {
 			SdfText::Font::Char ch = 0;
 			SdfText::Font::Glyph glyph = 0;
-			is->readLittle( &ch );
+			is->readLittle( (uint_least32_t*)&ch );
 			is->readLittle( &glyph );
 			sdfText->mCharToGlyph[ch] = glyph;
 			sdfText->mGlyphToChar[glyph] = ch;
