@@ -73,9 +73,12 @@ void FontSizesApp::setup()
 
 void FontSizesApp::generateSdf()
 {
+	int i = 0;
 	for( auto &ti : mTextInfos ) {
+		fs::path cacheFile = getAssetPath( "" ) / ( "cached_font_" + toString( i ) + ".sdft" );
 		ti.mFont = gl::SdfText::Font( ti.mName, ti.mSize );
-		ti.mSdfText = gl::SdfText::create( ti.mFont, gl::SdfText::Format().sdfScale( 2.0f ) );
+		ti.mSdfText = gl::SdfText::create( cacheFile, ti.mFont, gl::SdfText::Format().sdfScale( 2.0f ) );
+		++i;
 	}
 }
 
