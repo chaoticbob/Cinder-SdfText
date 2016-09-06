@@ -1434,7 +1434,7 @@ void SdfText::save(const ci::DataTargetRef& target, const SdfTextRef& sdfText)
 		os->writeLittle( numChars );
 		// Chars/glyphs
 		for( const auto& it : sdfText->mCharToGlyph ) {
-			const SdfText::Font::Char& ch = it.first;
+			uint32_t ch = static_cast<uint32_t>( it.first );
 			const SdfText::Font::Glyph& glyph = it.second;
 			os->writeLittle( ch );
 			os->writeLittle( glyph );
@@ -1606,12 +1606,13 @@ SdfTextRef SdfText::load( const ci::DataSourceRef& source, float size )
 		is->readLittle( &numChars );
 		// Chars/glyphs
 		for( uint32_t i = 0; i < numChars; ++i ) {
-			SdfText::Font::Char ch = 0;
+			uint32_t ch = 0;
 			SdfText::Font::Glyph glyph = 0;
 			is->readLittle( &ch );
 			is->readLittle( &glyph );
-			sdfText->mCharToGlyph[ch] = glyph;
-			sdfText->mGlyphToChar[glyph] = ch;
+			SdfText::Font::Char sdftCh = static_cast<SdfText::Font::Char>( ch );
+			sdfText->mCharToGlyph[sdftCh] = glyph;
+			sdfText->mGlyphToChar[glyph] = sdftCh;
 		}		
 	}
 
