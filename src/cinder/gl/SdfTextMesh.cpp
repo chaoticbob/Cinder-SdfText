@@ -32,18 +32,20 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "cinder/gl/SdfTextMesh.h"
+#include "cinder/gl/Context.h"
 #include "cinder/gl/scoped.h"
+#include "cinder/TriMesh.h"
 
 namespace cinder { namespace gl {
 
 // -------------------------------------------------------------------------------------------------
 // SdfTextMesh::Run
 // -------------------------------------------------------------------------------------------------
-SdfTextMesh::Run::Run( const std::string& utf8, const gl::SdfTextRef& sdfText, SdfTextMesh *sdfTextMesh, const Run::DrawOptions &drawOptions )
+SdfTextMesh::Run::Run( const std::string& utf8, const gl::SdfTextRef& sdfText, SdfTextMesh *sdfTextMesh, const Run::Options &drawOptions )
 	: mUtf8( utf8 ),
 	  mSdfText( sdfText ), 
 	  mSdfTextMesh( sdfTextMesh ), 
-	  mDrawOptions( drawOptions )
+	  mOptions( drawOptions )
 {
 }
 
@@ -68,14 +70,29 @@ SdfTextMeshRef SdfTextMesh::create()
 	return result;
 }
 
-SdfTextMesh::RunRef SdfTextMesh::appendText( const std::string &utf8, const SdfTextRef &sdfText, const Run::DrawOptions &drawOptions )
+SdfTextMesh::RunRef SdfTextMesh::appendText( const std::string &utf8, const SdfTextRef &sdfText, const Run::Options &drawOptions )
 {
 	SdfTextMesh::RunRef run = SdfTextMesh::RunRef( new SdfTextMesh::Run( utf8, sdfText, this, drawOptions ) );
 	appendText( run );
 	return run;
 }
 
-SdfTextMesh::RunRef SdfTextMesh::appendText( const std::string &utf8, const SdfText::Font &font, const Run::DrawOptions &drawOptions )
+SdfTextMesh::RunRef SdfTextMesh::appendText( const std::string &utf8, const SdfText::Font &font, const Run::Options &drawOptions )
+{
+	SdfTextRef sdfText = SdfText::create( font );
+	SdfTextMesh::RunRef run = SdfTextMesh::RunRef( new SdfTextMesh::Run( utf8, sdfText, this, drawOptions ) );
+	appendText( run );
+	return run;
+}
+
+SdfTextMesh::RunRef SdfTextMesh::appendTextWrapped( const std::string &utf8, const SdfTextRef &sdfText, const Rectf &rect, const Run::Options &drawOptions )
+{
+	SdfTextMesh::RunRef run = SdfTextMesh::RunRef( new SdfTextMesh::Run( utf8, sdfText, this, drawOptions ) );
+	appendText( run );
+	return run;
+}
+
+SdfTextMesh::RunRef SdfTextMesh::appendTextWrapped( const std::string &utf8, const SdfText::Font &font, const Rectf &rect, const Run::Options &drawOptions )
 {
 	SdfTextRef sdfText = SdfText::create( font );
 	SdfTextMesh::RunRef run = SdfTextMesh::RunRef( new SdfTextMesh::Run( utf8, sdfText, this, drawOptions ) );
@@ -105,15 +122,17 @@ void SdfTextMesh::appendText( const SdfTextMesh::RunRef &run )
 	// Add run
 	runs.push_back( run );
 
-	// Check and add draw info if necessary
-	auto drawIt = mTextDrawMaps.find( sdfText );
-	if( mTextDrawMaps.end() == drawIt ) {
+	// Check and add text draw info if necessary
+	auto textDrawIt = mTextDrawMaps.find( sdfText );
+	if( mTextDrawMaps.end() == textDrawIt ) {
 		mTextDrawMaps[sdfText] = SdfTextMesh::TextDrawRef( new SdfTextMesh::TextDraw() );
 	}
 
-	// Map run to text draw
-	auto& textDraw = mTextDrawMaps[sdfText];
-	mRunDrawMaps[run] = textDraw;
+	// Check and add run draw info if necessary
+	auto runDrawIt = mRunDrawMaps.find( run );
+	if( mRunDrawMaps.end() == runDrawIt ) {
+		mRunDrawMaps[run] = std::vector<RunDraw>();
+	}
 
 	// Update flags
 	updateFeatures( run.get() );
@@ -141,6 +160,43 @@ void SdfTextMesh::updateDirty( const Run *run )
 	}
 }
 
+/*
+struct ClientMesh {
+	uint32_t				mDim;
+	std::vector<uint32_t>	mIndices;
+	std::vector<float>		mPositions;
+	std::vector<float>		mTexCoords;
+
+	ClientMesh(): mDim( 2 ) {}
+
+	uint32_t getNumVertices() const { 
+		return static_cast<uint32_t>( mPositions.size() / mDim );
+	}
+
+	void appendPosition( const ci::vec2 &p ) {
+		mPositions.push_back( p.x ); mPositions.push_back( p.y ); mPositions.push_back( 0.0f ); mPositions.push_back( 1.0f );
+		//if( 3 == mDim ) {
+		//	mPositions.push_back( p.x ); mPositions.push_back( p.y ); mPositions.push_back( 0.0f );
+		//}
+		//else {
+		//	mPositions.push_back( p.x ); mPositions.push_back( p.y );
+		//}
+	}
+
+	void appendPosition( const ci::vec3 &p ) {
+		mDim = 3; mPositions.push_back( p.x ); mPositions.push_back( p.y ); mPositions.push_back( p.z );
+	}
+
+	void appendTexCoord( const ci::vec2 &p ) {
+		mTexCoords.push_back( p.x ); mTexCoords.push_back( p.y );
+	}
+
+	void appendTriangle( uint32_t v0, uint32_t v1, uint32_t v2 ) {
+		mIndices.push_back( v0 ); mIndices.push_back( v1 ); mIndices.push_back( v2 );
+	}
+};
+*/
+
 void SdfTextMesh::cache()
 {
 	if( ! mDirty ) {
@@ -150,6 +206,85 @@ void SdfTextMesh::cache()
 	for( auto& runMapIt : mRunMaps ) {
 		auto& sdfText = runMapIt.first;
 		auto& runs = runMapIt.second;
+
+		// Get textures
+		std::vector<Texture2dRef> textures;
+		{
+			uint32_t numTextures = sdfText->getNumTextures();
+			for( uint32_t i = 0; i < numTextures; ++i ) {
+				auto tex = sdfText->getTexture( i );
+				textures.push_back( sdfText->getTexture( i ) );
+			}
+		}
+
+		std::unordered_map<RunRef, std::pair<uint32_t, uint32_t>> runVertRanges;
+		//std::unordered_map<Texture2dRef, ClientMesh> texToMesh;
+		std::unordered_map<Texture2dRef, TriMesh> texToMesh;
+		for( const auto& run : runs ) {
+			std::pair<uint32_t, uint32_t> vertRange = std::make_pair( 0, 0 );
+			const auto& options = run->getOptions();			
+			std::vector<std::pair<uint8_t, std::vector<SdfText::CharPlacement>>> placements; 
+			if( run->getWrapped() ) {
+				placements = sdfText->placeStringWrapped( run->getUtf8(), run->getBounds(), vec2( run->getPosition() ), options.getDrawOptions() );
+			}
+			else {
+				placements = sdfText->placeString( run->getUtf8(), vec2( run->getPosition() ), options.getDrawOptions() );
+			}
+			for( const auto& placementsIt : placements ) {
+				Texture2dRef tex = textures[placementsIt.first];
+				const auto& charPlacements = placementsIt.second;
+				if( charPlacements.empty() ) {
+					continue;
+				}
+
+				auto& mesh = texToMesh[tex];
+				vertRange.first = static_cast<uint32_t>( mesh.getNumVertices() );
+				for( const auto& place : charPlacements ) {
+					const auto& srcTexCoords = place.mSrcTexCoords;
+					const auto& destRect = place.mDstRect;
+					vec2 P0 = vec2( destRect.getX2(), destRect.getY1() );
+					vec2 P1 = vec2( destRect.getX1(), destRect.getY1() );
+					vec2 P2 = vec2( destRect.getX2(), destRect.getY2() );
+					vec2 P3 = vec2( destRect.getX1(), destRect.getY2() );
+					mesh.appendPosition( vec3( P0, 0 ) );
+					mesh.appendPosition( vec3( P1, 0 ) );
+					mesh.appendPosition( vec3( P2, 0 ) );
+					mesh.appendPosition( vec3( P3, 0 ) );
+
+					vec2 uv0 = vec2( srcTexCoords.getX2(), srcTexCoords.getY1() );
+					vec2 uv1 = vec2( srcTexCoords.getX1(), srcTexCoords.getY1() );
+					vec2 uv2 = vec2( srcTexCoords.getX2(), srcTexCoords.getY2() );
+					vec2 uv3 = vec2( srcTexCoords.getX1(), srcTexCoords.getY2() );
+					mesh.appendTexCoord( uv0 );
+					mesh.appendTexCoord( uv1 );
+					mesh.appendTexCoord( uv2 );
+					mesh.appendTexCoord( uv3 );
+			
+					uint32_t nverts = static_cast<uint32_t>( mesh.getNumVertices() );
+					uint32_t v0 = nverts - 4;
+					uint32_t v1 = nverts - 3;
+					uint32_t v2 = nverts - 2;
+					uint32_t v3 = nverts - 1;
+					mesh.appendTriangle( v0, v1, v2 );
+					mesh.appendTriangle( v2, v1, v3 );
+				}
+				vertRange.second = static_cast<uint32_t>( mesh.getNumVertices() );
+				runVertRanges[run] = vertRange;
+			}
+		}
+
+		auto& textDraws = mTextDrawMaps[sdfText];
+		for( const auto& tmIt : texToMesh ) {
+			auto& tex = tmIt.first;
+			auto& mesh = tmIt.second;
+			auto& textBatch = textDraws->mTextBatches[tex];
+
+			if( ! textBatch.mBatch ) {
+				textBatch.mBatch = Batch::create( mesh, SdfText::defaultShader() );
+			}
+
+			textBatch.mCount = static_cast<uint32_t>( 3 * mesh.getNumTriangles() );
+		}
 	}
 
 	mDirty = false;
@@ -169,12 +304,29 @@ void SdfTextMesh::cache()
 //	}
 //}
 
-void SdfTextMesh::draw()
+void SdfTextMesh::draw( bool premultiply, float gamma )
 {
 	cache();
 
-	for( const auto& textDrawIt : mTextDrawMaps ) {
-		const auto& textDraw = textDrawIt.second;
+	for( auto& textDrawIt : mTextDrawMaps ) {
+		auto& textDraw = textDrawIt.second;
+		for( auto& textBatchIt : textDraw->mTextBatches ) {
+			auto& tex = textBatchIt.first;
+			auto& textBatch = textBatchIt.second;
+			auto& batch = textBatch.mBatch;
+			auto& shader = batch->getGlslProg();
+
+
+			ScopedTextureBind scopedTexture( tex, 0 );
+			shader->uniform( "uTex0", 0 );
+
+			shader->uniform( "uFgColor", gl::context()->getCurrentColor() );
+			shader->uniform( "uPremultiply", premultiply ? 1.0f : 0.0f );
+			shader->uniform( "uGamma", gamma );
+
+
+			batch->draw( 0, textBatch.mCount );
+		}
 	}
 }
 

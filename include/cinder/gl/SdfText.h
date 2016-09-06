@@ -246,11 +246,10 @@ public:
 
 	// ---------------------------------------------------------------------------------------------
 
-	struct PlacedChar {
-		Font::Glyph		mGlyph;
-		uint8_t			mTexIndex;
-		Rectf			mTexCoords;
-		Rectf			mVertCoords;
+	struct CharPlacement {
+		SdfText::Font::Glyph	mGlyph;
+		Rectf					mSrcTexCoords;
+		Rectf					mDstRect;
 	};
 
 	// ---------------------------------------------------------------------------------------------
@@ -278,6 +277,13 @@ public:
 	//! Draws the glyphs in \a glyphMeasures clipped by \a clip, with \a offset added to each of the glyph offsets with DrawOptions \a options. \a glyphMeasures is a vector of pairs of glyph indices and offsets for the glyph baselines.
 	void	drawGlyphs( const SdfText::Font::GlyphMeasuresList &glyphMeasures, const Rectf &clip, vec2 offset, const DrawOptions &options = DrawOptions(), const std::vector<ColorA8u> &colors = std::vector<ColorA8u>() );
 
+	//! Returns pairs of texture and final texture and vertex coords for drawing using \a glyphMeasures, \a baseline, and \a options.
+	std::vector<std::pair<uint8_t, std::vector<SdfText::CharPlacement>>>	placeChars( const SdfText::Font::GlyphMeasuresList &glyphMeasures, const vec2 &baseline, const DrawOptions &options = DrawOptions() );
+	//! Returns pairs of texture and final texture and vertex coords for drawing using \a str, \a baseline, and \a options.
+	std::vector<std::pair<uint8_t, std::vector<SdfText::CharPlacement>>>	placeString( const std::string &str, const vec2 &baseline, const DrawOptions &options = DrawOptions() );
+	//! Returns pairs of texture and final texture and vertex coords for wrapped drawing using \a str, \a fitRect,  \a offset, and \a options.
+	std::vector<std::pair<uint8_t, std::vector<SdfText::CharPlacement>>>	placeStringWrapped( const std::string &str, const Rectf &fitRect, const vec2 &offset = vec2(), const DrawOptions &options = DrawOptions() );
+	
 	//! Returns the size in pixels necessary to render the string \a str with DrawOptions \a options.
 	vec2	measureString( const std::string &str, const DrawOptions &options = DrawOptions() ) const;
     
