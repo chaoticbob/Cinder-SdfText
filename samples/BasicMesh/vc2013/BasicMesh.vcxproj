@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{2D49D0F4-8E05-4257-8052-4FDDA85D1362}</ProjectGuid>
+    <ProjectGuid>{022DEB01-A1F9-438F-9A33-3204F8C04816}</ProjectGuid>
     <RootNamespace>Basic</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
@@ -188,11 +188,10 @@
   <ItemGroup>
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
-  <ItemGroup />
-  <ItemGroup />
   <ItemGroup>
-    <ClCompile Include="..\src\BasicApp.cpp" />
+    <ClCompile Include="..\src\BasicMeshApp.cpp" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h" />
   </ItemGroup>

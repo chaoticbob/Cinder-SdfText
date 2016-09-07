@@ -105,9 +105,9 @@ public:
 		};
 		virtual ~Run() {}
 		static RunRef				create( const std::string &utf8, const SdfTextRef &sdfText, const vec2& baseline, const Run::Options &drawOptions = Run::Options() );
-		static RunRef				create( const std::string &utf8, const SdfText::Font &font, const vec2& baseline, const Run::Options &drawOptions = Run::Options() );
+		static RunRef				create( const std::string &utf8, const SdfText::Font &font, const vec2& baseline, const Run::Options &drawOptions = Run::Options(), const SdfText::Format &format = SdfText::Format(), const std::string &supportedUtf8Chars = SdfText::defaultChars() );
 		static RunRef				create( const std::string &utf8, const SdfTextRef &sdfText, const Rectf fitRect, const Run::Options &drawOptions = Run::Options() );
-		static RunRef				create( const std::string &utf8, const SdfText::Font &font, const Rectf fitRect, const Run::Options &drawOptions = Run::Options() );
+		static RunRef				create( const std::string &utf8, const SdfText::Font &font, const Rectf fitRect, const Run::Options &drawOptions = Run::Options(), const SdfText::Format &format = SdfText::Format(), const std::string &supportedUtf8Chars = SdfText::defaultChars() );
 		const SdfTextMesh*			getSdfTextMesh() const { return mSdfTextMesh; }
 		const SdfTextRef&			getSdfText() const { return mSdfText; }
 		uint32_t					getFeatures() const { return mFeatures; }
@@ -171,11 +171,10 @@ private:
 	SdfTextMesh();
 
 	struct TextBatch {
-		VboRef					mIndices;
-		VboRef					mPositions;
-		VboRef					mTexCoords;
+		VboRef					mIndexBuffer;
+		VboRef					mVertexBuffer;
 		BatchRef				mBatch;
-		uint32_t				mCount = 0;
+		uint32_t				mIndexCount = 0;
 	};
 
 	using TextBatchMap = std::unordered_map<Texture2dRef, TextBatch>;

@@ -59,6 +59,32 @@ SdfTextMesh::Run::Run( SdfTextMesh *sdfTextMesh, const std::string& utf8, const 
 	mOptions.setFitRect( fitRect );
 }
 
+SdfTextMesh::RunRef SdfTextMesh::Run::create( const std::string &utf8, const SdfTextRef &sdfText, const vec2& baseline, const Run::Options &drawOptions )
+{
+	SdfTextMesh::RunRef result = SdfTextMesh::RunRef( new SdfTextMesh::Run( nullptr, utf8, sdfText, baseline, drawOptions ) );
+	return result;
+}
+
+SdfTextMesh::RunRef SdfTextMesh::Run::create( const std::string &utf8, const SdfText::Font &font, const vec2& baseline, const Run::Options &drawOptions, const SdfText::Format &format, const std::string &supportedUtf8Chars )
+{
+	auto sdfText = SdfText::create( font, format, supportedUtf8Chars );
+	SdfTextMesh::RunRef result = SdfTextMesh::RunRef( new SdfTextMesh::Run( nullptr, utf8, sdfText, baseline, drawOptions ) );
+	return result;
+}
+
+SdfTextMesh::RunRef SdfTextMesh::Run::create( const std::string &utf8, const SdfTextRef &sdfText, const Rectf fitRect, const Run::Options &drawOptions )
+{
+	SdfTextMesh::RunRef result = SdfTextMesh::RunRef( new SdfTextMesh::Run( nullptr, utf8, sdfText, fitRect, drawOptions ) );
+	return result;
+}
+
+SdfTextMesh::RunRef SdfTextMesh::Run::create( const std::string &utf8, const SdfText::Font &font, const Rectf fitRect, const Run::Options &drawOptions, const SdfText::Format &format, const std::string &supportedUtf8Chars )
+{
+	auto sdfText = SdfText::create( font, format, supportedUtf8Chars );
+	SdfTextMesh::RunRef result = SdfTextMesh::RunRef( new SdfTextMesh::Run( nullptr, utf8, sdfText, fitRect, drawOptions ) );
+	return result;
+}
+
 void SdfTextMesh::Run::setDirty( Feature value )
 {
 	mDirty |= value;
@@ -171,6 +197,56 @@ void SdfTextMesh::updateDirty( const Run *run )
 	}
 }
 
+struct ClientMesh {
+	struct Tri {
+		uint32_t	v0;
+		uint32_t	v1;
+		uint32_t	v2;
+	};
+	
+	struct Vertex {
+		vec4 pos;
+		vec2 uv;
+	};
+
+	std::vector<Tri>		mTriangles;
+	std::vector<Vertex>		mVertices;
+
+	uint32_t getNumTriangles() const {
+		return static_cast<uint32_t>( mTriangles.size() );
+	}
+
+	uint32_t getNumIndices() const { 
+		uint32_t ntri = getNumTriangles();
+		uint32_t result = 3 * ntri;
+		return result;
+	}
+
+	uint32_t getNumVertices() const {
+		return static_cast<uint32_t>( mVertices.size() );
+	}
+
+	void appendVertex( const vec2 &pos, const vec2 &uv ) {
+		mVertices.push_back( { vec4( pos.x, pos.y, 0.0f, 1.0f ), uv } );
+	}
+
+	void appendTriangle( uint32_t v0, uint32_t v1, uint32_t v2 ) { 
+		mTriangles.push_back( { v0, v1, v2 } );
+	}
+
+	const Tri *getTrianglesData() const {
+		return mTriangles.data();
+	}
+
+	const uint32_t *getIndicesData() const {
+		return reinterpret_cast<const uint32_t *>( getTrianglesData() );
+	}
+
+	const Vertex *getVerticesData() const {
+		return mVertices.data();
+	}
+};
+
 void SdfTextMesh::cache()
 {
 	if( ! mDirty ) {
@@ -192,8 +268,7 @@ void SdfTextMesh::cache()
 		}
 
 		std::unordered_map<RunRef, std::pair<uint32_t, uint32_t>> runVertRanges;
-		//std::unordered_map<Texture2dRef, ClientMesh> texToMesh;
-		std::unordered_map<Texture2dRef, TriMesh> texToMesh;
+		std::unordered_map<Texture2dRef, ClientMesh> texToMesh;
 		for( const auto& run : runs ) {
 			std::pair<uint32_t, uint32_t> vertRange = std::make_pair( 0, 0 );
 			const auto& options = run->getOptions();			
@@ -212,7 +287,7 @@ void SdfTextMesh::cache()
 				}
 
 				auto& mesh = texToMesh[tex];
-				vertRange.first = static_cast<uint32_t>( mesh.getNumVertices() );
+				vertRange.first = static_cast<uint32_t>( mesh.getNumIndices() );
 				for( const auto& place : charPlacements ) {
 					const auto& srcTexCoords = place.mSrcTexCoords;
 					const auto& destRect = place.mDstRect;
@@ -220,19 +295,14 @@ void SdfTextMesh::cache()
 					vec2 P1 = vec2( destRect.getX1(), destRect.getY1() );
 					vec2 P2 = vec2( destRect.getX2(), destRect.getY2() );
 					vec2 P3 = vec2( destRect.getX1(), destRect.getY2() );
-					mesh.appendPosition( vec3( P0, 0 ) );
-					mesh.appendPosition( vec3( P1, 0 ) );
-					mesh.appendPosition( vec3( P2, 0 ) );
-					mesh.appendPosition( vec3( P3, 0 ) );
-
 					vec2 uv0 = vec2( srcTexCoords.getX2(), srcTexCoords.getY1() );
 					vec2 uv1 = vec2( srcTexCoords.getX1(), srcTexCoords.getY1() );
 					vec2 uv2 = vec2( srcTexCoords.getX2(), srcTexCoords.getY2() );
 					vec2 uv3 = vec2( srcTexCoords.getX1(), srcTexCoords.getY2() );
-					mesh.appendTexCoord( uv0 );
-					mesh.appendTexCoord( uv1 );
-					mesh.appendTexCoord( uv2 );
-					mesh.appendTexCoord( uv3 );
+					mesh.appendVertex( P0, uv0 );
+					mesh.appendVertex( P1, uv1 );
+					mesh.appendVertex( P2, uv2 );
+					mesh.appendVertex( P3, uv3 );
 			
 					uint32_t nverts = static_cast<uint32_t>( mesh.getNumVertices() );
 					uint32_t v0 = nverts - 4;
@@ -242,7 +312,7 @@ void SdfTextMesh::cache()
 					mesh.appendTriangle( v0, v1, v2 );
 					mesh.appendTriangle( v2, v1, v3 );
 				}
-				vertRange.second = static_cast<uint32_t>( mesh.getNumVertices() );
+				vertRange.second = static_cast<uint32_t>( mesh.getNumIndices() );
 				runVertRanges[run] = vertRange;
 			}
 		}
@@ -254,10 +324,25 @@ void SdfTextMesh::cache()
 			auto& textBatch = textDraws->mTextBatches[tex];
 
 			if( ! textBatch.mBatch ) {
-				textBatch.mBatch = Batch::create( mesh, SdfText::defaultShader() );
+				// Create index buffer
+				textBatch.mIndexBuffer = Vbo::create( GL_ELEMENT_ARRAY_BUFFER );
+				// Create vertex layout
+				auto vertexLayout = geom::BufferLayout();
+				vertexLayout.append( geom::POSITION,    4, sizeof( ClientMesh::Vertex ), static_cast<size_t>( offsetof( ClientMesh::Vertex, pos ) ) );
+				vertexLayout.append( geom::TEX_COORD_0, 2, sizeof( ClientMesh::Vertex ), static_cast<size_t>( offsetof( ClientMesh::Vertex, uv  ) ) );
+				// Create Vertex buffer
+				textBatch.mVertexBuffer = Vbo::create( GL_ARRAY_BUFFER );
+				// Create vbo mesh - index count is passed in to prevent data corruption on NVIDIA cards
+				VboMeshRef vboMesh = VboMesh::create( 0, GL_TRIANGLES, { std::make_pair( vertexLayout, textBatch.mVertexBuffer  ) }, mesh.getNumIndices(), GL_UNSIGNED_INT, textBatch.mIndexBuffer );
+				// Create batch using vbo mesh and default SdfText sahder
+				textBatch.mBatch = Batch::create( vboMesh, SdfText::defaultShader() );
 			}
 
-			textBatch.mCount = static_cast<uint32_t>( 3 * mesh.getNumTriangles() );
+			// Buffer index and vertex data
+			textBatch.mIndexBuffer->bufferData( sizeof( uint32_t ) * mesh.getNumIndices(), mesh.getIndicesData(), GL_STATIC_DRAW );
+			textBatch.mVertexBuffer->bufferData( sizeof( ClientMesh::Vertex ) * mesh.getNumVertices(), mesh.getVerticesData(), GL_STATIC_DRAW );
+			// Update Index count
+			textBatch.mIndexCount = mesh.getNumIndices();
 		}
 	}
 
@@ -285,7 +370,7 @@ void SdfTextMesh::draw( bool premultiply, float gamma )
 			shader->uniform( "uGamma", gamma );
 
 
-			batch->draw( 0, textBatch.mCount );
+			batch->draw( 0, textBatch.mIndexCount );
 		}
 	}
 }
