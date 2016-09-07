@@ -67,6 +67,67 @@ static const float MAX_SIZE = 1000000.0f;
 
 namespace cinder { namespace gl {
 
+#if defined( CINDER_GL_ES )
+static std::string kSdfVertShader =
+	"#version 100\n"
+	"precision mediump float;\n"
+	"uniform mat4 ciModelViewProjection;\n"
+	"attribute vec4 ciPosition;\n"
+	"attribute vec2 ciTexCoord0;\n"
+	"varying vec2 TexCoord;\n"
+	"void main()\n"
+	"{\n"
+	"	gl_Position = ciModelViewProjection * ciPosition;\n"
+	"	TexCoord = ciTexCoord0;\n"
+	"}\n";
+
+static std::string kSdfFragShader =
+	"#version 100\n"
+	"#extension GL_OES_standard_derivatives : enable\n"
+	"precision mediump float;\n"
+	"precision mediump sampler2D;\n"
+	"uniform sampler2D uTex0;\n"
+	"uniform vec2      uTexSize;\n"
+	"uniform vec4      uFgColor;\n"
+	"uniform float     uPremultiply;\n"
+	"uniform float     uGamma;\n"
+	"varying vec2      TexCoord;\n"
+	"\n"
+	"float median( float r, float g, float b ) {\n"
+	"	return max( min( r, g ), min( max( r, g ), b ) );\n"
+	"}\n"
+	"\n"
+	"vec2 safeNormalize( in vec2 v ) {\n"
+	"   float len = length( v );\n"
+	"   len = ( len > 0.0 ) ? 1.0 / len : 0.0;\n"
+	"   return v * len;\n"
+	"}\n"
+	"\n"
+	"void main(void) {\n"
+	"    // Convert normalized texcoords to absolute texcoords.\n"
+	"    vec2 uv = TexCoord * uTexSize;\n"
+	"    // Calculate derivates\n"
+	"    vec2 Jdx = dFdx( uv );\n"
+	"    vec2 Jdy = dFdy( uv );\n"
+	"    // Sample SDF texture (3 channels).\n"
+	"    vec3 sample = texture2D( uTex0, TexCoord ).rgb;\n"
+	"    // Calculate signed distance (in texels).\n"
+	"    float sigDist = median( sample.r, sample.g, sample.b ) - 0.5;\n"
+	"    // For proper anti-aliasing, we need to calculate signed distance in pixels. We do this using derivatives.\n"
+	"    vec2 gradDist = safeNormalize( vec2( dFdx( sigDist ), dFdy( sigDist ) ) );\n"
+	"    vec2 grad = vec2( gradDist.x * Jdx.x + gradDist.y * Jdy.x, gradDist.x * Jdx.y + gradDist.y * Jdy.y );\n"
+	"    // Apply anti-aliasing.\n"
+	"    const float kThickness = 0.125;\n"
+	"    float kNormalization = kThickness * 0.5 * sqrt( 2.0 );\n"
+	"    float afwidth = min( kNormalization * length( grad ), 0.5 );\n"
+	"    float opacity = smoothstep( 0.0 - afwidth, 0.0 + afwidth, sigDist );\n"
+	"    // If enabled apply pre-multiplied alpha. Always apply gamma correction.\n"
+	"    vec4 color;\n"
+	"    color.a = pow( uFgColor.a * opacity, 1.0 / uGamma );\n"
+	"    color.rgb = mix( uFgColor.rgb, uFgColor.rgb * color.a, uPremultiply );\n"
+	"    gl_FragColor = color;\n"
+	"}\n";
+#else
 static std::string kSdfVertShader = 
 	"#version 150\n"
 	"uniform mat4 ciModelViewProjection;\n"
@@ -121,6 +182,7 @@ static std::string kSdfFragShader =
 	"    Color.rgb = mix( uFgColor.rgb, uFgColor.rgb * Color.a, uPremultiply );\n"
 //	"    Color = vec4( 1, 0, 0, 1 );\n"
 	"}\n";
+#endif
 
 static gl::GlslProgRef sDefaultShader;
 
@@ -1746,6 +1808,9 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasuresList &glyphMeasures,
 		shader->uniform( "uFgColor", gl::context()->getCurrentColor() );
 		shader->uniform( "uPremultiply", options.getPremultiply() ? 1.0f : 0.0f );
 		shader->uniform( "uGamma", options.getGamma() );
+#if defined(CINDER_GL_ES)
+		shader->uniform( "uTexSize", vec2( textures[0]->getSize() ) );
+#endif
 	}
 
 	const vec2 fontRenderScale = vec2( mFont.getSize() ) / ( 32.0f * mTextureAtlases->mSdfScale );
@@ -1889,6 +1954,9 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasuresList &glyphMeasures,
 		shader->uniform( "uFgColor", gl::context()->getCurrentColor() );
 		shader->uniform( "uPremultiply", options.getPremultiply() ? 1.0f : 0.0f );
 		shader->uniform( "uGamma", options.getGamma() );
+#if defined(CINDER_GL_ES)
+		shader->uniform( "uTexSize", vec2( textures[0]->getSize() ) );
+#endif
 	}
 
 	const vec2 fontRenderScale = vec2( mFont.getSize() ) / ( 32.0f * mTextureAtlases->mSdfScale );
