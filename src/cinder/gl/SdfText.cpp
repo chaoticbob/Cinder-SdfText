@@ -505,7 +505,7 @@ SdfTextManager::~SdfTextManager()
 	}
 
 #if defined( CINDER_MAC )
-	[nsFontManager release];
+	//[nsFontManager release];
 #elif defined( CINDER_WINRT )
 #elif defined( CINDER_ANDROID ) || defined( CINDER_LINUX )
 #endif
@@ -805,6 +805,7 @@ const std::vector<std::string>& SdfTextManager::getNames( bool forceRefresh )
 		mFontNames.clear();
 
 		acquireFontNamesAndPaths();
+#if defined( CINDER_MSW )
 		// Registry operations can be rejected by Windows so no fonts will be picked up 
 		// on the initial scan. So we can multiple times.
 		if( mFontInfos.empty() ) {
@@ -816,6 +817,7 @@ const std::vector<std::string>& SdfTextManager::getNames( bool forceRefresh )
 				::Sleep( 10 );
 			}
 		}
+#endif        
 
 		mFontsEnumerated = true;
 	}
