@@ -30,6 +30,7 @@ private:
 	bool					mJustify = false;
 
 	gl::SdfTextMesh::RunRef	mBlockRun;
+	gl::SdfTextMesh::RunRef mAlignmentRun;
 	gl::SdfTextMesh::RunRef	mFpsRun;
 	gl::SdfTextMesh::RunRef	mFontNameRun;
 
@@ -47,11 +48,14 @@ void BasicMeshApp::buildMesh()
 	gl::SdfTextMesh::Run::Options blockOptions = gl::SdfTextMesh::Run::Options().setAlignment( mAlignment ).setJustify( mJustify );
 	mBlockRun = mSdfTextMesh->appendTextWrapped( blockText, mSdfText, blockBoundsRect, blockOptions );
 
-	vec2 baseline = vec2( 10, getWindowHeight() - mSdfText->getDescent() );
+	vec2 baseline = vec2( 10, 30 );
+	mAlignmentRun = gl::SdfTextMesh::Run::create( "LEFT", mSdfText, baseline );
+	mSdfTextMesh->appendText( mAlignmentRun );
+
+	baseline = vec2( 10, getWindowHeight() - mSdfText->getDescent() );
 	mFpsRun = gl::SdfTextMesh::Run::create( "fps", mSdfText, baseline );
 	mSdfTextMesh->appendText( mFpsRun );
 
-    // Draw Font Name
 	float fontNameWidth = mSdfText->measureString( mSdfText->getName() ).x;
 	baseline = vec2( getWindowWidth() - fontNameWidth - 10, getWindowHeight() - mSdfText->getDescent() );
 	mSdfTextMesh->appendText( mFont.getName(), mSdfText, baseline );
@@ -133,6 +137,15 @@ void BasicMeshApp::update()
 {
 	std::string str = toString( floor( getAverageFps() ) ) + " FPS" + std::string( mPremultiply ? " | premult" : "" );
 	mFpsRun->setText( str );
+
+	str = "LEFT";
+	if( gl::SdfText::Alignment::RIGHT == mAlignment ) {
+		str = "RIGHT";
+	}
+	else if( gl::SdfText::Alignment::CENTER == mAlignment ) {
+		str = "CENTER";
+	}
+	mAlignmentRun->setText( str + ( mJustify ? " | JUSTIFIED" : "" ) );
 }
 
 void BasicMeshApp::draw()
