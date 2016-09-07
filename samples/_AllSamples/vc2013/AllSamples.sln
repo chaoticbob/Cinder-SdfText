@@ -17,6 +17,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StarWars", "..\..\StarWars\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BasicMesh", "..\..\BasicMesh\vc2013\BasicMesh.vcxproj", "{022DEB01-A1F9-438F-9A33-3204F8C04816}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MeshPages", "..\..\MeshPages\vc2013\MeshPages.vcxproj", "{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -81,6 +83,14 @@ Global
 		{022DEB01-A1F9-438F-9A33-3204F8C04816}.Release|Win32.Build.0 = Release|Win32
 		{022DEB01-A1F9-438F-9A33-3204F8C04816}.Release|x64.ActiveCfg = Release|x64
 		{022DEB01-A1F9-438F-9A33-3204F8C04816}.Release|x64.Build.0 = Release|x64
+		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Debug|Win32.Build.0 = Debug|Win32
+		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Debug|x64.ActiveCfg = Debug|x64
+		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Debug|x64.Build.0 = Debug|x64
+		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Release|Win32.ActiveCfg = Release|Win32
+		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Release|Win32.Build.0 = Release|Win32
+		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Release|x64.ActiveCfg = Release|x64
+		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

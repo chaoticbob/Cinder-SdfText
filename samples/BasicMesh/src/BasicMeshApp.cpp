@@ -10,7 +10,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-//! \class BasciApp
+//! \class BasicMeshApp
 //!
 //!
 class BasicMeshApp : public App {

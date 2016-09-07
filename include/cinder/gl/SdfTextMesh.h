@@ -92,6 +92,8 @@ public:
 			Options&					setAlignment( SdfText::Alignment value ) { mDrawOptions.alignment( value ); return *this; }
 			bool						getJustify() const { return mDrawOptions.getJustify(); }
 			Options&					setJustify( bool value = true ) { mDrawOptions.justify( value ); return *this; }
+			float						getDrawScale() const { return mDrawOptions.getScale(); }
+			Options&					setDrawScale( float value ) { mDrawOptions.scale( value ); return *this; }
 			const SdfText::DrawOptions&	getDrawOptions() const { return mDrawOptions; }
 		private:
 			friend class SdfTextMesh::Run;
