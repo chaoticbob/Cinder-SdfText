@@ -611,7 +611,6 @@ void SdfTextManager::acquireFontNamesAndPaths()
                 FontInfo fontInfo = FontInfo( fontKey, fontName, fontFilePath );
                 mFontInfos.push_back( fontInfo );
                 mFontNames.push_back( fontName );
-                CI_LOG_I( fontName );
             }
         }
     }
