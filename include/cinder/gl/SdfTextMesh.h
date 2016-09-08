@@ -83,7 +83,7 @@ public:
 			const vec2&					getBaseline() const { return mBaseline; }
 			Options&					setBaseline( const vec2 &value ) { mBaseline = value; return *this; }
 			bool						getWrapped() const { return mWrapped; }
-			Options&					setWrapped( bool value ) { mWrapped = value; if( ! mWrapped ) { mFitRect = Rectf( 0, 0, 0, 0 ); } }
+			Options&					setWrapped( bool value ) { mWrapped = value; if( ! mWrapped ) { mFitRect = Rectf( 0, 0, 0, 0 ); } return *this; }
 			const Rectf&				getFitRect() const { return mFitRect; }
 			Options&					setFitRect( const Rectf &value ) { mFitRect = value; mWrapped = true; return *this; }
 			float						getLeading() const { return mDrawOptions.getLeading(); }

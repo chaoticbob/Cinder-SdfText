@@ -397,6 +397,42 @@
 		2773FCC81D80F60700C9687B /* tttables.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F88A1D80F4C300C9687B /* tttables.h */; };
 		2773FCC91D80F60700C9687B /* tttags.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F88B1D80F4C300C9687B /* tttags.h */; };
 		2773FCCA1D80F60700C9687B /* ttunpat.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F88C1D80F4C300C9687B /* ttunpat.h */; };
+		2773FCCD1D81125400C9687B /* autofit.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F8FD1D80F4F900C9687B /* autofit.c */; };
+		2773FCCE1D81125400C9687B /* autofit.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F8FD1D80F4F900C9687B /* autofit.c */; };
+		2773FCCF1D81125900C9687B /* ftbase.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC011D80F57700C9687B /* ftbase.c */; };
+		2773FCD01D81125900C9687B /* ftbbox.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC021D80F57700C9687B /* ftbbox.c */; };
+		2773FCD11D81125900C9687B /* ftbitmap.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC031D80F57700C9687B /* ftbitmap.c */; };
+		2773FCD21D81125900C9687B /* ftcid.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC041D80F57700C9687B /* ftcid.c */; };
+		2773FCD31D81125900C9687B /* ftdebug.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC051D80F57700C9687B /* ftdebug.c */; };
+		2773FCD41D81125900C9687B /* ftglyph.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC061D80F57700C9687B /* ftglyph.c */; };
+		2773FCD51D81125900C9687B /* ftgxval.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC071D80F57700C9687B /* ftgxval.c */; };
+		2773FCD61D81125900C9687B /* ftinit.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC081D80F57700C9687B /* ftinit.c */; };
+		2773FCD71D81125900C9687B /* ftlcdfil.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC091D80F57700C9687B /* ftlcdfil.c */; };
+		2773FCD81D81125900C9687B /* ftmm.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC0A1D80F57700C9687B /* ftmm.c */; };
+		2773FCD91D81125900C9687B /* ftotval.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC0B1D80F57700C9687B /* ftotval.c */; };
+		2773FCDA1D81125900C9687B /* ftpatent.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC0C1D80F57700C9687B /* ftpatent.c */; };
+		2773FCDB1D81125900C9687B /* ftpfr.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC0D1D80F57700C9687B /* ftpfr.c */; };
+		2773FCDC1D81125900C9687B /* ftstroke.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC0E1D80F57700C9687B /* ftstroke.c */; };
+		2773FCDD1D81125900C9687B /* ftsystem.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC0F1D80F57700C9687B /* ftsystem.c */; };
+		2773FCDE1D81125900C9687B /* ftwinfnt.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC101D80F57700C9687B /* ftwinfnt.c */; };
+		2773FCDF1D81125A00C9687B /* ftbase.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC011D80F57700C9687B /* ftbase.c */; };
+		2773FCE01D81125A00C9687B /* ftbbox.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC021D80F57700C9687B /* ftbbox.c */; };
+		2773FCE11D81125A00C9687B /* ftbitmap.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC031D80F57700C9687B /* ftbitmap.c */; };
+		2773FCE21D81125A00C9687B /* ftcid.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC041D80F57700C9687B /* ftcid.c */; };
+		2773FCE31D81125A00C9687B /* ftdebug.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC051D80F57700C9687B /* ftdebug.c */; };
+		2773FCE41D81125A00C9687B /* ftglyph.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC061D80F57700C9687B /* ftglyph.c */; };
+		2773FCE51D81125A00C9687B /* ftgxval.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC071D80F57700C9687B /* ftgxval.c */; };
+		2773FCE61D81125A00C9687B /* ftinit.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC081D80F57700C9687B /* ftinit.c */; };
+		2773FCE71D81125A00C9687B /* ftlcdfil.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC091D80F57700C9687B /* ftlcdfil.c */; };
+		2773FCE81D81125A00C9687B /* ftmm.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC0A1D80F57700C9687B /* ftmm.c */; };
+		2773FCE91D81125A00C9687B /* ftotval.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC0B1D80F57700C9687B /* ftotval.c */; };
+		2773FCEA1D81125A00C9687B /* ftpatent.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC0C1D80F57700C9687B /* ftpatent.c */; };
+		2773FCEB1D81125A00C9687B /* ftpfr.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC0D1D80F57700C9687B /* ftpfr.c */; };
+		2773FCEC1D81125A00C9687B /* ftstroke.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC0E1D80F57700C9687B /* ftstroke.c */; };
+		2773FCED1D81125A00C9687B /* ftsystem.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC0F1D80F57700C9687B /* ftsystem.c */; };
+		2773FCEE1D81125A00C9687B /* ftwinfnt.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC101D80F57700C9687B /* ftwinfnt.c */; };
+		2773FCF01D81128A00C9687B /* SdfTextMesh.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773FCEF1D81128A00C9687B /* SdfTextMesh.h */; };
+		2773FCF21D8112A100C9687B /* SdfTextMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2773FCF11D8112A100C9687B /* SdfTextMesh.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -556,6 +592,8 @@
 		2773FC0E1D80F57700C9687B /* ftstroke.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ftstroke.c; sourceTree = "<group>"; };
 		2773FC0F1D80F57700C9687B /* ftsystem.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ftsystem.c; sourceTree = "<group>"; };
 		2773FC101D80F57700C9687B /* ftwinfnt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ftwinfnt.c; sourceTree = "<group>"; };
+		2773FCEF1D81128A00C9687B /* SdfTextMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SdfTextMesh.h; sourceTree = "<group>"; };
+		2773FCF11D8112A100C9687B /* SdfTextMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SdfTextMesh.cpp; sourceTree = "<group>"; };
 		9416178C1C05952400074DE9 /* libcinder-sdftext.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libcinder-sdftext.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9496D3FF1C043B8F00A54274 /* libcinder-sdftext.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libcinder-sdftext.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9496D5941C044E1800A54274 /* libcinder-sdftext.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libcinder-sdftext.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -609,6 +647,7 @@
 			isa = PBXGroup;
 			children = (
 				2719843D1D7F6FA400860323 /* SdfText.cpp */,
+				2773FCF11D8112A100C9687B /* SdfTextMesh.cpp */,
 			);
 			path = gl;
 			sourceTree = "<group>";
@@ -656,6 +695,7 @@
 			isa = PBXGroup;
 			children = (
 				271984501D7F6FBA00860323 /* SdfText.h */,
+				2773FCEF1D81128A00C9687B /* SdfTextMesh.h */,
 			);
 			path = gl;
 			sourceTree = "<group>";
@@ -1248,6 +1288,7 @@
 				2773F8A71D80F4C300C9687B /* ftmac.h in Headers */,
 				2773F8BA1D80F4C300C9687B /* ftdebug.h in Headers */,
 				2773F8991D80F4C300C9687B /* ftcache.h in Headers */,
+				2773FCF01D81128A00C9687B /* SdfTextMesh.h in Headers */,
 				2719847E1D7FD46A00860323 /* SignedDistance.h in Headers */,
 				271984741D7FD46A00860323 /* Contour.h in Headers */,
 				2773F8CC1D80F4C300C9687B /* svkern.h in Headers */,
@@ -1514,21 +1555,38 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2773FCD51D81125900C9687B /* ftgxval.c in Sources */,
+				2773FCDC1D81125900C9687B /* ftstroke.c in Sources */,
 				271984BD1D7FD47800860323 /* Shape.cpp in Sources */,
+				2773FCD11D81125900C9687B /* ftbitmap.c in Sources */,
 				271984B51D7FD47800860323 /* Contour.cpp in Sources */,
+				2773FCD01D81125900C9687B /* ftbbox.c in Sources */,
 				271984B41D7FD47800860323 /* Bitmap.cpp in Sources */,
 				271984B91D7FD47800860323 /* equation-solver.cpp in Sources */,
+				2773FCD71D81125900C9687B /* ftlcdfil.c in Sources */,
 				271984B81D7FD47800860323 /* EdgeHolder.cpp in Sources */,
+				2773FCDA1D81125900C9687B /* ftpatent.c in Sources */,
+				2773FCDE1D81125900C9687B /* ftwinfnt.c in Sources */,
 				271984BC1D7FD47800860323 /* shape-description.cpp in Sources */,
+				2773FCCE1D81125400C9687B /* autofit.c in Sources */,
 				271984681D7FD42D00860323 /* msdfgen.cpp in Sources */,
+				2773FCDD1D81125900C9687B /* ftsystem.c in Sources */,
+				2773FCD21D81125900C9687B /* ftcid.c in Sources */,
+				2773FCD81D81125900C9687B /* ftmm.c in Sources */,
 				271984BF1D7FD47800860323 /* Vector2.cpp in Sources */,
+				2773FCD41D81125900C9687B /* ftglyph.c in Sources */,
 				271984BA1D7FD47800860323 /* render-sdf.cpp in Sources */,
+				2773FCDB1D81125900C9687B /* ftpfr.c in Sources */,
+				2773FCD61D81125900C9687B /* ftinit.c in Sources */,
 				271984BE1D7FD47800860323 /* SignedDistance.cpp in Sources */,
 				271984B61D7FD47800860323 /* edge-coloring.cpp in Sources */,
 				271984B71D7FD47800860323 /* edge-segments.cpp in Sources */,
+				2773FCCF1D81125900C9687B /* ftbase.c in Sources */,
 				271984BB1D7FD47800860323 /* save-bmp.cpp in Sources */,
+				2773FCD91D81125900C9687B /* ftotval.c in Sources */,
 				271984651D7FD41300860323 /* SdfText.cpp in Sources */,
 				2719846B1D7FD43300860323 /* util.cpp in Sources */,
+				2773FCD31D81125900C9687B /* ftdebug.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1569,6 +1627,7 @@
 				2773FC1F1D80F57700C9687B /* ftsystem.c in Sources */,
 				2773FBFF1D80F4F900C9687B /* winfnt.c in Sources */,
 				2773FC111D80F57700C9687B /* ftbase.c in Sources */,
+				2773FCF21D8112A100C9687B /* SdfTextMesh.cpp in Sources */,
 				2719849E1D7FD47500860323 /* edge-coloring.cpp in Sources */,
 				2719849F1D7FD47500860323 /* edge-segments.cpp in Sources */,
 				2773FB3B1D80F4F900C9687B /* ftgzip.c in Sources */,
@@ -1597,21 +1656,38 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2773FCE51D81125A00C9687B /* ftgxval.c in Sources */,
+				2773FCEC1D81125A00C9687B /* ftstroke.c in Sources */,
 				271984B11D7FD47700860323 /* Shape.cpp in Sources */,
+				2773FCE11D81125A00C9687B /* ftbitmap.c in Sources */,
 				271984A91D7FD47700860323 /* Contour.cpp in Sources */,
+				2773FCE01D81125A00C9687B /* ftbbox.c in Sources */,
 				271984A81D7FD47700860323 /* Bitmap.cpp in Sources */,
 				271984AD1D7FD47700860323 /* equation-solver.cpp in Sources */,
+				2773FCE71D81125A00C9687B /* ftlcdfil.c in Sources */,
 				271984AC1D7FD47700860323 /* EdgeHolder.cpp in Sources */,
+				2773FCEA1D81125A00C9687B /* ftpatent.c in Sources */,
+				2773FCEE1D81125A00C9687B /* ftwinfnt.c in Sources */,
 				271984B01D7FD47700860323 /* shape-description.cpp in Sources */,
+				2773FCCD1D81125400C9687B /* autofit.c in Sources */,
 				271984671D7FD42D00860323 /* msdfgen.cpp in Sources */,
+				2773FCED1D81125A00C9687B /* ftsystem.c in Sources */,
+				2773FCE21D81125A00C9687B /* ftcid.c in Sources */,
+				2773FCE81D81125A00C9687B /* ftmm.c in Sources */,
 				271984B31D7FD47700860323 /* Vector2.cpp in Sources */,
+				2773FCE41D81125A00C9687B /* ftglyph.c in Sources */,
 				271984AE1D7FD47700860323 /* render-sdf.cpp in Sources */,
+				2773FCEB1D81125A00C9687B /* ftpfr.c in Sources */,
+				2773FCE61D81125A00C9687B /* ftinit.c in Sources */,
 				271984B21D7FD47700860323 /* SignedDistance.cpp in Sources */,
 				271984AA1D7FD47700860323 /* edge-coloring.cpp in Sources */,
 				271984AB1D7FD47700860323 /* edge-segments.cpp in Sources */,
+				2773FCDF1D81125A00C9687B /* ftbase.c in Sources */,
 				271984AF1D7FD47700860323 /* save-bmp.cpp in Sources */,
+				2773FCE91D81125A00C9687B /* ftotval.c in Sources */,
 				271984641D7FD41200860323 /* SdfText.cpp in Sources */,
 				2719846A1D7FD43200860323 /* util.cpp in Sources */,
+				2773FCE31D81125A00C9687B /* ftdebug.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
