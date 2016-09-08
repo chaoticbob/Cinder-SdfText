@@ -45,6 +45,16 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "cinder/app/App.h"
 
+#if defined( CINDER_COCOA )
+	#include "cinder/cocoa/CinderCocoa.h"
+	#if defined( CINDER_COCOA_TOUCH )
+		#import <UIKit/UIKit.h>
+		#import <CoreText/CoreText.h>
+	#else
+		#import <Cocoa/Cocoa.h>
+	#endif
+#endif
+
 #include "ft2build.h"
 #include FT_FREETYPE_H
 #include "freetype/ftsnames.h"
@@ -505,7 +515,6 @@ SdfTextManager::~SdfTextManager()
 	}
 
 #if defined( CINDER_MAC )
-	//[nsFontManager release];
 #elif defined( CINDER_WINRT )
 #elif defined( CINDER_ANDROID ) || defined( CINDER_LINUX )
 #endif
@@ -526,6 +535,34 @@ SdfTextManager* SdfTextManager::instance()
 #if defined( CINDER_MAC )
 void SdfTextManager::acquireFontNamesAndPaths()
 {
+	NSFontManager *nsFontManager = [NSFontManager sharedFontManager];
+    
+    NSArray *nsFontNames = [nsFontManager availableFonts];
+    for( NSString *nsFontName in nsFontNames ) {
+        std::string fontName = std::string( [nsFontName UTF8String] );
+        mFontNames.push_back( fontName );
+        
+        CTFontDescriptorRef ctFont = CTFontDescriptorCreateWithNameAndSize( (__bridge CFStringRef)nsFontName, (CGFloat)24 );
+        CFURLRef url = (CFURLRef)CTFontDescriptorCopyAttribute( ctFont, kCTFontURLAttribute );
+        NSString *nsFontPath = [NSString stringWithString:[(NSURL *)CFBridgingRelease(url) path]];
+        std::string fontFilePath = std::string( [nsFontPath UTF8String] );
+        
+        if( fs::exists( fontFilePath ) ) {
+			std::string fontKey = boost::to_lower_copy( fontName );
+			auto it = std::find_if( std::begin( mFontInfos ), std::end( mFontInfos ),
+				[fontKey]( const FontInfo& elem ) -> bool {
+					return elem.key == fontKey;
+				}
+			);
+			if( std::end( mFontInfos ) == it ) {
+                // Build font info
+                FontInfo fontInfo = FontInfo( fontKey, fontName, fontFilePath );
+                mFontInfos.push_back( fontInfo );
+                mFontNames.push_back( fontName );
+                CI_LOG_I( fontName );
+            }
+        }
+    }
 }
 #elif defined( CINDER_MSW )
 void SdfTextManager::acquireFontNamesAndPaths()
@@ -1015,14 +1052,14 @@ SdfText::Font::GlyphMeasuresList SdfTextBox::measureGlyphs( const SdfText::DrawO
 	for( std::vector<std::string>::const_iterator lineIt = mLines.begin(); lineIt != mLines.end(); ++lineIt ) {
 		// Fetch current line and prefetch next. This way we can look ahead.
 		if( nextUtf32Chars.empty() ) {
-			utf32Chars = boost::algorithm::trim_right_copy( ci::toUtf32( *lineIt ) );
+			utf32Chars = ci::toUtf32( boost::algorithm::trim_right_copy( *lineIt ) );
 		}
 		else {
 			std::swap( utf32Chars, nextUtf32Chars );
 		}
 
 		if( ( lineIt + 1 ) != mLines.end() ) {
-			nextUtf32Chars = boost::algorithm::trim_right_copy( ci::toUtf32( *( lineIt + 1 ) ) );
+			nextUtf32Chars = ci::toUtf32( boost::algorithm::trim_right_copy( *( lineIt + 1 ) ) );
 		}
 		else {
 			nextUtf32Chars.clear();

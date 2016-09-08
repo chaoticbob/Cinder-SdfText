@@ -33,7 +33,7 @@ void BasicApp::setup()
 #if defined( CINDER_COCOA_TOUCH )
 	mFont = gl::SdfText::Font( "Cochin-Italic", 24 );
 #elif defined( CINDER_COCOA )
-	mFont = gl::SdfText::Font( "BigCaslon-Medium", 24 );
+    mFont = gl::SdfText::Font( "Helvetica", 24 );
 #else
 	mFont = gl::SdfText::Font( "Arial", 24 );
 #endif
