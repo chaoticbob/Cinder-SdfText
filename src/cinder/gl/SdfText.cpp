@@ -12,6 +12,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
 Copyright (c) 2016, The Cinder Project, All rights reserved.
 This code is intended for use with the Cinder C++ library: http://libcinder.org
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that
@@ -76,6 +77,67 @@ static const float MAX_SIZE = 1000000.0f;
 
 namespace cinder { namespace gl {
 
+#if defined( CINDER_GL_ES )
+static std::string kSdfVertShader =
+	"#version 100\n"
+	"precision mediump float;\n"
+	"uniform mat4 ciModelViewProjection;\n"
+	"attribute vec4 ciPosition;\n"
+	"attribute vec2 ciTexCoord0;\n"
+	"varying vec2 TexCoord;\n"
+	"void main()\n"
+	"{\n"
+	"	gl_Position = ciModelViewProjection * ciPosition;\n"
+	"	TexCoord = ciTexCoord0;\n"
+	"}\n";
+
+static std::string kSdfFragShader =
+	"#version 100\n"
+	"#extension GL_OES_standard_derivatives : enable\n"
+	"precision mediump float;\n"
+	"precision mediump sampler2D;\n"
+	"uniform sampler2D uTex0;\n"
+	"uniform vec2      uTexSize;\n"
+	"uniform vec4      uFgColor;\n"
+	"uniform float     uPremultiply;\n"
+	"uniform float     uGamma;\n"
+	"varying vec2      TexCoord;\n"
+	"\n"
+	"float median( float r, float g, float b ) {\n"
+	"	return max( min( r, g ), min( max( r, g ), b ) );\n"
+	"}\n"
+	"\n"
+	"vec2 safeNormalize( in vec2 v ) {\n"
+	"   float len = length( v );\n"
+	"   len = ( len > 0.0 ) ? 1.0 / len : 0.0;\n"
+	"   return v * len;\n"
+	"}\n"
+	"\n"
+	"void main(void) {\n"
+	"    // Convert normalized texcoords to absolute texcoords.\n"
+	"    vec2 uv = TexCoord * uTexSize;\n"
+	"    // Calculate derivates\n"
+	"    vec2 Jdx = dFdx( uv );\n"
+	"    vec2 Jdy = dFdy( uv );\n"
+	"    // Sample SDF texture (3 channels).\n"
+	"    vec3 sample = texture2D( uTex0, TexCoord ).rgb;\n"
+	"    // Calculate signed distance (in texels).\n"
+	"    float sigDist = median( sample.r, sample.g, sample.b ) - 0.5;\n"
+	"    // For proper anti-aliasing, we need to calculate signed distance in pixels. We do this using derivatives.\n"
+	"    vec2 gradDist = safeNormalize( vec2( dFdx( sigDist ), dFdy( sigDist ) ) );\n"
+	"    vec2 grad = vec2( gradDist.x * Jdx.x + gradDist.y * Jdy.x, gradDist.x * Jdx.y + gradDist.y * Jdy.y );\n"
+	"    // Apply anti-aliasing.\n"
+	"    const float kThickness = 0.125;\n"
+	"    float kNormalization = kThickness * 0.5 * sqrt( 2.0 );\n"
+	"    float afwidth = min( kNormalization * length( grad ), 0.5 );\n"
+	"    float opacity = smoothstep( 0.0 - afwidth, 0.0 + afwidth, sigDist );\n"
+	"    // If enabled apply pre-multiplied alpha. Always apply gamma correction.\n"
+	"    vec4 color;\n"
+	"    color.a = pow( uFgColor.a * opacity, 1.0 / uGamma );\n"
+	"    color.rgb = mix( uFgColor.rgb, uFgColor.rgb * color.a, uPremultiply );\n"
+	"    gl_FragColor = color;\n"
+	"}\n";
+#else
 static std::string kSdfVertShader = 
 	"#version 150\n"
 	"uniform mat4 ciModelViewProjection;\n"
@@ -128,7 +190,9 @@ static std::string kSdfFragShader =
     "    // If enabled apply pre-multiplied alpha. Always apply gamma correction.\n"
 	"    Color.a = pow( uFgColor.a * opacity, 1.0 / uGamma );\n"
 	"    Color.rgb = mix( uFgColor.rgb, uFgColor.rgb * Color.a, uPremultiply );\n"
+//	"    Color = vec4( 1, 0, 0, 1 );\n"
 	"}\n";
+#endif
 
 static gl::GlslProgRef sDefaultShader;
 
@@ -137,18 +201,6 @@ static gl::GlslProgRef sDefaultShader;
 // =================================================================================================
 class SdfText::TextureAtlas {
 public:
-
-	struct GlyphInfo {
-		uint32_t	mTextureIndex;
-		Area		mTexCoords;
-		vec2		mOriginOffset;
-	};
-
-	// ---------------------------------------------------------------------------------------------
-
-	using GlyphInfoMap = std::unordered_map<SdfText::Font::Glyph, GlyphInfo>;
-
-	// ---------------------------------------------------------------------------------------------
 
 	struct CacheKey {
 		std::string mFamilyName;
@@ -189,7 +241,7 @@ private:
 
 	FT_Face							mFace = nullptr;
 	std::vector<gl::TextureRef>		mTextures;
-	GlyphInfoMap					mGlyphInfo;
+	SdfText::Font::GlyphInfoMap		mGlyphInfo;
 
 	//! Base scale that SDF generator uses is size 32 at 72 DPI. A scale of 1.5, 2.0, and 3.0 translates to size 48, 64 and 96 and 72 DPI.
 	vec2						mSdfScale = vec2( 1.0f );
@@ -1536,7 +1588,7 @@ void SdfText::save(const ci::DataTargetRef& target, const SdfTextRef& sdfText)
 		// Glyph info
 		for( const auto& it : sdfText->mTextureAtlases->mGlyphInfo ) {
 			const SdfText::Font::Glyph& glyph = it.first;
-			const SdfText::TextureAtlas::GlyphInfo& glyphInfo = it.second;
+			const SdfText::Font::GlyphInfo& glyphInfo = it.second;
 			os->writeLittle( glyph );
 			os->writeLittle( glyphInfo.mTextureIndex );
 			os->writeLittle( glyphInfo.mTexCoords.x1 );
@@ -1720,7 +1772,7 @@ SdfTextRef SdfText::load( const ci::DataSourceRef& source, float size )
 		// Glyph info
 		for( uint32_t i = 0; i < numGlyphs; ++i ) {
 			SdfText::Font::Glyph glyph = 0;
-			SdfText::TextureAtlas::GlyphInfo glyphInfo = {};
+			SdfText::Font::GlyphInfo glyphInfo = {};
 			is->readLittle( &glyph );
 			is->readLittle( &(glyphInfo.mTextureIndex) );
 			is->readLittle( &(glyphInfo.mTexCoords.x1) );
@@ -1795,6 +1847,9 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasuresList &glyphMeasures,
 		shader->uniform( "uFgColor", gl::context()->getCurrentColor() );
 		shader->uniform( "uPremultiply", options.getPremultiply() ? 1.0f : 0.0f );
 		shader->uniform( "uGamma", options.getGamma() );
+#if defined(CINDER_GL_ES)
+		shader->uniform( "uTexSize", vec2( textures[0]->getSize() ) );
+#endif
 	}
 
 	const vec2 fontRenderScale = vec2( mFont.getSize() ) / ( 32.0f * mTextureAtlases->mSdfScale );
@@ -1815,7 +1870,7 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasuresList &glyphMeasures,
 		}
 			
 		for( std::vector<std::pair<SdfText::Font::Glyph,vec2> >::const_iterator glyphIt = glyphMeasures.begin(); glyphIt != glyphMeasures.end(); ++glyphIt ) {
-			SdfText::TextureAtlas::GlyphInfoMap::const_iterator glyphInfoIt = glyphMap.find( glyphIt->first );
+			SdfText::Font::GlyphInfoMap::const_iterator glyphInfoIt = glyphMap.find( glyphIt->first );
 			if(  glyphInfoIt == glyphMap.end() ) {
 				continue;
 			}
@@ -1938,6 +1993,9 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasuresList &glyphMeasures,
 		shader->uniform( "uFgColor", gl::context()->getCurrentColor() );
 		shader->uniform( "uPremultiply", options.getPremultiply() ? 1.0f : 0.0f );
 		shader->uniform( "uGamma", options.getGamma() );
+#if defined(CINDER_GL_ES)
+		shader->uniform( "uTexSize", vec2( textures[0]->getSize() ) );
+#endif
 	}
 
 	const vec2 fontRenderScale = vec2( mFont.getSize() ) / ( 32.0f * mTextureAtlases->mSdfScale );
@@ -1958,7 +2016,7 @@ void SdfText::drawGlyphs( const SdfText::Font::GlyphMeasuresList &glyphMeasures,
 		}
 
 		for( std::vector<std::pair<Font::Glyph,vec2> >::const_iterator glyphIt = glyphMeasures.begin(); glyphIt != glyphMeasures.end(); ++glyphIt ) {
-			SdfText::TextureAtlas::GlyphInfoMap::const_iterator glyphInfoIt = glyphMap.find( glyphIt->first );
+			SdfText::Font::GlyphInfoMap::const_iterator glyphInfoIt = glyphMap.find( glyphIt->first );
 			if( glyphInfoIt == glyphMap.end() ) {
 				continue;
 			}
@@ -2092,14 +2150,101 @@ void SdfText::drawStringWrapped( const std::string &str, const Rectf &fitRect, c
 	drawGlyphs( glyphMeasures, fitRect.getUpperLeft() + offset, options );
 }
 
+std::vector<std::pair<uint8_t, std::vector<SdfText::CharPlacement>>> SdfText::placeChars( const SdfText::Font::GlyphMeasuresList &glyphMeasures, const vec2 &baselineIn, const DrawOptions &options )
+{
+	std::vector<std::pair<uint8_t, std::vector<SdfText::CharPlacement>>> result;
+
+	const auto& textures = mTextureAtlases->mTextures;
+	const auto& glyphMap = mTextureAtlases->mGlyphInfo;
+	const auto& sdfScale = mTextureAtlases->mSdfScale;
+	const auto& sdfPadding = mTextureAtlases->mSdfPadding;
+	const auto& sdfBitmapSize = mTextureAtlases->mSdfBitmapSize;
+
+	vec2 baseline = baselineIn;
+
+	const vec2 fontRenderScale = vec2( mFont.getSize() ) / ( 32.0f * mTextureAtlases->mSdfScale );
+	const vec2 fontOriginScale = vec2( mFont.getSize() ) / 32.0f;
+
+	const float scale = options.getScale();
+	for( size_t texIdx = 0; texIdx < textures.size(); ++texIdx ) {
+		std::vector<float> verts, texCoords;
+		std::vector<ColorA8u> vertColors;
+		const gl::TextureRef &curTex = textures[texIdx];
+
+		if( options.getPixelSnap() ) {
+			baseline = vec2( floor( baseline.x ), floor( baseline.y ) );
+		}
+
+		std::vector<SdfText::CharPlacement> charPlacements;	
+		for( std::vector<std::pair<SdfText::Font::Glyph,vec2> >::const_iterator glyphIt = glyphMeasures.begin(); glyphIt != glyphMeasures.end(); ++glyphIt ) {
+			SdfText::Font::GlyphInfoMap::const_iterator glyphInfoIt = glyphMap.find( glyphIt->first );
+			if(  glyphInfoIt == glyphMap.end() ) {
+				continue;
+			}
+				
+			const auto &glyphInfo = glyphInfoIt->second;
+			if( glyphInfo.mTextureIndex != texIdx ) {
+				continue;
+			}
+
+			const auto &originOffset = glyphInfo.mOriginOffset;
+
+			Rectf srcTexCoords = curTex->getAreaTexCoords( glyphInfo.mTexCoords );
+			Rectf destRect = Rectf( glyphInfo.mTexCoords );
+			destRect.scale( scale );
+			destRect -= destRect.getUpperLeft();
+			vec2 offset = vec2( 0, -( destRect.getHeight() ) );
+			// Reverse the transformation applied during SDF generation
+			float tx = sdfPadding.x;
+			float ty = std::fabs( originOffset.y ) + sdfPadding.y;
+			offset += scale * sdfScale * vec2( -tx, ty );
+			// Use origin scale for horizontal offset
+			offset += scale * fontOriginScale * vec2( originOffset.x, 0.0f );
+			destRect += offset;
+			destRect.scale( fontRenderScale );
+
+			destRect += glyphIt->second * scale;
+			destRect += baseline;
+			
+			SdfText::CharPlacement place = {};
+			place.mGlyph = glyphIt->first;
+			place.mSrcTexCoords = srcTexCoords;
+			place.mDstRect = destRect;
+			charPlacements.push_back( place );
+		}
+
+		if( ! charPlacements.empty() ) {
+			result.push_back( std::make_pair( static_cast<uint8_t>( texIdx ), charPlacements ) );
+		}
+	}
+
+	return result;
+}
+
+std::vector<std::pair<uint8_t, std::vector<SdfText::CharPlacement>>> SdfText::placeString( const std::string &str, const vec2 &baseline, const DrawOptions &options )
+{
+	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( SdfTextBox::GROW, SdfTextBox::GROW ).ligate( options.getLigate() );
+	SdfText::Font::GlyphMeasuresList glyphMeasures = tbox.measureGlyphs( options );
+	std::vector<std::pair<uint8_t, std::vector<SdfText::CharPlacement>>> result = placeChars( glyphMeasures, baseline, options );
+	return result;
+}
+
+std::vector<std::pair<uint8_t, std::vector<SdfText::CharPlacement>>> SdfText::placeStringWrapped( const std::string &str, const Rectf &fitRect, const vec2 &offset, const DrawOptions &options )
+{
+	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( (int)fitRect.getWidth(), (int)fitRect.getHeight() ).ligate( options.getLigate() );
+	SdfText::Font::GlyphMeasuresList glyphMeasures = tbox.measureGlyphs( options );
+	std::vector<std::pair<uint8_t, std::vector<SdfText::CharPlacement>>> result = placeChars( glyphMeasures, fitRect.getUpperLeft() + offset, options );
+	return result;
+}
+
 vec2 SdfText::measureString( const std::string &str, const DrawOptions &options ) const
 {
-	const SdfText::TextureAtlas::GlyphInfoMap& mGlyphMap = mTextureAtlases->mGlyphInfo;
+	const SdfText::Font::GlyphInfoMap& mGlyphMap = mTextureAtlases->mGlyphInfo;
 	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( SdfTextBox::GROW, SdfTextBox::GROW ).ligate( options.getLigate() );
 	SdfText::Font::GlyphMeasuresList glyphMeasures = tbox.measureGlyphs( options );
 	if( ! glyphMeasures.empty() ) {
 		vec2 result = glyphMeasures.back().second;
-		SdfText::TextureAtlas::GlyphInfoMap::const_iterator glyphInfoIt = mGlyphMap.find( glyphMeasures.back().first );
+		SdfText::Font::GlyphInfoMap::const_iterator glyphInfoIt = mGlyphMap.find( glyphMeasures.back().first );
 		if( glyphInfoIt != mGlyphMap.end() ) {
 			result += glyphInfoIt->second.mOriginOffset + vec2( glyphInfoIt->second.mTexCoords.getSize() );
 		}
@@ -2128,7 +2273,7 @@ std::vector<std::pair<SdfText::Font::Glyph, vec2>> SdfText::getGlyphPlacementsWr
 	return tbox.measureGlyphs( options );
 }
 
-std::string SdfText::defaultChars() 
+std::string SdfText::defaultChars()
 { 
 	return "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890().?!,:;'\"&*=+-/\\|@#_[]<>%^llflfiphrids\303\251\303\241\303\250\303\240"; 
 }

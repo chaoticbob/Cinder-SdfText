@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Basic", "..\..\Basic\vc2013\Basic.vcxproj", "{2D49D0F4-8E05-4257-8052-4FDDA85D1362}"
 EndProject
@@ -14,6 +14,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CreateSaveLoad", "..\..\CreateSaveLoad\vc2013\CreateSaveLoad.vcxproj", "{13191B3D-DEBE-49F0-800F-32048614949C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StarWars", "..\..\StarWars\vc2013\StarWars.vcxproj", "{05F9432E-4396-4427-9B78-A9DB680C7140}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BasicMesh", "..\..\BasicMesh\vc2013\BasicMesh.vcxproj", "{022DEB01-A1F9-438F-9A33-3204F8C04816}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MeshPages", "..\..\MeshPages\vc2013\MeshPages.vcxproj", "{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,6 +75,22 @@ Global
 		{05F9432E-4396-4427-9B78-A9DB680C7140}.Release|Win32.Build.0 = Release|Win32
 		{05F9432E-4396-4427-9B78-A9DB680C7140}.Release|x64.ActiveCfg = Release|x64
 		{05F9432E-4396-4427-9B78-A9DB680C7140}.Release|x64.Build.0 = Release|x64
+		{022DEB01-A1F9-438F-9A33-3204F8C04816}.Debug|Win32.ActiveCfg = Debug|Win32
+		{022DEB01-A1F9-438F-9A33-3204F8C04816}.Debug|Win32.Build.0 = Debug|Win32
+		{022DEB01-A1F9-438F-9A33-3204F8C04816}.Debug|x64.ActiveCfg = Debug|x64
+		{022DEB01-A1F9-438F-9A33-3204F8C04816}.Debug|x64.Build.0 = Debug|x64
+		{022DEB01-A1F9-438F-9A33-3204F8C04816}.Release|Win32.ActiveCfg = Release|Win32
+		{022DEB01-A1F9-438F-9A33-3204F8C04816}.Release|Win32.Build.0 = Release|Win32
+		{022DEB01-A1F9-438F-9A33-3204F8C04816}.Release|x64.ActiveCfg = Release|x64
+		{022DEB01-A1F9-438F-9A33-3204F8C04816}.Release|x64.Build.0 = Release|x64
+		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Debug|Win32.Build.0 = Debug|Win32
+		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Debug|x64.ActiveCfg = Debug|x64
+		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Debug|x64.Build.0 = Debug|x64
+		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Release|Win32.ActiveCfg = Release|Win32
+		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Release|Win32.Build.0 = Release|Win32
+		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Release|x64.ActiveCfg = Release|x64
+		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

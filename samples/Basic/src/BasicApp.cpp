@@ -30,6 +30,11 @@ private:
 
 void BasicApp::setup()
 {
+#if defined( CINDER_MSW )
+	// For AllSamples
+	addAssetDirectory( getAppPath() / "../../../../Basic/assets" );
+#endif
+
 #if defined( CINDER_COCOA_TOUCH )
 	mFont = gl::SdfText::Font( "Cochin-Italic", 24 );
 #elif defined( CINDER_COCOA )

@@ -27,9 +27,11 @@ private:
 	bool				mPremultiply = false;
 	bool				mUseSdftFile = true;
 
-	std::vector<std::string>	mSdftFileNames;
-	size_t						mSdftIndex = 0;
-	std::string					mCurrentSdfFile;
+	std::vector<std::string>			mSdftFileNames;
+	std::map<std::string, std::string>	mFontFiles;
+	size_t								mSdftIndex = 0;
+	std::string							mCurrentSdfFile;
+
 };
 
 void SaveLoadApp::setup()
@@ -41,22 +43,35 @@ void SaveLoadApp::setup()
 
 	mSdftFileNames = {
 		"AlfaSlabOne.sdft",
-		"Arial.sdft",
 		"Candal.sdft",
 		"Cinzel.sdft",
 		"FontdinerSwanky.sdft",
 		"Lobster.sdft",
 		"LuckiestGuy.sdft",
-		"PoiretOne.sdft",
-		"system_font.sdft",
-		"TimesNewRoman.sdft",
+		"Orbitron.sdft",
+		"Righteous.sdft",
+		"Syncopate.sdft",
 		"VarelaRound.sdft"
 	};
 
+
+
+	mFontFiles["AlfaSlabOne.sdft"]		= "fonts/AlfaSlabOne-Regular.ttf";
+	mFontFiles["Audiowide.sdft"]		= "fonts/Audiowide-Regular.ttf";
+	mFontFiles["Candal.sdft"]			= "fonts/Candal.ttf";
+	mFontFiles["Cinzel.sdft"]			= "fonts/Cinzel-Regular.ttf";
+	mFontFiles["FontdinerSwanky.sdft"]	= "fonts/FontdinerSwanky.ttf";
+	mFontFiles["Lobster.sdft"]			= "fonts/Lobster-Regular.ttf";
+	mFontFiles["LuckiestGuy.sdft"]		= "fonts/LuckiestGuy.ttf";
+	mFontFiles["Orbitron.sdft"]			= "fonts/Orbitron-Regular.ttf";
+	mFontFiles["Righteous.sdft"]		= "fonts/Righteous-Regular.ttf";
+	mFontFiles["Syncopate.sdft"]		= "fonts/Syncopate-Regular.ttf";
+	mFontFiles["VarelaRound.sdft"]		= "fonts/VarelaRound-Regular.ttf";
+
 	mCurrentSdfFile = mSdftFileNames[mSdftIndex];
 
-	mStatusText = gl::SdfText::load( getAssetPath( "VarelaRound.sdft" ) );
-	mSdfText = gl::SdfText::load( getAssetPath( mCurrentSdfFile ) );
+	mStatusText = gl::SdfText::create( getAssetPath( "" ) / "VarelaRound.sdft", gl::SdfText::Font( loadAsset( mFontFiles["VarelaRound.sdft"] ), 24.0f ) );
+	mSdfText = gl::SdfText::create( getAssetPath( "" ) / mCurrentSdfFile, gl::SdfText::Font( loadAsset( mFontFiles[mCurrentSdfFile] ), 24.0f ) );
 	mFont = mSdfText->getFont();
 }
 
@@ -106,7 +121,7 @@ void SaveLoadApp::keyDown( KeyEvent event )
 			++mSdftIndex;
 			mSdftIndex %= mSdftFileNames.size();
 			mCurrentSdfFile = mSdftFileNames[mSdftIndex];
-			mSdfText = gl::SdfText::load( getAssetPath( mCurrentSdfFile ), mFont.getSize() );
+			mSdfText = gl::SdfText::create( getAssetPath( "" ) / mCurrentSdfFile, gl::SdfText::Font( loadAsset( mFontFiles[mCurrentSdfFile] ), mFont.getSize() ) );
 			mFont = mSdfText->getFont();
 			mUseSdftFile = true;
 		}
