@@ -178,6 +178,11 @@
 		00692BC614FF149000D0A05E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				TargetAttributes = {
+					00692BCE14FF149000D0A05E = {
+						DevelopmentTeam = T7738XV55V;
+					};
+				};
 			};
 			buildConfigurationList = 00692BC914FF149000D0A05E /* Build configuration list for PBXProject "BasicMesh" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -291,6 +296,9 @@
 		00692BF614FF149000D0A05E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_BITCODE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = BasicMesh_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
@@ -305,6 +313,7 @@
 					"../../../lib/ios-sim/Debug/libcinder-sdftext.a",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -312,6 +321,9 @@
 		00692BF714FF149000D0A05E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_BITCODE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = BasicMesh_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
@@ -326,6 +338,7 @@
 					"../../../lib/ios-sim/Release/libcinder-sdftext.a",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
