@@ -433,6 +433,54 @@
 		2773FCEE1D81125A00C9687B /* ftwinfnt.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FC101D80F57700C9687B /* ftwinfnt.c */; };
 		2773FCF01D81128A00C9687B /* SdfTextMesh.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773FCEF1D81128A00C9687B /* SdfTextMesh.h */; };
 		2773FCF21D8112A100C9687B /* SdfTextMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2773FCF11D8112A100C9687B /* SdfTextMesh.cpp */; };
+		27B475BC1D8275E000DFCD1D /* bdf.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F92C1D80F4F900C9687B /* bdf.c */; };
+		27B475BD1D8275E000DFCD1D /* bdflib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9311D80F4F900C9687B /* bdflib.c */; };
+		27B475BE1D8275E100DFCD1D /* bdf.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F92C1D80F4F900C9687B /* bdf.c */; };
+		27B475BF1D8275E100DFCD1D /* bdflib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9311D80F4F900C9687B /* bdflib.c */; };
+		27B475C01D82762E00DFCD1D /* ftbzip2.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9371D80F4F900C9687B /* ftbzip2.c */; };
+		27B475C11D82762E00DFCD1D /* ftcache.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F93B1D80F4F900C9687B /* ftcache.c */; };
+		27B475C21D82762E00DFCD1D /* cff.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F94F1D80F4F900C9687B /* cff.c */; };
+		27B475C31D82762E00DFCD1D /* type1cid.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9741D80F4F900C9687B /* type1cid.c */; };
+		27B475C41D82762E00DFCD1D /* gxvalid.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9761D80F4F900C9687B /* gxvalid.c */; };
+		27B475C51D82762E00DFCD1D /* ftgzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F99B1D80F4F900C9687B /* ftgzip.c */; };
+		27B475C61D82762E00DFCD1D /* ftlzw.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9AE1D80F4F900C9687B /* ftlzw.c */; };
+		27B475C71D82762E00DFCD1D /* otvalid.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9B61D80F4F900C9687B /* otvalid.c */; };
+		27B475C81D82762E00DFCD1D /* pcf.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9C81D80F4F900C9687B /* pcf.c */; };
+		27B475C91D82762E00DFCD1D /* pfr.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9D61D80F4F900C9687B /* pfr.c */; };
+		27B475CA1D82762E00DFCD1D /* psaux.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9EB1D80F4F900C9687B /* psaux.c */; };
+		27B475CB1D82762E00DFCD1D /* pshinter.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9FF1D80F4F900C9687B /* pshinter.c */; };
+		27B475CC1D82762E00DFCD1D /* psnames.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FA0E1D80F4F900C9687B /* psnames.c */; };
+		27B475CD1D82762E00DFCD1D /* raster.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FA1B1D80F4F900C9687B /* raster.c */; };
+		27B475CE1D82762E00DFCD1D /* sfnt.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FA271D80F4F900C9687B /* sfnt.c */; };
+		27B475CF1D82762E00DFCD1D /* smooth.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FA471D80F4F900C9687B /* smooth.c */; };
+		27B475D01D82762E00DFCD1D /* truetype.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FA611D80F4F900C9687B /* truetype.c */; };
+		27B475D11D82762E00DFCD1D /* type1.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FA851D80F4F900C9687B /* type1.c */; };
+		27B475D21D82762E00DFCD1D /* type42.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FA921D80F4F900C9687B /* type42.c */; };
+		27B475D31D82762E00DFCD1D /* winfnt.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FA981D80F4F900C9687B /* winfnt.c */; };
+		27B475D41D82762F00DFCD1D /* ftbzip2.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9371D80F4F900C9687B /* ftbzip2.c */; };
+		27B475D51D82762F00DFCD1D /* ftcache.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F93B1D80F4F900C9687B /* ftcache.c */; };
+		27B475D61D82762F00DFCD1D /* cff.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F94F1D80F4F900C9687B /* cff.c */; };
+		27B475D71D82762F00DFCD1D /* type1cid.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9741D80F4F900C9687B /* type1cid.c */; };
+		27B475D81D82762F00DFCD1D /* gxvalid.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9761D80F4F900C9687B /* gxvalid.c */; };
+		27B475D91D82762F00DFCD1D /* ftgzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F99B1D80F4F900C9687B /* ftgzip.c */; };
+		27B475DA1D82762F00DFCD1D /* ftlzw.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9AE1D80F4F900C9687B /* ftlzw.c */; };
+		27B475DB1D82762F00DFCD1D /* otvalid.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9B61D80F4F900C9687B /* otvalid.c */; };
+		27B475DC1D82762F00DFCD1D /* pcf.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9C81D80F4F900C9687B /* pcf.c */; };
+		27B475DD1D82762F00DFCD1D /* pfr.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9D61D80F4F900C9687B /* pfr.c */; };
+		27B475DE1D82762F00DFCD1D /* psaux.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9EB1D80F4F900C9687B /* psaux.c */; };
+		27B475DF1D82762F00DFCD1D /* pshinter.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773F9FF1D80F4F900C9687B /* pshinter.c */; };
+		27B475E01D82762F00DFCD1D /* psnames.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FA0E1D80F4F900C9687B /* psnames.c */; };
+		27B475E11D82762F00DFCD1D /* raster.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FA1B1D80F4F900C9687B /* raster.c */; };
+		27B475E21D82762F00DFCD1D /* sfnt.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FA271D80F4F900C9687B /* sfnt.c */; };
+		27B475E31D82762F00DFCD1D /* smooth.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FA471D80F4F900C9687B /* smooth.c */; };
+		27B475E41D82762F00DFCD1D /* truetype.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FA611D80F4F900C9687B /* truetype.c */; };
+		27B475E51D82762F00DFCD1D /* type1.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FA851D80F4F900C9687B /* type1.c */; };
+		27B475E61D82762F00DFCD1D /* type42.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FA921D80F4F900C9687B /* type42.c */; };
+		27B475E71D82762F00DFCD1D /* winfnt.c in Sources */ = {isa = PBXBuildFile; fileRef = 2773FA981D80F4F900C9687B /* winfnt.c */; };
+		27B475E81D82815D00DFCD1D /* SdfTextMesh.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773FCEF1D81128A00C9687B /* SdfTextMesh.h */; };
+		27B475E91D82815E00DFCD1D /* SdfTextMesh.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773FCEF1D81128A00C9687B /* SdfTextMesh.h */; };
+		27B475EA1D82816300DFCD1D /* SdfTextMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2773FCF11D8112A100C9687B /* SdfTextMesh.cpp */; };
+		27B475EB1D82816400DFCD1D /* SdfTextMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2773FCF11D8112A100C9687B /* SdfTextMesh.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -1179,6 +1227,7 @@
 				2773FC661D80F5F900C9687B /* ftmac.h in Headers */,
 				2773FC891D80F60000C9687B /* ftdebug.h in Headers */,
 				2773FC581D80F5F900C9687B /* ftcache.h in Headers */,
+				27B475E91D82815E00DFCD1D /* SdfTextMesh.h in Headers */,
 				2719849A1D7FD46C00860323 /* SignedDistance.h in Headers */,
 				271984901D7FD46C00860323 /* Contour.h in Headers */,
 				2773FCB51D80F60700C9687B /* svkern.h in Headers */,
@@ -1398,6 +1447,7 @@
 				2773FC3B1D80F5F800C9687B /* ftmac.h in Headers */,
 				2773FC791D80F5FF00C9687B /* ftdebug.h in Headers */,
 				2773FC2D1D80F5F800C9687B /* ftcache.h in Headers */,
+				27B475E81D82815D00DFCD1D /* SdfTextMesh.h in Headers */,
 				2719848C1D7FD46B00860323 /* SignedDistance.h in Headers */,
 				271984821D7FD46B00860323 /* Contour.h in Headers */,
 				2773FC9B1D80F60600C9687B /* svkern.h in Headers */,
@@ -1555,6 +1605,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27B475BE1D8275E100DFCD1D /* bdf.c in Sources */,
 				2773FCD51D81125900C9687B /* ftgxval.c in Sources */,
 				2773FCDC1D81125900C9687B /* ftstroke.c in Sources */,
 				271984BD1D7FD47800860323 /* Shape.cpp in Sources */,
@@ -1563,16 +1614,32 @@
 				2773FCD01D81125900C9687B /* ftbbox.c in Sources */,
 				271984B41D7FD47800860323 /* Bitmap.cpp in Sources */,
 				271984B91D7FD47800860323 /* equation-solver.cpp in Sources */,
+				27B475D41D82762F00DFCD1D /* ftbzip2.c in Sources */,
+				27B475E11D82762F00DFCD1D /* raster.c in Sources */,
 				2773FCD71D81125900C9687B /* ftlcdfil.c in Sources */,
 				271984B81D7FD47800860323 /* EdgeHolder.cpp in Sources */,
 				2773FCDA1D81125900C9687B /* ftpatent.c in Sources */,
 				2773FCDE1D81125900C9687B /* ftwinfnt.c in Sources */,
 				271984BC1D7FD47800860323 /* shape-description.cpp in Sources */,
+				27B475DA1D82762F00DFCD1D /* ftlzw.c in Sources */,
+				27B475E41D82762F00DFCD1D /* truetype.c in Sources */,
 				2773FCCE1D81125400C9687B /* autofit.c in Sources */,
 				271984681D7FD42D00860323 /* msdfgen.cpp in Sources */,
+				27B475DF1D82762F00DFCD1D /* pshinter.c in Sources */,
+				27B475DE1D82762F00DFCD1D /* psaux.c in Sources */,
+				27B475E01D82762F00DFCD1D /* psnames.c in Sources */,
 				2773FCDD1D81125900C9687B /* ftsystem.c in Sources */,
+				27B475E21D82762F00DFCD1D /* sfnt.c in Sources */,
+				27B475E61D82762F00DFCD1D /* type42.c in Sources */,
+				27B475DB1D82762F00DFCD1D /* otvalid.c in Sources */,
 				2773FCD21D81125900C9687B /* ftcid.c in Sources */,
+				27B475DC1D82762F00DFCD1D /* pcf.c in Sources */,
+				27B475E71D82762F00DFCD1D /* winfnt.c in Sources */,
+				27B475DD1D82762F00DFCD1D /* pfr.c in Sources */,
+				27B475BF1D8275E100DFCD1D /* bdflib.c in Sources */,
 				2773FCD81D81125900C9687B /* ftmm.c in Sources */,
+				27B475EB1D82816400DFCD1D /* SdfTextMesh.cpp in Sources */,
+				27B475D91D82762F00DFCD1D /* ftgzip.c in Sources */,
 				271984BF1D7FD47800860323 /* Vector2.cpp in Sources */,
 				2773FCD41D81125900C9687B /* ftglyph.c in Sources */,
 				271984BA1D7FD47800860323 /* render-sdf.cpp in Sources */,
@@ -1582,10 +1649,16 @@
 				271984B61D7FD47800860323 /* edge-coloring.cpp in Sources */,
 				271984B71D7FD47800860323 /* edge-segments.cpp in Sources */,
 				2773FCCF1D81125900C9687B /* ftbase.c in Sources */,
+				27B475D81D82762F00DFCD1D /* gxvalid.c in Sources */,
 				271984BB1D7FD47800860323 /* save-bmp.cpp in Sources */,
+				27B475D61D82762F00DFCD1D /* cff.c in Sources */,
+				27B475E31D82762F00DFCD1D /* smooth.c in Sources */,
 				2773FCD91D81125900C9687B /* ftotval.c in Sources */,
+				27B475D51D82762F00DFCD1D /* ftcache.c in Sources */,
+				27B475E51D82762F00DFCD1D /* type1.c in Sources */,
 				271984651D7FD41300860323 /* SdfText.cpp in Sources */,
 				2719846B1D7FD43300860323 /* util.cpp in Sources */,
+				27B475D71D82762F00DFCD1D /* type1cid.c in Sources */,
 				2773FCD31D81125900C9687B /* ftdebug.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1656,6 +1729,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27B475BC1D8275E000DFCD1D /* bdf.c in Sources */,
 				2773FCE51D81125A00C9687B /* ftgxval.c in Sources */,
 				2773FCEC1D81125A00C9687B /* ftstroke.c in Sources */,
 				271984B11D7FD47700860323 /* Shape.cpp in Sources */,
@@ -1664,16 +1738,32 @@
 				2773FCE01D81125A00C9687B /* ftbbox.c in Sources */,
 				271984A81D7FD47700860323 /* Bitmap.cpp in Sources */,
 				271984AD1D7FD47700860323 /* equation-solver.cpp in Sources */,
+				27B475C01D82762E00DFCD1D /* ftbzip2.c in Sources */,
+				27B475CD1D82762E00DFCD1D /* raster.c in Sources */,
 				2773FCE71D81125A00C9687B /* ftlcdfil.c in Sources */,
 				271984AC1D7FD47700860323 /* EdgeHolder.cpp in Sources */,
 				2773FCEA1D81125A00C9687B /* ftpatent.c in Sources */,
 				2773FCEE1D81125A00C9687B /* ftwinfnt.c in Sources */,
 				271984B01D7FD47700860323 /* shape-description.cpp in Sources */,
+				27B475C61D82762E00DFCD1D /* ftlzw.c in Sources */,
+				27B475D01D82762E00DFCD1D /* truetype.c in Sources */,
 				2773FCCD1D81125400C9687B /* autofit.c in Sources */,
 				271984671D7FD42D00860323 /* msdfgen.cpp in Sources */,
+				27B475CB1D82762E00DFCD1D /* pshinter.c in Sources */,
+				27B475CA1D82762E00DFCD1D /* psaux.c in Sources */,
+				27B475CC1D82762E00DFCD1D /* psnames.c in Sources */,
 				2773FCED1D81125A00C9687B /* ftsystem.c in Sources */,
+				27B475CE1D82762E00DFCD1D /* sfnt.c in Sources */,
+				27B475D21D82762E00DFCD1D /* type42.c in Sources */,
+				27B475C71D82762E00DFCD1D /* otvalid.c in Sources */,
 				2773FCE21D81125A00C9687B /* ftcid.c in Sources */,
+				27B475C81D82762E00DFCD1D /* pcf.c in Sources */,
+				27B475D31D82762E00DFCD1D /* winfnt.c in Sources */,
+				27B475C91D82762E00DFCD1D /* pfr.c in Sources */,
+				27B475BD1D8275E000DFCD1D /* bdflib.c in Sources */,
 				2773FCE81D81125A00C9687B /* ftmm.c in Sources */,
+				27B475EA1D82816300DFCD1D /* SdfTextMesh.cpp in Sources */,
+				27B475C51D82762E00DFCD1D /* ftgzip.c in Sources */,
 				271984B31D7FD47700860323 /* Vector2.cpp in Sources */,
 				2773FCE41D81125A00C9687B /* ftglyph.c in Sources */,
 				271984AE1D7FD47700860323 /* render-sdf.cpp in Sources */,
@@ -1683,10 +1773,16 @@
 				271984AA1D7FD47700860323 /* edge-coloring.cpp in Sources */,
 				271984AB1D7FD47700860323 /* edge-segments.cpp in Sources */,
 				2773FCDF1D81125A00C9687B /* ftbase.c in Sources */,
+				27B475C41D82762E00DFCD1D /* gxvalid.c in Sources */,
 				271984AF1D7FD47700860323 /* save-bmp.cpp in Sources */,
+				27B475C21D82762E00DFCD1D /* cff.c in Sources */,
+				27B475CF1D82762E00DFCD1D /* smooth.c in Sources */,
 				2773FCE91D81125A00C9687B /* ftotval.c in Sources */,
+				27B475C11D82762E00DFCD1D /* ftcache.c in Sources */,
+				27B475D11D82762E00DFCD1D /* type1.c in Sources */,
 				271984641D7FD41200860323 /* SdfText.cpp in Sources */,
 				2719846A1D7FD43200860323 /* util.cpp in Sources */,
+				27B475C31D82762E00DFCD1D /* type1cid.c in Sources */,
 				2773FCE31D81125A00C9687B /* ftdebug.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
