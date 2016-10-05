@@ -2241,17 +2241,19 @@ vec2 SdfText::measureString( const std::string &str, const DrawOptions &options 
 	const SdfText::Font::GlyphInfoMap& mGlyphMap = mTextureAtlases->mGlyphInfo;
 	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( SdfTextBox::GROW, SdfTextBox::GROW ).ligate( options.getLigate() );
 	SdfText::Font::GlyphMeasuresList glyphMeasures = tbox.measureGlyphs( options );
+	
+	vec2 result = vec2( 0 );
 	if( ! glyphMeasures.empty() ) {
-		vec2 result = glyphMeasures.back().second;
+		/*
+		result = glyphMeasures.back().second;
 		SdfText::Font::GlyphInfoMap::const_iterator glyphInfoIt = mGlyphMap.find( glyphMeasures.back().first );
 		if( glyphInfoIt != mGlyphMap.end() ) {
-			result += glyphInfoIt->second.mOriginOffset + vec2( glyphInfoIt->second.mTexCoords.getSize() );
+			//result += glyphInfoIt->second.mOriginOffset + vec2( glyphInfoIt->second.mTexCoords.getSize() );
 		}
-		return result * mFont.getSize() / 32.0f;
+		result *= mFont.getSize() / 32.0f;
+		*/
 	}
-	else {
-		return vec2();
-	}
+	return result;
 }
 
 std::vector<std::pair<SdfText::Font::Glyph, vec2>> SdfText::getGlyphPlacements( const std::string &str, const DrawOptions &options ) const
