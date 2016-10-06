@@ -2241,19 +2241,55 @@ vec2 SdfText::measureString( const std::string &str, const DrawOptions &options 
 	const SdfText::Font::GlyphInfoMap& mGlyphMap = mTextureAtlases->mGlyphInfo;
 	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( SdfTextBox::GROW, SdfTextBox::GROW ).ligate( options.getLigate() );
 	SdfText::Font::GlyphMeasuresList glyphMeasures = tbox.measureGlyphs( options );
-	
-	vec2 result = vec2( 0 );
-	if( ! glyphMeasures.empty() ) {
-		/*
-		result = glyphMeasures.back().second;
-		SdfText::Font::GlyphInfoMap::const_iterator glyphInfoIt = mGlyphMap.find( glyphMeasures.back().first );
-		if( glyphInfoIt != mGlyphMap.end() ) {
-			//result += glyphInfoIt->second.mOriginOffset + vec2( glyphInfoIt->second.mTexCoords.getSize() );
-		}
-		result *= mFont.getSize() / 32.0f;
-		*/
-	}
-	return result;
+
+    for( std::vector<std::pair<SdfText::Font::Glyph,vec2> >::const_iterator glyphIt = glyphMeasures.begin(); glyphIt != glyphMeasures.end(); ++glyphIt ) {
+        SdfText::Font::GlyphInfoMap::const_iterator glyphInfoIt = glyphMap.find( glyphIt->first );
+        if(  glyphInfoIt == glyphMap.end() ) {
+            continue;
+        }
+            
+        const auto &glyphInfo = glyphInfoIt->second;
+        if( glyphInfo.mTextureIndex != texIdx ) {
+            continue;
+        }
+
+        const auto &originOffset = glyphInfo.mOriginOffset;
+
+        Rectf srcTexCoords = curTex->getAreaTexCoords( glyphInfo.mTexCoords );
+        Rectf destRect = Rectf( glyphInfo.mTexCoords );
+        destRect.scale( scale );
+        destRect -= destRect.getUpperLeft();
+        vec2 offset = vec2( 0, -( destRect.getHeight() ) );
+        // Reverse the transformation applied during SDF generation
+        float tx = sdfPadding.x;
+        float ty = std::fabs( originOffset.y ) + sdfPadding.y;
+        offset += scale * sdfScale * vec2( -tx, ty );
+        // Use origin scale for horizontal offset
+        offset += scale * fontOriginScale * vec2( originOffset.x, 0.0f );
+        destRect += offset;
+        destRect.scale( fontRenderScale );
+
+        destRect += glyphIt->second * scale;
+        destRect += baseline;
+    
+//	vec2 result = vec2( 0 );
+//	if( ! glyphMeasures.empty() ) {
+//        const SdfText::Font::Glyph& glyphIndex = glyphMeasures.back().first;
+//        const SdfText::Font::GlyphMeasure& glyphMeasure = glyphMeasures.back().second();
+//        SdfText::Font::GlyphInfoMap::const_iterator glyphInfoIt = glyphMap.find( glyphIndex );
+//        if(  glyphInfoIt != glyphMap.end() ) {
+//            
+//        }
+//		/*
+//		result = glyphMeasures.back().second;
+//		SdfText::Font::GlyphInfoMap::const_iterator glyphInfoIt = mGlyphMap.find( glyphMeasures.back().first );
+//		if( glyphInfoIt != mGlyphMap.end() ) {
+//			//result += glyphInfoIt->second.mOriginOffset + vec2( glyphInfoIt->second.mTexCoords.getSize() );
+//		}
+//		result *= mFont.getSize() / 32.0f;
+//		*/
+//	}
+//	return result;
 }
 
 std::vector<std::pair<SdfText::Font::Glyph, vec2>> SdfText::getGlyphPlacements( const std::string &str, const DrawOptions &options ) const
