@@ -2310,7 +2310,7 @@ Rectf SdfText::measureStringRect( const std::string &str, const DrawOptions &opt
 
 		destRect += glyphIt->second * scale;
 
-		destRect.x1 += ( sdfPadding.x * fontOriginScale.x );
+		destRect.x1 += ( ( sdfPadding.x + originOffset.x ) * fontOriginScale.x );
 		destRect.y2 -= ( sdfPadding.y * fontOriginScale.y );
 		destRect.x2 = destRect.x1 + ( ( size.x + 1.0f ) * fontOriginScale.x );
 		destRect.y1 = destRect.y2 - ( ( size.y + 1.0f ) * fontOriginScale.y );
