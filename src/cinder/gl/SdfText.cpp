@@ -589,7 +589,6 @@ SdfTextManager* SdfTextManager::instance()
 void SdfTextManager::acquireFontNamesAndPaths()
 {
 	NSFontManager *nsFontManager = [NSFontManager sharedFontManager];
-    
     NSArray *nsFontNames = [nsFontManager availableFonts];
     for( NSString *nsFontName in nsFontNames ) {
         std::string fontName = std::string( [nsFontName UTF8String] );
@@ -612,6 +611,38 @@ void SdfTextManager::acquireFontNamesAndPaths()
                 FontInfo fontInfo = FontInfo( fontKey, fontName, fontFilePath );
                 mFontInfos.push_back( fontInfo );
                 mFontNames.push_back( fontName );
+            }
+        }
+    }
+}
+#elif defined( CINDER_COCOA_TOUCH )
+void SdfTextManager::acquireFontNamesAndPaths()
+{
+    NSArray *nsFamilyNames = [UIFont familyNames];
+    for( NSString *nsFamilyName in nsFamilyNames ) {
+        NSArray *nsFontNames = [UIFont fontNamesForFamilyName:nsFamilyName];
+        for( NSString *nsFontName in nsFontNames ) {
+            std::string fontName = std::string( [nsFontName UTF8String] );
+            mFontNames.push_back( fontName );
+            
+            CTFontDescriptorRef ctFont = CTFontDescriptorCreateWithNameAndSize( (__bridge CFStringRef)nsFontName, (CGFloat)24 );
+            CFURLRef url = (CFURLRef)CTFontDescriptorCopyAttribute( ctFont, kCTFontURLAttribute );
+            NSString *nsFontPath = [NSString stringWithString:[(NSURL *)CFBridgingRelease(url) path]];
+            std::string fontFilePath = std::string( [nsFontPath UTF8String] );
+            
+            if( fs::exists( fontFilePath ) ) {
+                std::string fontKey = boost::to_lower_copy( fontName );
+                auto it = std::find_if( std::begin( mFontInfos ), std::end( mFontInfos ),
+                    [fontKey]( const FontInfo& elem ) -> bool {
+                        return elem.key == fontKey;
+                    }
+                );
+                if( std::end( mFontInfos ) == it ) {
+                    // Build font info
+                    FontInfo fontInfo = FontInfo( fontKey, fontName, fontFilePath );
+                    mFontInfos.push_back( fontInfo );
+                    mFontNames.push_back( fontName );
+                }
             }
         }
     }
