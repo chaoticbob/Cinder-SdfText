@@ -97,14 +97,25 @@ void MeasureStringApp::update()
 void MeasureStringApp::drawMeasuredStringRect( const std::string &str, const vec2 &baseline, const gl::SdfTextRef &sdfText, const gl::SdfText::DrawOptions &drawOptions )
 {
 	gl::ScopedColor color( Color( 1, 0, 0 ) );
+	Rectf r = sdfText->measureStringRect( str, drawOptions );
+	r += baseline;
+
+	gl::lineWidth( 1.0f );
+	gl::drawStrokedRect( r );
+
+
+/*
+	gl::ScopedColor color( Color( 1, 0, 0 ) );
 	vec2 size = sdfText->measureString( str, drawOptions );
 
 	Rectf r = Rectf( vec2( 0 ), size );
 	r += baseline;
 	r += vec2( 0, -size.y );
+	//r += vec2( 0, sdfText->getDescent() );
 
-	gl::lineWidth( 2.0f );
+	gl::lineWidth( 1.0f );
 	gl::drawStrokedRect( r );
+*/
 }
 
 void MeasureStringApp::draw()
@@ -118,48 +129,44 @@ void MeasureStringApp::draw()
 		.alignment( mAlignment )
 		.justify( mJustify );
 	
+	gl::color( Color::white() );
+
 	std::string str;
 	vec2 baseline;
 
-	/*
-	std::string str( "Granted, then, that certain transformations do happen, it is essential that we should regard them in the philosophic manner of fairy tales, not in the unphilosophic manner of science and the \"Laws of Nature.\" When we are asked why eggs turn into birds or fruits fall in autumn, we must answer exactly as the fairy godmother would answer if Cinderella asked her why mice turned into horses or her clothes fell from her at twelve o'clock. We must answer that it is MAGIC. It is not a \"law,\" for we do not understand its general formula." );
-	Rectf boundsRect( 40, mSdfText->getAscent() + 40, getWindowWidth() - 40, getWindowHeight() - 40 );
-
-	gl::color( ColorA( 1, 0.5f, 0.25f, 1.0f ) );
-
-	auto drawOptions = gl::SdfText::DrawOptions()
-		.premultiply( mPremultiply )
-		.alignment( mAlignment )
-		.justify( mJustify );
-
-	mSdfText->drawStringWrapped( str, boundsRect, vec2( 0 ), drawOptions );
-	*/
-
 	// Draw alignment
-	gl::color( Color::white() );
-	std::string alignment = "LEFT";
-	if( gl::SdfText::Alignment::RIGHT == mAlignment ) {
-		alignment = "RIGHT";
-	}
-	else if( gl::SdfText::Alignment::CENTER == mAlignment ) {
-		alignment = "CENTER";
-	}
-	str = alignment + ( mJustify ? " | JUSTIFIED" : "" );
-	baseline = vec2( 10, 30 );
+	str = "Font size: " + toString( mSdfText->getFont().getSize() );
+	baseline = vec2( 10, 50 );
 	mSdfText->drawString( str, baseline, drawOptions );
 	drawMeasuredStringRect( str, baseline, mSdfText, drawOptions );
 
 	// Draw elapsed seconds
-	str = "Seconds that have gone by: " + toString( static_cast<float>( getElapsedSeconds() ) );
+	str = "Floating: " + toString( static_cast<float>( getElapsedSeconds() ) );
 	baseline = vec2( 30, 100 );
 	mSdfText->drawString( str, baseline, drawOptions );
 	drawMeasuredStringRect( str, baseline, mSdfText, drawOptions );
 
 	// Draw elapsed frames
-	str = "Frames that have gone by: " + toString( getElapsedFrames() );
-	baseline = vec2( 30, 160 );
+	str = "Integer: " + toString( getElapsedFrames() );
+	baseline = vec2( 30, 150 );
 	mSdfText->drawString( str, baseline, drawOptions );
 	drawMeasuredStringRect( str, baseline, mSdfText, drawOptions );
+
+	std::vector<std::string> items = {
+		"Max Wondering Gnomes",
+		"Puppies are the best!",
+		"Fishes need water, always.",
+		"Plants want sunlight?",
+		"Toggle flip|flop ..."
+	};
+
+	baseline = vec2( 30, 200 );
+	for( const auto& item : items ) {
+		str = item;
+		mSdfText->drawString( str, baseline, drawOptions );
+		drawMeasuredStringRect( str, baseline, mSdfText, drawOptions );
+		baseline += vec2( 0, 50 );
+	}
 
 	// Draw FPS
 	str = toString( floor( getAverageFps() ) ) + " FPS" + std::string( mPremultiply ? " | premult" : "" );
@@ -177,6 +184,7 @@ void MeasureStringApp::draw()
 
 void prepareSettings( App::Settings *settings )
 {
+	//settings->setWindowSize( 1280, 720 );
 }
 
 CINDER_APP( MeasureStringApp, RendererGl, prepareSettings );

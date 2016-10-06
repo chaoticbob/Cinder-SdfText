@@ -195,6 +195,7 @@ public:
 			uint32_t	mTextureIndex;
 			Area		mTexCoords;
 			vec2		mOriginOffset;
+			vec2		mSize;
 		};
 
 		using GlyphMetricsMap = std::map<SdfText::Font::Glyph, SdfText::Font::GlyphMetrics>;
@@ -284,6 +285,8 @@ public:
 	//! Returns pairs of texture and final texture and vertex coords for wrapped drawing using \a str, \a fitRect,  \a offset, and \a options.
 	std::vector<std::pair<uint8_t, std::vector<SdfText::CharPlacement>>>	placeStringWrapped( const std::string &str, const Rectf &fitRect, const vec2 &offset = vec2(), const DrawOptions &options = DrawOptions() );
 	
+	//! Returns the rect in pixels necessary to render the string \a str with DrawOptions \a options.
+	Rectf	measureStringRect( const std::string &str, const DrawOptions &options = DrawOptions() ) const;
 	//! Returns the size in pixels necessary to render the string \a str with DrawOptions \a options.
 	vec2	measureString( const std::string &str, const DrawOptions &options = DrawOptions() ) const;
     
