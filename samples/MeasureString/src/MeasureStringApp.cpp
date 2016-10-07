@@ -28,6 +28,7 @@ private:
 	bool					mJustify = false;
 
 	void drawMeasuredStringRect( const std::string &str, const vec2 &baseline, const gl::SdfTextRef &sdfText, const gl::SdfText::DrawOptions &drawOptions );
+	void drawMeasuredStringRect( const std::string &str, const Rectf &fitRect, const gl::SdfTextRef &sdfText, const gl::SdfText::DrawOptions &drawOptions );
 };
 
 void MeasureStringApp::setup()
@@ -97,25 +98,20 @@ void MeasureStringApp::update()
 void MeasureStringApp::drawMeasuredStringRect( const std::string &str, const vec2 &baseline, const gl::SdfTextRef &sdfText, const gl::SdfText::DrawOptions &drawOptions )
 {
 	gl::ScopedColor color( Color( 1, 0, 0 ) );
-	Rectf r = sdfText->measureStringRect( str, drawOptions );
+	Rectf r = sdfText->measureStringBounds( str, drawOptions );
 	r += baseline;
 
 	gl::lineWidth( 1.0f );
 	gl::drawStrokedRect( r );
+}
 
-
-/*
+void MeasureStringApp::drawMeasuredStringRect( const std::string &str, const Rectf &fitRect, const gl::SdfTextRef &sdfText, const gl::SdfText::DrawOptions &drawOptions )
+{
 	gl::ScopedColor color( Color( 1, 0, 0 ) );
-	vec2 size = sdfText->measureString( str, drawOptions );
-
-	Rectf r = Rectf( vec2( 0 ), size );
-	r += baseline;
-	r += vec2( 0, -size.y );
-	//r += vec2( 0, sdfText->getDescent() );
+	Rectf r = sdfText->measureStringBoundsWrapped( str, fitRect, drawOptions );
 
 	gl::lineWidth( 1.0f );
 	gl::drawStrokedRect( r );
-*/
 }
 
 void MeasureStringApp::draw()
@@ -155,9 +151,6 @@ void MeasureStringApp::draw()
 	std::vector<std::string> items = {
 		"Max Wondering Gnomes",
 		"Puppies are the best!",
-		"Fishes need water, always.",
-		"Plants want sunlight?",
-		"Toggle flip|flop ..."
 	};
 
 	baseline = vec2( 30, 200 );

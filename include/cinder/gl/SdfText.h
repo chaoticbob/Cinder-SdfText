@@ -285,10 +285,14 @@ public:
 	//! Returns pairs of texture and final texture and vertex coords for wrapped drawing using \a str, \a fitRect,  \a offset, and \a options.
 	std::vector<std::pair<uint8_t, std::vector<SdfText::CharPlacement>>>	placeStringWrapped( const std::string &str, const Rectf &fitRect, const vec2 &offset = vec2(), const DrawOptions &options = DrawOptions() );
 	
-	//! Returns the rect in pixels necessary to render the string \a str with DrawOptions \a options.
-	Rectf	measureStringRect( const std::string &str, const DrawOptions &options = DrawOptions() ) const;
+	//! Returns the bounds (as a Rectf) in pixels necessary to render the string \a str with DrawOptions \a options.
+	Rectf	measureStringBounds( const std::string &str, const DrawOptions &options = DrawOptions() ) const;
+	//! Returns the word-wrapped bounds (as a Rectf) in pixels necessary to render the string \a str with DrawOptions \a options.
+	Rectf	measureStringBoundsWrapped( const std::string &str, const Rectf &fitRect, const DrawOptions &options = DrawOptions() ) const;
 	//! Returns the size in pixels necessary to render the string \a str with DrawOptions \a options.
 	vec2	measureString( const std::string &str, const DrawOptions &options = DrawOptions() ) const;
+	//! Returns the word-wrapped size in pixels necessary to render the string \a str with DrawOptions \a options.
+	vec2	measureStringWrapped( const std::string &str, const Rectf &fitRect, const DrawOptions &options = DrawOptions() ) const;
     
 	//! Returns a vector of glyph/placement pairs representing \a str, suitable for use with drawGlyphs. Useful for caching placement and optimizing batching.
 	std::vector<std::pair<SdfText::Font::Glyph,vec2>>		getGlyphPlacements( const std::string &str, const DrawOptions &options = DrawOptions() ) const;
@@ -331,6 +335,8 @@ private:
 	SdfText::Font::GlyphMetricsMap		mGlyphMetrics;
 	SdfText::Font::CharToGlyphMap		mCharToGlyph;
 	SdfText::Font::GlyphToCharMap		mGlyphToChar;
+
+	Rectf	measureStringImpl( const std::string &str, bool wrapped, const Rectf &fitRect, const DrawOptions &options ) const;
 };
 
 }} // namespace cinder::gl

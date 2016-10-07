@@ -2272,10 +2272,12 @@ std::vector<std::pair<uint8_t, std::vector<SdfText::CharPlacement>>> SdfText::pl
 	return result;
 }
 
-Rectf SdfText::measureStringRect( const std::string &str, const DrawOptions &options ) const
+Rectf SdfText::measureStringImpl( const std::string &str, bool wrapped, const Rectf &fitRect, const DrawOptions &options ) const
 {
-	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( SdfTextBox::GROW, SdfTextBox::GROW ).ligate( options.getLigate() );
-	SdfText::Font::GlyphMeasuresList glyphMeasures = tbox.measureGlyphs( options );
+	SdfTextBox tbox = wrapped ? SdfTextBox( this ).text( str ).size( (int)fitRect.getWidth(), (int)fitRect.getHeight() ).ligate( options.getLigate() )
+                              : SdfTextBox( this ).text( str ).size( SdfTextBox::GROW, SdfTextBox::GROW ).ligate( options.getLigate() );
+	
+    SdfText::Font::GlyphMeasuresList glyphMeasures = tbox.measureGlyphs( options );
 
 	const SdfText::Font::GlyphInfoMap& glyphMap = mTextureAtlases->mGlyphInfo;
 	const auto& sdfScale = mTextureAtlases->mSdfScale;
@@ -2333,9 +2335,88 @@ Rectf SdfText::measureStringRect( const std::string &str, const DrawOptions &opt
 	return result;
 }
 
+Rectf SdfText::measureStringBounds( const std::string &str, const DrawOptions &options ) const
+{
+    Rectf result = measureStringImpl( str, false, Rectf( 0, 0, 0, 0 ), options );
+    return result;
+
+/*
+	SdfTextBox tbox = SdfTextBox( this ).text( str ).size( SdfTextBox::GROW, SdfTextBox::GROW ).ligate( options.getLigate() );
+	SdfText::Font::GlyphMeasuresList glyphMeasures = tbox.measureGlyphs( options );
+
+	const SdfText::Font::GlyphInfoMap& glyphMap = mTextureAtlases->mGlyphInfo;
+	const auto& sdfScale = mTextureAtlases->mSdfScale;
+	const auto& sdfPadding = mTextureAtlases->mSdfPadding;
+	const vec2 fontRenderScale = vec2( mFont.getSize() ) / ( 32.0f * mTextureAtlases->mSdfScale );
+	const vec2 fontOriginScale = vec2( mFont.getSize() ) / 32.0f;
+	const float scale = options.getScale();
+
+	Rectf result = Rectf( 0, 0, 0, 0 );
+    for( std::vector<std::pair<SdfText::Font::Glyph,vec2> >::const_iterator glyphIt = glyphMeasures.begin(); glyphIt != glyphMeasures.end(); ++glyphIt ) {
+        SdfText::Font::GlyphInfoMap::const_iterator glyphInfoIt = glyphMap.find( glyphIt->first );
+        if(  glyphInfoIt == glyphMap.end() ) {
+            continue;
+        }
+
+		const auto &glyphInfo = glyphInfoIt->second;          
+        const auto &originOffset = glyphInfo.mOriginOffset;
+		const auto &size = glyphInfo.mSize;
+
+        Rectf destRect = Rectf( glyphInfo.mTexCoords );
+        destRect.scale( scale );
+        destRect -= destRect.getUpperLeft();
+        vec2 offset = vec2( 0, -( destRect.getHeight() ) );
+        // Reverse the transformation applied during SDF generation
+        float tx = sdfPadding.x;
+        float ty = std::fabs( originOffset.y ) + sdfPadding.y;
+        offset += scale * sdfScale * vec2( -tx, ty );
+        // Use origin scale for horizontal offset
+        offset += scale * fontOriginScale * vec2( originOffset.x, 0.0f );
+        destRect += offset;
+        destRect.scale( fontRenderScale );
+
+		destRect += glyphIt->second * scale;
+
+		destRect.x1 += ( ( sdfPadding.x + originOffset.x ) * fontOriginScale.x );
+		destRect.y2 -= ( sdfPadding.y * fontOriginScale.y );
+		destRect.x2 = destRect.x1 + ( ( size.x + 1.0f ) * fontOriginScale.x );
+		destRect.y1 = destRect.y2 - ( ( size.y + 1.0f ) * fontOriginScale.y );
+		destRect.x1 -= ( 0.5f * fontOriginScale.x );
+		destRect.y1 -= ( 0.5f * fontOriginScale.y );
+		destRect.x2 += ( 0.5f * fontOriginScale.x );
+		destRect.y2 += ( 0.5f * fontOriginScale.y );
+
+		if( ( result.getWidth() > 0 ) || ( result.getHeight() > 0 ) ) {
+			result.x1 = std::min( result.x1, destRect.x1 );
+			result.y1 = std::min( result.y1, destRect.y1 );
+			result.x2 = std::max( result.x2, destRect.x2 );
+			result.y2 = std::max( result.y2, destRect.y2 );
+		}
+		else {
+			result = destRect;
+		}
+	}
+
+	return result;
+*/
+}
+
+Rectf SdfText::measureStringBoundsWrapped( const std::string &str, const Rectf &fitRect, const DrawOptions &options ) const
+{
+    Rectf result = measureStringImpl( str, true, fitRect, options );
+    return result;
+}
+
 vec2 SdfText::measureString( const std::string &str, const DrawOptions &options ) const
 {
-	Rectf bounds = measureStringRect( str, options );
+    Rectf bounds = measureStringImpl( str, false, Rectf( 0, 0, 0, 0 ), options );
+	vec2 result = vec2( bounds.getWidth(), bounds.getHeight() );
+	return result;
+}
+
+vec2 SdfText::measureStringWrapped( const std::string &str, const Rectf &fitRect, const DrawOptions &options ) const
+{
+    Rectf bounds = measureStringImpl( str, true, fitRect, options );
 	vec2 result = vec2( bounds.getWidth(), bounds.getHeight() );
 	return result;
 }
