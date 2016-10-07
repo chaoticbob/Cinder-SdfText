@@ -38,7 +38,7 @@ void MeasureStringApp::setup()
 	addAssetDirectory( getAppPath() / "../../../../MeasureString/assets" );
 #endif
 
-	mFont = gl::SdfText::Font( loadAsset( "fonts/VarelaRound-Regular.ttf" ), 24 );
+	mFont = gl::SdfText::Font( loadAsset( "fonts/VarelaRound-Regular.ttf" ), 28 );
 	mSdfText = gl::SdfText::create( getAssetPath( "" ) / "cached_font.sdft", mFont );
 }
 
@@ -108,7 +108,8 @@ void MeasureStringApp::drawMeasuredStringRect( const std::string &str, const vec
 void MeasureStringApp::drawMeasuredStringRect( const std::string &str, const Rectf &fitRect, const gl::SdfTextRef &sdfText, const gl::SdfText::DrawOptions &drawOptions )
 {
 	gl::ScopedColor color( Color( 1, 0, 0 ) );
-	Rectf r = sdfText->measureStringBoundsWrapped( str, fitRect, drawOptions );
+	Rectf r = sdfText->measureStringBoundsWrapped( str, fitRect, drawOptions ); 
+	r += vec2( fitRect.x1, fitRect.y1 );
 
 	gl::lineWidth( 1.0f );
 	gl::drawStrokedRect( r );
@@ -160,6 +161,12 @@ void MeasureStringApp::draw()
 		drawMeasuredStringRect( str, baseline, mSdfText, drawOptions );
 		baseline += vec2( 0, 50 );
 	}
+
+	// Draw lorem ipsum
+	str = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lacinia nunc in nunc fermentum, in aliquam orci vulputate. In cursus metus nec lorem viverra tempor vel ac enim.";
+	Rectf r = Rectf( 30, 300, 580, 400 );
+	mSdfText->drawStringWrapped( str, r, vec2( 0 ), drawOptions.leading( -3 ) );
+	drawMeasuredStringRect( str, r, mSdfText, drawOptions );
 
 	// Draw FPS
 	str = toString( floor( getAverageFps() ) ) + " FPS" + std::string( mPremultiply ? " | premult" : "" );
