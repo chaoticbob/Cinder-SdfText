@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BasicMesh", "..\..\BasicMes
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MeshPages", "..\..\MeshPages\vc2013\MeshPages.vcxproj", "{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MeasureString", "..\..\MeasureString\vc2013\MeasureString.vcxproj", "{4592F488-7210-4E93-9DC4-F2445CFA8985}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -91,6 +93,14 @@ Global
 		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Release|Win32.Build.0 = Release|Win32
 		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Release|x64.ActiveCfg = Release|x64
 		{1DBAE4DA-7CC4-4BDD-904D-971A2901C3DE}.Release|x64.Build.0 = Release|x64
+		{4592F488-7210-4E93-9DC4-F2445CFA8985}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4592F488-7210-4E93-9DC4-F2445CFA8985}.Debug|Win32.Build.0 = Debug|Win32
+		{4592F488-7210-4E93-9DC4-F2445CFA8985}.Debug|x64.ActiveCfg = Debug|x64
+		{4592F488-7210-4E93-9DC4-F2445CFA8985}.Debug|x64.Build.0 = Debug|x64
+		{4592F488-7210-4E93-9DC4-F2445CFA8985}.Release|Win32.ActiveCfg = Release|Win32
+		{4592F488-7210-4E93-9DC4-F2445CFA8985}.Release|Win32.Build.0 = Release|Win32
+		{4592F488-7210-4E93-9DC4-F2445CFA8985}.Release|x64.ActiveCfg = Release|x64
+		{4592F488-7210-4E93-9DC4-F2445CFA8985}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
