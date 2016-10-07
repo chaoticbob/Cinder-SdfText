@@ -140,6 +140,7 @@ public:
 		void						setWrapped( bool value ) { mOptions.setWrapped( value ); }
 		const Rectf&				getFitRect() const { return mOptions.getFitRect(); }
 		void						setFitRect( const Rectf &value ) { mOptions.setFitRect( value ); }
+		const Rectf&				getBounds() const { return mBounds; }
 	private:
 		Run( SdfTextMesh *sdfTextMesh, const std::string& utf8, const SdfTextRef& sdfText, const vec2 &baseline, const Run::Options &drawOptions );
 		Run( SdfTextMesh *sdfTextMesh, const std::string& utf8, const SdfTextRef& sdfText, const Rectf &fitRect, const Run::Options &drawOptions );
@@ -150,6 +151,7 @@ public:
 		uint32_t					mDirty = Feature::NONE;
 		std::string					mUtf8;
 		Run::Options				mOptions;
+		Rectf						mBounds = Rectf( 0, 0, 0, 0 );
 	};
 
 	virtual ~SdfTextMesh() {}
@@ -161,6 +163,9 @@ public:
 	SdfTextMesh::RunRef			appendText( const std::string &utf8, const SdfText::Font &font, const vec2& baseline, const Run::Options &options = Run::Options() );
 	SdfTextMesh::RunRef			appendTextWrapped( const std::string &utf8, const SdfTextRef &sdfText, const Rectf &fitRect, const Run::Options &options = Run::Options() );
 	SdfTextMesh::RunRef			appendTextWrapped( const std::string &utf8, const SdfText::Font &font, const Rectf &fitRect, const Run::Options &options = Run::Options() );
+
+	//! Returns the runs associated with \a sdfText. If \a sdfText is null, all runs gets returned.
+	std::vector<RunRef>			getRuns( const SdfTextRef &sdfText = SdfTextRef() ) const;
 
 	void						cache();
 

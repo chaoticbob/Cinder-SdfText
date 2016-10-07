@@ -43,9 +43,10 @@ private:
 	gl::SdfText::Font						mFont;
 	gl::SdfTextRef							mSdfText;
 	gl::SdfTextMeshRef						mSdfTextMesh;
-	bool									mPremultiply = false;
+	bool									mPremultiply = true;
 	gl::SdfText::Alignment					mAlignment = gl::SdfText::Alignment::LEFT;
 	bool									mJustify = true;
+	bool									mDrawBounds = false;
 
 	std::vector<gl::SdfTextMesh::RunRef>	mPageNumRuns;
 	std::vector<gl::SdfTextMesh::RunRef>	mPageTextRuns;
@@ -134,6 +135,11 @@ void MeshPagesApp::keyDown( KeyEvent event )
 			}
 		break;
 
+		case 'b':
+		case 'B':
+			mDrawBounds = ! mDrawBounds;
+		break;
+
 		case '1': moveToPage( 1 );  break;
 		case '2': moveToPage( 2 );  break;
 		case '3': moveToPage( 3 );  break;
@@ -162,6 +168,19 @@ void MeshPagesApp::draw()
 	gl::clear( Color( 0.93f, 0.92f, 0.9f ) );
 
 	auto drawOptions = gl::SdfText::DrawOptions().premultiply( mPremultiply );
+
+	if( mDrawBounds ) {
+		gl::ScopedModelMatrix scopedModel;
+		gl::translate( mOffset.value() );
+
+		auto runs = mSdfTextMesh->getRuns();		
+		gl::lineWidth( 1.0f );
+		gl::color( Color( 0.1f, 0.8f, 0.9f ) );
+		for( const auto &run : runs ) {
+			const auto &bounds = run->getBounds();
+			gl::drawStrokedRect( bounds );
+		}
+	}
 
 	gl::color( Color( 0.1f, 0.1f, 0.1f ) );
 	drawOptions.scale( 2.0f );

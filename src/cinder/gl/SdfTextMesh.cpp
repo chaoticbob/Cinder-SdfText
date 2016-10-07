@@ -176,6 +176,23 @@ void SdfTextMesh::appendText( const SdfTextMesh::RunRef &run )
 	updateDirty( run.get() );
 }
 
+std::vector<SdfTextMesh::RunRef> SdfTextMesh::getRuns( const SdfTextRef &sdfText ) const
+{
+	std::vector<SdfTextMesh::RunRef> result;
+	if( sdfText ) {
+		auto it = mRunMaps.find( sdfText );
+		if( mRunMaps.end() != it ) {
+			result = it->second;
+		}
+	}
+	else {
+		for( const auto &it : mRunMaps ) {
+			std::copy( std::begin( it.second ), std::end( it.second ), std::back_inserter( result ) );
+		}
+	}
+	return result;
+}
+
 void SdfTextMesh::updateFeatures( const Run *run )
 {
 	const auto& sdfText = run->getSdfText();
@@ -253,9 +270,9 @@ void SdfTextMesh::cache()
 		return;
 	}
 
-	for( auto& runMapIt : mRunMaps ) {
-		auto& sdfText = runMapIt.first;
-		auto& runs = runMapIt.second;
+	for( auto &runMapIt : mRunMaps ) {
+		auto &sdfText = runMapIt.first;
+		auto &runs = runMapIt.second;
 
 		// Get textures
 		std::vector<Texture2dRef> textures;
@@ -269,24 +286,33 @@ void SdfTextMesh::cache()
 
 		std::unordered_map<RunRef, std::pair<uint32_t, uint32_t>> runVertRanges;
 		std::unordered_map<Texture2dRef, ClientMesh> texToMesh;
-		for( const auto& run : runs ) {
+		for( const auto &run : runs ) {
 			std::pair<uint32_t, uint32_t> vertRange = std::make_pair( 0, 0 );
-			const auto& options = run->getOptions();			
+			const auto &options = run->getOptions();	
+			auto &bounds = run->mBounds;
 			std::vector<std::pair<uint8_t, std::vector<SdfText::CharPlacement>>> placements; 
 			if( run->getWrapped() ) {
-				placements = sdfText->placeStringWrapped( run->getUtf8(), run->getFitRect(), vec2( run->getPosition() ), options.getDrawOptions() );
+				const Rectf &fitRect = run->getFitRect();
+				vec2 offset = vec2( run->getPosition() );
+				placements = sdfText->placeStringWrapped( run->getUtf8(), fitRect, offset, options.getDrawOptions() );
+				bounds = sdfText->measureStringBoundsWrapped( run->getUtf8(), fitRect, options.getDrawOptions() );
+				bounds += vec2( fitRect.x1, fitRect.y1 );
+				bounds += offset;
 			}
 			else {
-				placements = sdfText->placeString( run->getUtf8(), vec2( run->getBaseline() ), options.getDrawOptions() );
+				vec2 baseline = vec2( run->getBaseline() );
+				placements = sdfText->placeString( run->getUtf8(), baseline, options.getDrawOptions() );
+				bounds = sdfText->measureStringBounds( run->getUtf8(),options.getDrawOptions() );
+				bounds += baseline;
 			}
-			for( const auto& placementsIt : placements ) {
+			for( const auto &placementsIt : placements ) {
 				Texture2dRef tex = textures[placementsIt.first];
 				const auto& charPlacements = placementsIt.second;
 				if( charPlacements.empty() ) {
 					continue;
 				}
 
-				auto& mesh = texToMesh[tex];
+				auto &mesh = texToMesh[tex];
 				vertRange.first = static_cast<uint32_t>( mesh.getNumIndices() );
 				for( const auto& place : charPlacements ) {
 					const auto& srcTexCoords = place.mSrcTexCoords;
