@@ -69,7 +69,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 #include <boost/algorithm/string.hpp>
 
-#if defined( CINDER_MSW )
+#if defined( CINDER_LINUX )
+	#include <fontconfig/fontconfig.h>
+#elif defined( CINDER_MSW )
 	#include <Windows.h>
 #endif
 
@@ -791,6 +793,91 @@ void SdfTextManager::acquireFontNamesAndPaths()
 #elif defined( CINDER_LINUX )
 void SdfTextManager::acquireFontNamesAndPaths()
 {
+	if( ::FcInit() ) {
+		::FcPattern   *pat = ::FcPatternCreate();
+		::FcObjectSet *os  = ::FcObjectSetBuild( FC_FILE, FC_FAMILY, FC_STYLE, (char *)0 );
+		::FcFontSet   *fs  = ::FcFontList (0, pat, os);
+	
+		for( size_t i = 0; i < fs->nfont; ++i ) {
+			//::FcPattern *font = fs->fonts[i];
+			//::FcChar8 *family = nullptr;
+			//if( ::FcPatternGetString( font, FC_FAMILY, 0, &family ) == FcResultMatch ) {					
+			//	std::cout << "Found font family: " << family << std::endl;
+			//	//string fontName = std::string( (const char*)family );
+			//	//mFontNames.push_back( fontName );
+			//}
+
+			::FcPattern *fcFont = fs->fonts[i];
+			::FcChar8 *fcFileName = nullptr;
+			if( ::FcResultMatch == ::FcPatternGetString( fcFont, FC_FILE, 0, &fcFileName ) ) {
+				std::string fontFilePath = std::string( (const char*)fcFileName );
+				
+				// Skip anything that isn't ttf or otf
+				std::string lcfn = boost::to_lower_copy( fontFilePath );
+				boost::trim( lcfn );
+				if( ! ( boost::ends_with( lcfn, ".ttf" ) || boost::ends_with( lcfn, ".otf" ) ) ) {
+					continue;
+				}
+
+				::FcChar8 *fcFamily = nullptr;
+				::FcChar8 *fcStyle = nullptr;
+				::FcResult fcFamilyRes = ::FcPatternGetString( fcFont, FC_FAMILY, 0, &fcFamily );
+				::FcResult fcStyleRes = ::FcPatternGetString( fcFont, FC_STYLE, 0, &fcStyle );
+				if( ( ::FcResultMatch != fcFamilyRes ) || ( ::FcResultMatch != fcStyleRes ) ) {
+					continue;
+				}
+
+				std::string family = std::string( (const char*)fcFamily );
+				std::string style = std::string( (const char*)fcStyle );
+				std::string fontName = family + ( style.empty() ? "" : ( " " + style ) );
+				
+				std::string fontKey = boost::to_lower_copy( fontName );
+				auto it = std::find_if( std::begin( mFontInfos ), std::end( mFontInfos ),
+					[fontKey]( const FontInfo& elem ) -> bool {
+						return elem.key == fontKey;
+					}
+				);
+				if( std::end( mFontInfos ) == it ) {
+					if( fs::exists( fontFilePath ) ) {
+						// Build font info
+						FontInfo fontInfo = FontInfo( fontKey, fontName, fontFilePath );
+						mFontInfos.push_back( fontInfo );
+						mFontNames.push_back( fontName );
+					}
+				}
+
+				//std::cout << fcFamily << " " << fcStyle << " : " << fontFilePath << std::endl;
+
+				/*
+				DataSourceRef dataSource = ci::loadFile( fontFilePath );
+				if( ! dataSource ) {
+					throw FontLoadFailedExc( "Couldn't find file for " + aName );
+				}
+
+				mFileData = dataSource->getBuffer();
+				FT_Error error = FT_New_Memory_Face(
+					FontManager::instance()->mLibrary, 
+					(FT_Byte*)mFileData->getData(), 
+					mFileData->getSize(), 
+					0, 
+					&mFace
+				);
+				if( error ) {
+					throw FontInvalidNameExc( "Failed to create a face for " + aName );
+				}
+
+				FT_Select_Charmap( mFace, FT_ENCODING_UNICODE );
+				FT_Set_Char_Size( mFace, 0, (int)aSize * 64, 0, 72 );
+				*/
+			}			
+		}
+
+		::FcObjectSetDestroy( os );
+		::FcPatternDestroy( pat );
+		::FcFontSetDestroy( fs );
+
+		::FcFini();
+	}
 }
 #endif
 
