@@ -115,6 +115,21 @@ static std::string kSdfFragShader =
 	"   return v * len;\n"
 	"}\n"
 	"\n"
+  #if defined( CINDER_LINUX_EGL_ONLY )
+	"float calcDiff( vec2 p ) {\n"
+	"   return p.x * p.x - p.y;\n"
+	"}\n"
+	"\n"	
+	"void main(void) {\n"
+	"    vec3 sample = texture2D( uTex0, TexCoord ).rgb;\n"
+	"    float sigDist = median( sample.r, sample.g, sample.b );\n"
+	"    float c = calcDiff( TexCoord );\n"
+	"    vec2 ps = vec2( 1.0 / uTexSize.x, 1.0 / uTexSize.y );\n"
+	"    float dfdx = calcDiff( TexCoord + vec2( ps.x ) ) - c;\n"
+	"    float dfdy = calcDiff( TexCoord + vec2( ps.y ) ) - c;\n"
+	"    float w = abs( dfdx ) + abs( dfdy );\n"
+	"    float opacity = smoothstep( 0.5 - w, 0.5 + w, sigDist );\n"
+  #else
 	"void main(void) {\n"
 	"    // Convert normalized texcoords to absolute texcoords.\n"
 	"    vec2 uv = TexCoord * uTexSize;\n"
@@ -123,11 +138,6 @@ static std::string kSdfFragShader =
 	"    vec2 Jdy = dFdy( uv );\n"
 	"    // Sample SDF texture (3 channels).\n"
 	"    vec3 sample = texture2D( uTex0, TexCoord ).rgb;\n"
-#if defined( CINDER__LINUX_EGL_ONLY )
-	"   float sigDist = median( sample.r, sample.g, sample.b );\n"
-	"   float w = fwidth( sigDist );\n"
-	"   float opacity = smoothstep( 0.5 - w, 0.5 + w, sigDist );\n"
-#else
 	"    // Calculate signed distance (in texels).\n"
 	"    float sigDist = median( sample.r, sample.g, sample.b ) - 0.5;\n"
 	"    // For proper anti-aliasing, we need to calculate signed distance in pixels. We do this using derivatives.\n"
@@ -138,7 +148,7 @@ static std::string kSdfFragShader =
 	"    float kNormalization = kThickness * 0.5 * sqrt( 2.0 );\n"
 	"    float afwidth = min( kNormalization * length( grad ), 0.5 );\n"
 	"    float opacity = smoothstep( 0.0 - afwidth, 0.0 + afwidth, sigDist );\n"
-#endif
+  #endif
 	"    // If enabled apply pre-multiplied alpha. Always apply gamma correction.\n"
 	"    vec4 color;\n"
 	"    color.a = pow( uFgColor.a * opacity, 1.0 / uGamma );\n"
