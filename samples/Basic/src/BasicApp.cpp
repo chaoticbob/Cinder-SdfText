@@ -35,13 +35,7 @@ void BasicApp::setup()
 	addAssetDirectory( getAppPath() / "../../../../Basic/assets" );
 #endif
 
-#if defined( CINDER_COCOA_TOUCH )
-	mFont = gl::SdfText::Font( "Cochin-Italic", 24 );
-#elif defined( CINDER_COCOA )
-    mFont = gl::SdfText::Font( "Helvetica", 24 );
-#else
-	mFont = gl::SdfText::Font( "Arial", 24 );
-#endif
+	mFont = gl::SdfText::Font( loadAsset( "Roboto-Regular.ttf" ), 24 );
 	mSdfText = gl::SdfText::create( getAssetPath( "" ) / "cached_font.sdft", mFont );
 }
 
