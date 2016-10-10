@@ -121,6 +121,11 @@ static std::string kSdfFragShader =
 	"    vec2 Jdy = dFdy( uv );\n"
 	"    // Sample SDF texture (3 channels).\n"
 	"    vec3 sample = texture2D( uTex0, TexCoord ).rgb;\n"
+#if defined( CINDER__LINUX_EGL_ONLY )
+	"   float sigDist = median( sample.r, sample.g, sample.b );\n"
+	"   float w = fwidth( sigDist );\n"
+	"   float opacity = smoothstep( 0.5 - w, 0.5 + w, sigDist );\n"
+#else
 	"    // Calculate signed distance (in texels).\n"
 	"    float sigDist = median( sample.r, sample.g, sample.b ) - 0.5;\n"
 	"    // For proper anti-aliasing, we need to calculate signed distance in pixels. We do this using derivatives.\n"
@@ -131,6 +136,7 @@ static std::string kSdfFragShader =
 	"    float kNormalization = kThickness * 0.5 * sqrt( 2.0 );\n"
 	"    float afwidth = min( kNormalization * length( grad ), 0.5 );\n"
 	"    float opacity = smoothstep( 0.0 - afwidth, 0.0 + afwidth, sigDist );\n"
+#endif
 	"    // If enabled apply pre-multiplied alpha. Always apply gamma correction.\n"
 	"    vec4 color;\n"
 	"    color.a = pow( uFgColor.a * opacity, 1.0 / uGamma );\n"
@@ -722,26 +728,6 @@ void SdfTextManager::acquireFontNamesAndPaths()
 					FontInfo fontInfo = FontInfo( fontKey, fontName, fontFilePath );
 					mFontInfos.push_back( fontInfo );
 					mFontNames.push_back( fontName );
-
-					/*
-					FT_Face face = nullptr;
-					FT_Error ftErr = FT_New_Face( mLibrary, fontFilePath.c_str(), 0, &face );
-					if( FT_Err_Ok == ftErr ) {
-						std::string styleName = face->style_name;
-						boost::trim( styleName );
-						std::string styleKey = boost::to_lower_copy( styleName );
-						if( "regular" != styleKey ) {
-							fontKey = fontKey + " " + styleKey;
-							fontName = fontName + " " + styleName;
-						}
-						// Build font info
-						FontInfo fontInfo = FontInfo( fontKey, fontName, fontFilePath );
-						mFontInfos.push_back( fontInfo );
-						mFontNames.push_back( fontName );
-						// Destroy face
-						FT_Done_Face( face );
-					}
-					*/
 				}
 			}
 		}
