@@ -145,7 +145,6 @@
 		2773F8B41D80F4C300C9687B /* fttrigon.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F85D1D80F4C300C9687B /* fttrigon.h */; };
 		2773F8B51D80F4C300C9687B /* fttypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F85E1D80F4C300C9687B /* fttypes.h */; };
 		2773F8B61D80F4C300C9687B /* ftwinfnt.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F85F1D80F4C300C9687B /* ftwinfnt.h */; };
-		2773F8B71D80F4C300C9687B /* ftxf86.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F8601D80F4C300C9687B /* ftxf86.h */; };
 		2773F8B81D80F4C300C9687B /* autohint.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F8621D80F4C300C9687B /* autohint.h */; };
 		2773F8B91D80F4C300C9687B /* ftcalc.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F8631D80F4C300C9687B /* ftcalc.h */; };
 		2773F8BA1D80F4C300C9687B /* ftdebug.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F8641D80F4C300C9687B /* ftdebug.h */; };
@@ -269,7 +268,6 @@
 		2773FC481D80F5F800C9687B /* fttrigon.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F85D1D80F4C300C9687B /* fttrigon.h */; };
 		2773FC491D80F5F800C9687B /* fttypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F85E1D80F4C300C9687B /* fttypes.h */; };
 		2773FC4A1D80F5F800C9687B /* ftwinfnt.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F85F1D80F4C300C9687B /* ftwinfnt.h */; };
-		2773FC4B1D80F5F800C9687B /* ftxf86.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F8601D80F4C300C9687B /* ftxf86.h */; };
 		2773FC4C1D80F5F900C9687B /* ftconfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F8361D80F4C300C9687B /* ftconfig.h */; };
 		2773FC4D1D80F5F900C9687B /* ftheader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F8371D80F4C300C9687B /* ftheader.h */; };
 		2773FC4E1D80F5F900C9687B /* ftmodule.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F8381D80F4C300C9687B /* ftmodule.h */; };
@@ -312,7 +310,6 @@
 		2773FC731D80F5F900C9687B /* fttrigon.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F85D1D80F4C300C9687B /* fttrigon.h */; };
 		2773FC741D80F5F900C9687B /* fttypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F85E1D80F4C300C9687B /* fttypes.h */; };
 		2773FC751D80F5F900C9687B /* ftwinfnt.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F85F1D80F4C300C9687B /* ftwinfnt.h */; };
-		2773FC761D80F5F900C9687B /* ftxf86.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F8601D80F4C300C9687B /* ftxf86.h */; };
 		2773FC771D80F5FF00C9687B /* autohint.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F8621D80F4C300C9687B /* autohint.h */; };
 		2773FC781D80F5FF00C9687B /* ftcalc.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F8631D80F4C300C9687B /* ftcalc.h */; };
 		2773FC791D80F5FF00C9687B /* ftdebug.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773F8641D80F4C300C9687B /* ftdebug.h */; };
@@ -481,6 +478,18 @@
 		27B475E91D82815E00DFCD1D /* SdfTextMesh.h in Headers */ = {isa = PBXBuildFile; fileRef = 2773FCEF1D81128A00C9687B /* SdfTextMesh.h */; };
 		27B475EA1D82816300DFCD1D /* SdfTextMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2773FCF11D8112A100C9687B /* SdfTextMesh.cpp */; };
 		27B475EB1D82816400DFCD1D /* SdfTextMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2773FCF11D8112A100C9687B /* SdfTextMesh.cpp */; };
+		49BC0FDF1E3549EF00C7D009 /* ft2build.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BC0FDB1E3549EF00C7D009 /* ft2build.h */; };
+		49BC0FE01E3549EF00C7D009 /* ftcffdrv.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BC0FDC1E3549EF00C7D009 /* ftcffdrv.h */; };
+		49BC0FE11E3549EF00C7D009 /* ftfntfmt.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BC0FDD1E3549EF00C7D009 /* ftfntfmt.h */; };
+		49BC0FE21E3549EF00C7D009 /* ftttdrv.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BC0FDE1E3549EF00C7D009 /* ftttdrv.h */; };
+		49BC0FE31E354A9D00C7D009 /* ft2build.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BC0FDB1E3549EF00C7D009 /* ft2build.h */; };
+		49BC0FE41E354A9E00C7D009 /* ft2build.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BC0FDB1E3549EF00C7D009 /* ft2build.h */; };
+		49BC0FE51E354AA100C7D009 /* ftttdrv.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BC0FDE1E3549EF00C7D009 /* ftttdrv.h */; };
+		49BC0FE61E354AA200C7D009 /* ftttdrv.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BC0FDE1E3549EF00C7D009 /* ftttdrv.h */; };
+		49BC0FE71E354AA400C7D009 /* ftfntfmt.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BC0FDD1E3549EF00C7D009 /* ftfntfmt.h */; };
+		49BC0FE81E354AA500C7D009 /* ftfntfmt.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BC0FDD1E3549EF00C7D009 /* ftfntfmt.h */; };
+		49BC0FE91E354AA900C7D009 /* ftcffdrv.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BC0FDC1E3549EF00C7D009 /* ftcffdrv.h */; };
+		49BC0FEA1E354AA900C7D009 /* ftcffdrv.h in Headers */ = {isa = PBXBuildFile; fileRef = 49BC0FDC1E3549EF00C7D009 /* ftcffdrv.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -558,7 +567,6 @@
 		2773F85D1D80F4C300C9687B /* fttrigon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fttrigon.h; path = ../../../include/freetype/fttrigon.h; sourceTree = "<group>"; };
 		2773F85E1D80F4C300C9687B /* fttypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fttypes.h; path = ../../../include/freetype/fttypes.h; sourceTree = "<group>"; };
 		2773F85F1D80F4C300C9687B /* ftwinfnt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ftwinfnt.h; path = ../../../include/freetype/ftwinfnt.h; sourceTree = "<group>"; };
-		2773F8601D80F4C300C9687B /* ftxf86.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ftxf86.h; path = ../../../include/freetype/ftxf86.h; sourceTree = "<group>"; };
 		2773F8621D80F4C300C9687B /* autohint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = autohint.h; sourceTree = "<group>"; };
 		2773F8631D80F4C300C9687B /* ftcalc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftcalc.h; sourceTree = "<group>"; };
 		2773F8641D80F4C300C9687B /* ftdebug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ftdebug.h; sourceTree = "<group>"; };
@@ -642,6 +650,10 @@
 		2773FC101D80F57700C9687B /* ftwinfnt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ftwinfnt.c; sourceTree = "<group>"; };
 		2773FCEF1D81128A00C9687B /* SdfTextMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SdfTextMesh.h; sourceTree = "<group>"; };
 		2773FCF11D8112A100C9687B /* SdfTextMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SdfTextMesh.cpp; sourceTree = "<group>"; };
+		49BC0FDB1E3549EF00C7D009 /* ft2build.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ft2build.h; path = ../../../include/freetype/ft2build.h; sourceTree = "<group>"; };
+		49BC0FDC1E3549EF00C7D009 /* ftcffdrv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ftcffdrv.h; path = ../../../include/freetype/ftcffdrv.h; sourceTree = "<group>"; };
+		49BC0FDD1E3549EF00C7D009 /* ftfntfmt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ftfntfmt.h; path = ../../../include/freetype/ftfntfmt.h; sourceTree = "<group>"; };
+		49BC0FDE1E3549EF00C7D009 /* ftttdrv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ftttdrv.h; path = ../../../include/freetype/ftttdrv.h; sourceTree = "<group>"; };
 		9416178C1C05952400074DE9 /* libcinder-sdftext.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libcinder-sdftext.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9496D3FF1C043B8F00A54274 /* libcinder-sdftext.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libcinder-sdftext.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9496D5941C044E1800A54274 /* libcinder-sdftext.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libcinder-sdftext.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -785,6 +797,7 @@
 			children = (
 				2773F8351D80F4C300C9687B /* config */,
 				2773F83B1D80F4C300C9687B /* freetype.h */,
+				49BC0FDB1E3549EF00C7D009 /* ft2build.h */,
 				2773F83C1D80F4C300C9687B /* ftadvanc.h */,
 				2773F83D1D80F4C300C9687B /* ftautoh.h */,
 				2773F83E1D80F4C300C9687B /* ftbbox.h */,
@@ -792,10 +805,12 @@
 				2773F8401D80F4C300C9687B /* ftbitmap.h */,
 				2773F8411D80F4C300C9687B /* ftbzip2.h */,
 				2773F8421D80F4C300C9687B /* ftcache.h */,
+				49BC0FDC1E3549EF00C7D009 /* ftcffdrv.h */,
 				2773F8431D80F4C300C9687B /* ftchapters.h */,
 				2773F8441D80F4C300C9687B /* ftcid.h */,
 				2773F8451D80F4C300C9687B /* fterrdef.h */,
 				2773F8461D80F4C300C9687B /* fterrors.h */,
+				49BC0FDD1E3549EF00C7D009 /* ftfntfmt.h */,
 				2773F8471D80F4C300C9687B /* ftgasp.h */,
 				2773F8481D80F4C300C9687B /* ftglyph.h */,
 				2773F8491D80F4C300C9687B /* ftgxval.h */,
@@ -819,9 +834,9 @@
 				2773F85B1D80F4C300C9687B /* ftsynth.h */,
 				2773F85C1D80F4C300C9687B /* ftsystem.h */,
 				2773F85D1D80F4C300C9687B /* fttrigon.h */,
+				49BC0FDE1E3549EF00C7D009 /* ftttdrv.h */,
 				2773F85E1D80F4C300C9687B /* fttypes.h */,
 				2773F85F1D80F4C300C9687B /* ftwinfnt.h */,
-				2773F8601D80F4C300C9687B /* ftxf86.h */,
 				2773F8611D80F4C300C9687B /* internal */,
 				2773F8881D80F4C300C9687B /* t1tables.h */,
 				2773F8891D80F4C300C9687B /* ttnameid.h */,
@@ -1192,6 +1207,7 @@
 				2773FC651D80F5F900C9687B /* ftlzw.h in Headers */,
 				2773FC951D80F60000C9687B /* psaux.h in Headers */,
 				2773FC551D80F5F900C9687B /* ftbdf.h in Headers */,
+				49BC0FE41E354A9E00C7D009 /* ft2build.h in Headers */,
 				271984C31D7FD48200860323 /* SdfText.h in Headers */,
 				2773FCB81D80F60700C9687B /* svpfr.h in Headers */,
 				2773FC571D80F5F900C9687B /* ftbzip2.h in Headers */,
@@ -1199,7 +1215,6 @@
 				2773FC691D80F5F900C9687B /* ftmoderr.h in Headers */,
 				2719846E1D7FD45900860323 /* util.h in Headers */,
 				2773FCCA1D80F60700C9687B /* ttunpat.h in Headers */,
-				2773FC761D80F5F900C9687B /* ftxf86.h in Headers */,
 				2773FC501D80F5F900C9687B /* ftstdlib.h in Headers */,
 				2773FC5E1D80F5F900C9687B /* ftglyph.h in Headers */,
 				2773FC541D80F5F900C9687B /* ftbbox.h in Headers */,
@@ -1230,6 +1245,7 @@
 				27B475E91D82815E00DFCD1D /* SdfTextMesh.h in Headers */,
 				2719849A1D7FD46C00860323 /* SignedDistance.h in Headers */,
 				271984901D7FD46C00860323 /* Contour.h in Headers */,
+				49BC0FEA1E354AA900C7D009 /* ftcffdrv.h in Headers */,
 				2773FCB51D80F60700C9687B /* svkern.h in Headers */,
 				2773FC751D80F5F900C9687B /* ftwinfnt.h in Headers */,
 				2773FCBD1D80F60700C9687B /* svsfnt.h in Headers */,
@@ -1254,6 +1270,7 @@
 				271984931D7FD46C00860323 /* EdgeColor.h in Headers */,
 				271984911D7FD46C00860323 /* edge-coloring.h in Headers */,
 				2773FC6F1D80F5F900C9687B /* ftsnames.h in Headers */,
+				49BC0FE81E354AA500C7D009 /* ftfntfmt.h in Headers */,
 				2773FC511D80F5F900C9687B /* freetype.h in Headers */,
 				2773FC591D80F5F900C9687B /* ftchapters.h in Headers */,
 				2773FC631D80F5F900C9687B /* ftlcdfil.h in Headers */,
@@ -1264,6 +1281,7 @@
 				2773FC941D80F60000C9687B /* internal.h in Headers */,
 				2773FC5C1D80F5F900C9687B /* fterrors.h in Headers */,
 				2773FCB41D80F60700C9687B /* svgxval.h in Headers */,
+				49BC0FE61E354AA200C7D009 /* ftttdrv.h in Headers */,
 				2773FCBB1D80F60700C9687B /* svpscmap.h in Headers */,
 				2773FC641D80F5F900C9687B /* ftlist.h in Headers */,
 				271984981D7FD46C00860323 /* shape-description.h in Headers */,
@@ -1304,13 +1322,14 @@
 				2773F8961D80F4C300C9687B /* ftbdf.h in Headers */,
 				271984C11D7FD48000860323 /* SdfText.h in Headers */,
 				2773F8CF1D80F4C300C9687B /* svpfr.h in Headers */,
+				49BC0FE01E3549EF00C7D009 /* ftcffdrv.h in Headers */,
 				2773F8981D80F4C300C9687B /* ftbzip2.h in Headers */,
 				2773F8BB1D80F4C300C9687B /* ftdriver.h in Headers */,
 				2773F8AA1D80F4C300C9687B /* ftmoderr.h in Headers */,
 				2719846C1D7FD45600860323 /* util.h in Headers */,
 				2773F8E11D80F4C300C9687B /* ttunpat.h in Headers */,
-				2773F8B71D80F4C300C9687B /* ftxf86.h in Headers */,
 				2773F8911D80F4C300C9687B /* ftstdlib.h in Headers */,
+				49BC0FE11E3549EF00C7D009 /* ftfntfmt.h in Headers */,
 				2773F89F1D80F4C300C9687B /* ftglyph.h in Headers */,
 				2773F8951D80F4C300C9687B /* ftbbox.h in Headers */,
 				271984761D7FD46A00860323 /* edge-segments.h in Headers */,
@@ -1341,6 +1360,7 @@
 				2719847E1D7FD46A00860323 /* SignedDistance.h in Headers */,
 				271984741D7FD46A00860323 /* Contour.h in Headers */,
 				2773F8CC1D80F4C300C9687B /* svkern.h in Headers */,
+				49BC0FDF1E3549EF00C7D009 /* ft2build.h in Headers */,
 				2773F8B61D80F4C300C9687B /* ftwinfnt.h in Headers */,
 				2773F8D41D80F4C300C9687B /* svsfnt.h in Headers */,
 				2773F8CD1D80F4C300C9687B /* svmm.h in Headers */,
@@ -1389,6 +1409,7 @@
 				2773F8B81D80F4C300C9687B /* autohint.h in Headers */,
 				2773F8D91D80F4C300C9687B /* svxf86nm.h in Headers */,
 				2719847D1D7FD46A00860323 /* Shape.h in Headers */,
+				49BC0FE21E3549EF00C7D009 /* ftttdrv.h in Headers */,
 				2773F8BC1D80F4C300C9687B /* ftgloadr.h in Headers */,
 				2773F8AC1D80F4C300C9687B /* ftoutln.h in Headers */,
 				2773F88D1D80F4C300C9687B /* ftconfig.h in Headers */,
@@ -1412,6 +1433,7 @@
 				2773FC3A1D80F5F800C9687B /* ftlzw.h in Headers */,
 				2773FC851D80F5FF00C9687B /* psaux.h in Headers */,
 				2773FC2A1D80F5F800C9687B /* ftbdf.h in Headers */,
+				49BC0FE31E354A9D00C7D009 /* ft2build.h in Headers */,
 				271984C21D7FD48100860323 /* SdfText.h in Headers */,
 				2773FC9E1D80F60600C9687B /* svpfr.h in Headers */,
 				2773FC2C1D80F5F800C9687B /* ftbzip2.h in Headers */,
@@ -1419,7 +1441,6 @@
 				2773FC3E1D80F5F800C9687B /* ftmoderr.h in Headers */,
 				2719846D1D7FD45700860323 /* util.h in Headers */,
 				2773FCB01D80F60600C9687B /* ttunpat.h in Headers */,
-				2773FC4B1D80F5F800C9687B /* ftxf86.h in Headers */,
 				2773FC251D80F5F800C9687B /* ftstdlib.h in Headers */,
 				2773FC331D80F5F800C9687B /* ftglyph.h in Headers */,
 				2773FC291D80F5F800C9687B /* ftbbox.h in Headers */,
@@ -1450,6 +1471,7 @@
 				27B475E81D82815D00DFCD1D /* SdfTextMesh.h in Headers */,
 				2719848C1D7FD46B00860323 /* SignedDistance.h in Headers */,
 				271984821D7FD46B00860323 /* Contour.h in Headers */,
+				49BC0FE91E354AA900C7D009 /* ftcffdrv.h in Headers */,
 				2773FC9B1D80F60600C9687B /* svkern.h in Headers */,
 				2773FC4A1D80F5F800C9687B /* ftwinfnt.h in Headers */,
 				2773FCA31D80F60600C9687B /* svsfnt.h in Headers */,
@@ -1474,6 +1496,7 @@
 				271984851D7FD46B00860323 /* EdgeColor.h in Headers */,
 				271984831D7FD46B00860323 /* edge-coloring.h in Headers */,
 				2773FC441D80F5F800C9687B /* ftsnames.h in Headers */,
+				49BC0FE71E354AA400C7D009 /* ftfntfmt.h in Headers */,
 				2773FC261D80F5F800C9687B /* freetype.h in Headers */,
 				2773FC2E1D80F5F800C9687B /* ftchapters.h in Headers */,
 				2773FC381D80F5F800C9687B /* ftlcdfil.h in Headers */,
@@ -1484,6 +1507,7 @@
 				2773FC841D80F5FF00C9687B /* internal.h in Headers */,
 				2773FC311D80F5F800C9687B /* fterrors.h in Headers */,
 				2773FC9A1D80F60600C9687B /* svgxval.h in Headers */,
+				49BC0FE51E354AA100C7D009 /* ftttdrv.h in Headers */,
 				2773FCA11D80F60600C9687B /* svpscmap.h in Headers */,
 				2773FC391D80F5F800C9687B /* ftlist.h in Headers */,
 				2719848A1D7FD46B00860323 /* shape-description.h in Headers */,
@@ -1865,6 +1889,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(CINDER_PATH)/include",
+					"$(CINDER_PATH)/include/freetype",
 					../include,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
@@ -1910,6 +1935,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(CINDER_PATH)/include",
+					"$(CINDER_PATH)/include/freetype",
 					../include,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
